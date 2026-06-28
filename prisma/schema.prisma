@@ -1,0 +1,101 @@
+// AURA database schema.
+// Local dev uses SQLite for zero-setup; switch `provider` to "postgresql"
+// (and DATABASE_URL) for production. Enum-like fields are stored as String
+// for SQLite portability — values are validated in the app layer.
+
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["driverAdapters"]
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  username     String   @unique
+  name         String?
+  passwordHash String?
+  image        String?
+  role         String   @default("USER") // USER | ADMIN
+  status       String   @default("ACTIVE") // ACTIVE | SUSPENDED
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  pages Page[]
+  media MediaAsset[]
+}
+
+model Page {
+  id               String    @id @default(cuid())
+  userId           String
+  user             User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  slug             String
+  title            String    @default("Untitled")
+  status           String    @default("DRAFT") // DRAFT | PUBLISHED
+  theme            String    @default("vivid")
+  draftContent     Json?
+  publishedContent Json?
+  seoTitle         String?
+  seoDescription   String?
+  ogImage          String?
+  isPrimary        Boolean   @default(false)
+  publishedAt      DateTime?
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+
+  views       PageView[]
+  clicks      LinkClick[]
+  submissions FormSubmission[]
+
+  @@unique([userId, slug])
+}
+
+model PageView {
+  id        String   @id @default(cuid())
+  pageId    String
+  page      Page     @relation(fields: [pageId], references: [id], onDelete: Cascade)
+  referrer  String?
+  device    String? // desktop | mobile | tablet
+  country   String?
+  createdAt DateTime @default(now())
+
+  @@index([pageId, createdAt])
+}
+
+model LinkClick {
+  id        String   @id @default(cuid())
+  pageId    String
+  page      Page     @relation(fields: [pageId], references: [id], onDelete: Cascade)
+  label     String?
+  url       String
+  device    String?
+  createdAt DateTime @default(now())
+
+  @@index([pageId, createdAt])
+}
+
+model MediaAsset {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  url       String
+  type      String   @default("IMAGE") // IMAGE | VIDEO | GIF | FILE
+  sizeBytes Int      @default(0)
+  createdAt DateTime @default(now())
+
+  @@index([userId, createdAt])
+}
+
+model FormSubmission {
+  id        String   @id @default(cuid())
+  pageId    String
+  page      Page     @relation(fields: [pageId], references: [id], onDelete: Cascade)
+  data      Json
+  createdAt DateTime @default(now())
+
+  @@index([pageId, createdAt])
+}
