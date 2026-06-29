@@ -243,6 +243,10 @@ export const BUTTON_FX: Effect[] = [
   { id: "gradient", name: "Gradient", category: "Glow", className: "bh-gradient" },
   { id: "sheen", name: "Sheen", category: "Animated", className: "bh-sheen" },
   { id: "depth", name: "Depth", category: "Glow", className: "bh-depth" },
+  { id: "glitch", name: "Glitch", category: "Creative", className: "bh-glitch" },
+  { id: "rainbow", name: "Rainbow", category: "Creative", className: "bh-rainbow" },
+  { id: "liquid", name: "Liquid", category: "Creative", className: "bh-liquid" },
+  { id: "neonflicker", name: "Neon flicker", category: "Creative", className: "bh-neonflicker" },
 ];
 
 // ---------- Button idle animations (continuous) ----------
@@ -307,6 +311,9 @@ export const BG_FX: Effect[] = [
   { id: "beam", name: "Light beam", category: "Glow", className: "bgfx-beam" },
   { id: "meshmove", name: "Mesh drift", category: "Animated", className: "bgfx-meshmove" },
   { id: "rotate", name: "Rotate glow", category: "Animated", className: "bgfx-rotate" },
+  { id: "gridpersp", name: "Retro grid", category: "Creative", className: "bgfx-gridpersp" },
+  { id: "orbs", name: "Floating orbs", category: "Creative", className: "bgfx-orbs" },
+  { id: "aurorawave", name: "Aurora waves", category: "Creative", className: "bgfx-aurorawave" },
 ];
 
 export const LIGHT_VARS: Record<string, string> = {
@@ -498,5 +505,40 @@ export const COLOR_PRESETS: ColorPreset[] = [
 /** Resolve a preset's background css for swatch display (falls back to default). */
 export function presetSwatch(p: ColorPreset): string {
   const bg = p.background ? BACKGROUNDS.find((b) => b.id === p.background) : undefined;
+  return bg?.css ?? "linear-gradient(150deg,#0b0b14,#1a1d24)";
+}
+
+// ---------- One-click full themes ----------
+// Each applies a complete, hand-tuned look in a single tap: accent, background,
+// card style, font, hover effect, background effect, and button shape — chosen
+// so they never clash.
+export type FullTheme = { id: string; name: string; accent: string; design: Partial<PageDesign> };
+
+export const FULL_THEMES: FullTheme[] = [
+  { id: "emerald-night", name: "Emerald Night", accent: "#00E5A0",
+    design: { accent: "#00E5A0", background: "aurora-2", card: "glass-frost", font: "sora", buttonFx: "growglow", bgFx: "topglow", buttonShape: "pill" } },
+  { id: "sunset-pop", name: "Sunset Pop", accent: "#FB923C",
+    design: { accent: "#FB923C", background: "sunset-4", card: "grad-sunset", font: "outfit", buttonFx: "magnetic", bgFx: "grain", buttonShape: "rounded" } },
+  { id: "cyber-neon", name: "Cyber Neon", accent: "#22D3EE",
+    design: { accent: "#22D3EE", background: "neon-1", card: "neon-cyber", font: "grotesk", buttonFx: "glow", bgFx: "scanlines", buttonShape: "sharp" } },
+  { id: "royal-gold", name: "Royal Gold", accent: "#FBBF24",
+    design: { accent: "#FBBF24", background: "royal-3", card: "solid-deep", font: "fraunces", buttonFx: "sheen", bgFx: "vignette", buttonShape: "soft" } },
+  { id: "forest-calm", name: "Forest Calm", accent: "#4ADE80",
+    design: { accent: "#4ADE80", background: "forest-3", card: "glass-soft", font: "manrope", buttonFx: "lift", bgFx: "noisefine", buttonShape: "rounded" } },
+  { id: "cosmic-violet", name: "Cosmic Violet", accent: "#A78BFA",
+    design: { accent: "#A78BFA", background: "cosmic-3", card: "neon-magenta", font: "syne", buttonFx: "growglow", bgFx: "starfield", buttonShape: "pill" } },
+  { id: "mono-minimal", name: "Mono Minimal", accent: "#E5E7EB",
+    design: { accent: "#E5E7EB", background: "mono-3", card: "out-hair", font: "inter", buttonFx: "scale", bgFx: "none", buttonShape: "sharp" } },
+  { id: "candy-light", name: "Candy Light", accent: "#EC4899",
+    design: { accent: "#EC4899", background: "candy-2", card: "solid-surface", font: "poppins", buttonFx: "bounce", bgFx: "none", buttonShape: "rounded" } },
+  { id: "ocean-deep", name: "Ocean Deep", accent: "#38BDF8",
+    design: { accent: "#38BDF8", background: "ocean-2", card: "glass-smoke", font: "dmsans", buttonFx: "underglow", bgFx: "spotlight", buttonShape: "pill" } },
+  { id: "ember-glow", name: "Ember Glow", accent: "#F43F5E",
+    design: { accent: "#F43F5E", background: "ember-2", card: "neon-glow", font: "archivo", buttonFx: "depth", bgFx: "pulse", buttonShape: "soft" } },
+];
+
+/** A swatch gradient for a full theme tile. */
+export function fullThemeSwatch(t: FullTheme): string {
+  const bg = t.design.background ? BACKGROUNDS.find((b) => b.id === t.design.background) : undefined;
   return bg?.css ?? "linear-gradient(150deg,#0b0b14,#1a1d24)";
 }

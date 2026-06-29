@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { X, ChevronRight, Star, Wand2 } from "lucide-react";
+import { X, ChevronRight, Star, Wand2, Shuffle } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { PageDesign } from "@/lib/blocks";
 import {
@@ -13,13 +13,14 @@ import {
   ICON_FX,
   BG_FX,
   COLOR_PRESETS,
+  FULL_THEMES,
+  fullThemeSwatch,
   BUTTON_SHAPES,
   BUTTON_SIZES,
   CONTENT_WIDTHS,
   SPACINGS,
   TEXT_SCALES,
   accentFromBackground,
-  presetSwatch,
   groupByCategory,
 } from "@/lib/design";
 import { FONTS } from "@/lib/fonts";
@@ -78,9 +79,54 @@ export function DesignPanel({
     <div className="rounded-2xl border border-border bg-surface p-3.5">
       <p className="mb-2.5 text-sm font-medium">Design</p>
 
-      {/* Preset themes */}
+      {/* One-click full themes */}
       <div className="mb-3">
-        <p className="mb-1.5 text-xs text-text-muted">Themes</p>
+        <div className="mb-1.5 flex items-center justify-between">
+          <p className="text-xs text-text-muted">One-click themes</p>
+          <button
+            type="button"
+            onClick={() => {
+              const t = FULL_THEMES[Math.floor(Math.random() * FULL_THEMES.length)];
+              onChange(t.design);
+            }}
+            className="flex items-center gap-1 rounded-lg border border-border bg-surface-2 px-2 py-1 text-[11px] text-text-muted transition-colors hover:border-primary/50 hover:text-text"
+          >
+            <Shuffle className="h-3 w-3" /> Surprise me
+          </button>
+        </div>
+        <div className="flex flex-wrap gap-2">
+          {FULL_THEMES.map((t) => {
+            const active = design.accent === t.accent && design.background === t.design.background;
+            return (
+              <button
+                key={t.id}
+                type="button"
+                onClick={() => onChange(t.design)}
+                className="group shrink-0 text-center"
+                title={`${t.name} — sets background, color, buttons, font & effects`}
+              >
+                <span
+                  className={cn(
+                    "block h-12 w-12 overflow-hidden rounded-xl border",
+                    active ? "border-primary" : "border-border",
+                  )}
+                  style={{ background: fullThemeSwatch(t) }}
+                >
+                  <span
+                    className="block h-full w-full"
+                    style={{ boxShadow: `inset 0 -16px 16px -10px ${t.accent}` }}
+                  />
+                </span>
+                <span className="mt-1 block w-12 truncate text-[10px] text-text-muted">{t.name}</span>
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Quick accent presets */}
+      <div className="mb-3">
+        <p className="mb-1.5 text-xs text-text-muted">Quick colors</p>
         <div className="flex flex-wrap gap-2">
           {COLOR_PRESETS.map((p) => {
             const active = design.accent === p.accent && (design.background ?? undefined) === p.background;
@@ -89,23 +135,13 @@ export function DesignPanel({
                 key={p.id}
                 type="button"
                 onClick={() => onChange({ accent: p.accent, background: p.background })}
-                className="group shrink-0 text-center"
+                className={cn(
+                  "h-7 w-7 shrink-0 rounded-full border-2",
+                  active ? "border-primary" : "border-border",
+                )}
+                style={{ background: p.accent }}
                 title={p.name}
-              >
-                <span
-                  className={cn(
-                    "block h-12 w-12 overflow-hidden rounded-xl border",
-                    active ? "border-primary" : "border-border",
-                  )}
-                  style={{ background: presetSwatch(p) }}
-                >
-                  <span
-                    className="block h-full w-full"
-                    style={{ boxShadow: `inset 0 -16px 16px -10px ${p.accent}` }}
-                  />
-                </span>
-                <span className="mt-1 block text-[10px] text-text-muted">{p.name}</span>
-              </button>
+              />
             );
           })}
         </div>
