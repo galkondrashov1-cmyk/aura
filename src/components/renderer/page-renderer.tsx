@@ -505,6 +505,7 @@ export function PageRenderer({
     style.fontFamily = fam;
     style["--font-display"] = fam;
   }
+  if (layout.textScale) style["--ts"] = layout.textScale;
   const d: DesignClasses = {
     card: r.card,
     buttonFx: r.buttonFx,
@@ -530,7 +531,7 @@ export function PageRenderer({
       )}
       <div
         className={cn(
-          "relative z-10 mx-auto flex flex-col px-5 py-14",
+          "aura-typescale relative z-10 mx-auto flex flex-col px-5 py-14",
           layout.contentWidth,
           layout.spacing,
         )}

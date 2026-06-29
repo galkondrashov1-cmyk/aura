@@ -100,6 +100,7 @@ export type PageDesign = {
   buttonSize?: string;
   contentWidth?: string;
   spacing?: string;
+  textScale?: string;
 };
 
 export type PageContent = {
@@ -136,6 +137,7 @@ export function asPageContent(value: unknown): PageContent {
             buttonSize: str(v.design.buttonSize),
             contentWidth: str(v.design.contentWidth),
             spacing: str(v.design.spacing),
+            textScale: str(v.design.textScale),
           }
         : undefined;
     return {

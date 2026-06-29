@@ -17,6 +17,7 @@ import {
   BUTTON_SIZES,
   CONTENT_WIDTHS,
   SPACINGS,
+  TEXT_SCALES,
   accentFromBackground,
   presetSwatch,
   groupByCategory,
@@ -35,7 +36,8 @@ type Picker =
   | "buttonShape"
   | "buttonSize"
   | "contentWidth"
-  | "spacing";
+  | "spacing"
+  | "textScale";
 
 export function DesignPanel({
   design,
@@ -59,6 +61,7 @@ export function DesignPanel({
     buttonSize: BUTTON_SIZES.find((s) => s.id === design.buttonSize)?.name ?? "Medium",
     contentWidth: CONTENT_WIDTHS.find((s) => s.id === design.contentWidth)?.name ?? "Standard",
     spacing: SPACINGS.find((s) => s.id === design.spacing)?.name ?? "Cozy",
+    textScale: TEXT_SCALES.find((s) => s.id === design.textScale)?.name ?? "Normal",
   };
 
   const pick = (patch: Partial<PageDesign>) => {
@@ -190,6 +193,7 @@ export function DesignPanel({
         <MiniRow label="Button size" value={names.buttonSize} onClick={() => setOpen("buttonSize")} />
         <MiniRow label="Content width" value={names.contentWidth} onClick={() => setOpen("contentWidth")} />
         <MiniRow label="Spacing" value={names.spacing} onClick={() => setOpen("spacing")} />
+        <MiniRow label="Text size" value={names.textScale} onClick={() => setOpen("textScale")} />
       </div>
 
       {open === "font" && (
@@ -350,6 +354,15 @@ export function DesignPanel({
           options={SPACINGS}
           selected={design.spacing}
           onPick={(id) => pick({ spacing: id })}
+          onClose={() => setOpen(null)}
+        />
+      )}
+      {open === "textScale" && (
+        <ChoiceModal
+          title="Text size"
+          options={TEXT_SCALES}
+          selected={design.textScale}
+          onPick={(id) => pick({ textScale: id })}
           onClose={() => setOpen(null)}
         />
       )}

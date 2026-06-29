@@ -270,6 +270,11 @@ textarea,
 .ih-pulse:hover { animation: auraPulse 0.6s ease-in-out infinite; }
 .ih-shake:hover { animation: auraShake 0.4s ease-in-out; }
 
+/* ===== Typography scale (multiplies the renderer's text sizes) ===== */
+.aura-typescale h1 { font-size: calc(1.5rem * var(--ts, 1)); }
+.aura-typescale h2 { font-size: calc(1.125rem * var(--ts, 1)); }
+.aura-typescale p { font-size: calc(0.875rem * var(--ts, 1)); }
+
 /* ===== Brutalist / Retro button styles ===== */
 .cs-brutal { background: var(--surface-2); color: var(--text); border: 2px solid var(--text); box-shadow: 4px 4px 0 0 var(--text); }
 .cs-brutal-accent { background: var(--primary); color: var(--primary-ink); border: 2px solid var(--text); box-shadow: 4px 4px 0 0 var(--text); }

@@ -162,6 +162,22 @@ pushBgs(
     };
   }),
 );
+pushBgs(
+  "Mono",
+  Array.from({ length: 8 }, (_, i) => {
+    const l = 6 + i * 1.5;
+    return { css: `linear-gradient(160deg, hsl(220 6% ${l}%) 0%, hsl(220 5% ${l + 6}%) 100%)` };
+  }),
+);
+pushBgs(
+  "Vapor",
+  Array.from({ length: 8 }, (_, i) => {
+    const h = 180 + i * 22;
+    return {
+      css: `radial-gradient(55% 45% at 25% 15%, ${H(h, 45, 22)} 0%, transparent 55%), radial-gradient(55% 45% at 80% 85%, ${H((h + 90) % 360, 45, 22)} 0%, transparent 55%), linear-gradient(160deg, ${H(h - 20, 25, 9)} 0%, ${H(h + 40, 25, 12)} 100%)`,
+    };
+  }),
+);
 
 // ---------- Card styles (24, 6 categories) ----------
 export const CARD_STYLES: CardStyle[] = [
@@ -354,12 +370,27 @@ export const SPACING_CLASS: Record<string, string> = {
   roomy: "gap-9",
 };
 
+/** Overall typography scale. Default (undefined) = normal (1×). */
+export const TEXT_SCALES: LayoutChoice[] = [
+  { id: "compact", name: "Compact" },
+  { id: "normal", name: "Normal" },
+  { id: "large", name: "Large" },
+  { id: "xl", name: "Huge" },
+];
+export const TEXT_SCALE_VALUE: Record<string, string> = {
+  compact: "0.9",
+  normal: "1",
+  large: "1.12",
+  xl: "1.25",
+};
+
 export function resolveLayout(d?: PageDesign) {
   return {
     buttonShape: d?.buttonShape ? BUTTON_SHAPE_CLASS[d.buttonShape] : undefined,
     buttonSize: d?.buttonSize ? BUTTON_SIZE_CLASS[d.buttonSize] : undefined,
     contentWidth: (d?.contentWidth && CONTENT_WIDTH_CLASS[d.contentWidth]) || "max-w-md",
     spacing: (d?.spacing && SPACING_CLASS[d.spacing]) || "gap-6",
+    textScale: (d?.textScale && TEXT_SCALE_VALUE[d.textScale]) || undefined,
   };
 }
 
@@ -458,6 +489,10 @@ export const COLOR_PRESETS: ColorPreset[] = [
   { id: "holo", name: "Holo", accent: "#22D3EE", background: "holographic-2" },
   { id: "regal", name: "Regal", accent: "#FBBF24", background: "royal-4" },
   { id: "candy", name: "Candy", accent: "#EC4899", background: "candy-2" },
+  { id: "mono", name: "Mono", accent: "#E5E7EB", background: "mono-3" },
+  { id: "vapor", name: "Vapor", accent: "#67E8F9", background: "vapor-2" },
+  { id: "lime", name: "Lime", accent: "#A3E635", background: "forest-5" },
+  { id: "crimson", name: "Crimson", accent: "#F43F5E", background: "ember-2" },
 ];
 
 /** Resolve a preset's background css for swatch display (falls back to default). */
