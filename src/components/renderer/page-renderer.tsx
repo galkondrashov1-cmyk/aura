@@ -10,7 +10,7 @@ import type {
   AvatarShape,
   BannerHeight,
 } from "@/lib/blocks";
-import { resolveDesign, LIGHT_VARS, avatarIdleClass } from "@/lib/design";
+import { resolveDesign, resolveLayout, LIGHT_VARS, avatarIdleClass } from "@/lib/design";
 import { resolveImage } from "@/lib/image";
 import type { ImageConfig, ImageSize, ImageRadius } from "@/lib/image";
 import { fontFamilyVar } from "@/lib/fonts";
@@ -25,6 +25,8 @@ type DesignClasses = {
   buttonIdle?: string;
   iconFx?: string;
   iconIdle?: string;
+  buttonShape?: string;
+  buttonSize?: string;
 };
 
 function trackedHref(pageId: string | undefined, url: string, label?: string) {
@@ -151,12 +153,16 @@ function LinksBlock({
   cardClass,
   buttonFx,
   buttonIdle,
+  buttonShape,
+  buttonSize,
 }: {
   items: { label: RichValue; url: string; highlighted?: boolean }[];
   pageId?: string;
   cardClass?: string;
   buttonFx?: string;
   buttonIdle?: string;
+  buttonShape?: string;
+  buttonSize?: string;
 }) {
   return (
     <div className="space-y-2.5">
@@ -167,7 +173,9 @@ function LinksBlock({
             target="_blank"
             rel="noopener noreferrer"
             className={cn(
-              "flex h-12 items-center justify-center rounded-full text-sm font-medium",
+              "flex items-center justify-center font-medium",
+              buttonShape ?? "rounded-full",
+              buttonSize ?? "h-12 text-sm",
               l.highlighted
                 ? "aura-glow bg-primary text-primary-ink"
                 : (cardClass ?? "border border-border bg-surface-2 text-text"),
@@ -423,6 +431,8 @@ function BlockRenderer({
           cardClass={d.card}
           buttonFx={d.buttonFx}
           buttonIdle={d.buttonIdle}
+          buttonShape={d.buttonShape}
+          buttonSize={d.buttonSize}
         />
       );
     case "text":
@@ -482,6 +492,7 @@ export function PageRenderer({
   trackPageId?: string;
 }) {
   const r = resolveDesign(content.design);
+  const layout = resolveLayout(content.design);
   const style: Record<string, string> = {};
   if (r.bg) style.background = r.bg.css;
   if (content.design?.accent) style["--primary"] = content.design.accent;
@@ -500,6 +511,8 @@ export function PageRenderer({
     buttonIdle: r.buttonIdle,
     iconFx: r.iconFx,
     iconIdle: r.iconIdle,
+    buttonShape: layout.buttonShape,
+    buttonSize: layout.buttonSize,
   };
 
   return (
@@ -515,7 +528,13 @@ export function PageRenderer({
       {r.bgFx && (
         <div className={cn("pointer-events-none absolute inset-0", r.bgFx)} aria-hidden />
       )}
-      <div className="relative z-10 mx-auto flex max-w-md flex-col gap-6 px-5 py-14">
+      <div
+        className={cn(
+          "relative z-10 mx-auto flex flex-col px-5 py-14",
+          layout.contentWidth,
+          layout.spacing,
+        )}
+      >
         {content.blocks.map((block) => (
           <BlockRenderer key={block.id} block={block} pageId={trackPageId} d={d} />
         ))}

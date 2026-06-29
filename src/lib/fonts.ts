@@ -17,6 +17,14 @@ import {
   Archivo,
   Nunito,
   Caveat,
+  Manrope,
+  Outfit,
+  Epilogue,
+  Fraunces,
+  Crimson_Pro,
+  Syne,
+  JetBrains_Mono,
+  Pacifico,
 } from "next/font/google";
 
 const inter = Inter({ subsets: ["latin"], display: "swap", preload: false, variable: "--font-p-inter", weight: ["400", "600", "700"] });
@@ -33,6 +41,14 @@ const bebas = Bebas_Neue({ subsets: ["latin"], display: "swap", preload: false, 
 const archivo = Archivo({ subsets: ["latin"], display: "swap", preload: false, variable: "--font-p-archivo", weight: ["400", "600", "700"] });
 const nunito = Nunito({ subsets: ["latin"], display: "swap", preload: false, variable: "--font-p-nunito", weight: ["400", "600", "700"] });
 const caveat = Caveat({ subsets: ["latin"], display: "swap", preload: false, variable: "--font-p-caveat", weight: ["400", "700"] });
+const manrope = Manrope({ subsets: ["latin"], display: "swap", preload: false, variable: "--font-p-manrope", weight: ["400", "600", "700"] });
+const outfit = Outfit({ subsets: ["latin"], display: "swap", preload: false, variable: "--font-p-outfit", weight: ["400", "600", "700"] });
+const epilogue = Epilogue({ subsets: ["latin"], display: "swap", preload: false, variable: "--font-p-epilogue", weight: ["400", "600", "700"] });
+const fraunces = Fraunces({ subsets: ["latin"], display: "swap", preload: false, variable: "--font-p-fraunces", weight: ["400", "600", "700"] });
+const crimson = Crimson_Pro({ subsets: ["latin"], display: "swap", preload: false, variable: "--font-p-crimson", weight: ["400", "600", "700"] });
+const syne = Syne({ subsets: ["latin"], display: "swap", preload: false, variable: "--font-p-syne", weight: ["400", "600", "700"] });
+const jetbrains = JetBrains_Mono({ subsets: ["latin"], display: "swap", preload: false, variable: "--font-p-jetbrains", weight: ["400", "600", "700"] });
+const pacifico = Pacifico({ subsets: ["latin"], display: "swap", preload: false, variable: "--font-p-pacifico", weight: ["400"] });
 
 export type FontDef = { id: string; name: string; variable: string; category: string };
 
@@ -51,6 +67,14 @@ export const FONTS: FontDef[] = [
   { id: "oswald", name: "Oswald", variable: "--font-p-oswald", category: "Display" },
   { id: "bebas", name: "Bebas Neue", variable: "--font-p-bebas", category: "Display" },
   { id: "caveat", name: "Caveat", variable: "--font-p-caveat", category: "Handwriting" },
+  { id: "manrope", name: "Manrope", variable: "--font-p-manrope", category: "Sans" },
+  { id: "outfit", name: "Outfit", variable: "--font-p-outfit", category: "Sans" },
+  { id: "epilogue", name: "Epilogue", variable: "--font-p-epilogue", category: "Sans" },
+  { id: "fraunces", name: "Fraunces", variable: "--font-p-fraunces", category: "Serif" },
+  { id: "crimson", name: "Crimson Pro", variable: "--font-p-crimson", category: "Serif" },
+  { id: "syne", name: "Syne", variable: "--font-p-syne", category: "Display" },
+  { id: "jetbrains", name: "JetBrains Mono", variable: "--font-p-jetbrains", category: "Mono" },
+  { id: "pacifico", name: "Pacifico", variable: "--font-p-pacifico", category: "Handwriting" },
 ];
 
 /** Space-separated next/font variable classNames — attach once to <body>. */
@@ -69,6 +93,14 @@ export const fontVars = [
   archivo,
   nunito,
   caveat,
+  manrope,
+  outfit,
+  epilogue,
+  fraunces,
+  crimson,
+  syne,
+  jetbrains,
+  pacifico,
 ]
   .map((f) => f.variable)
   .join(" ");

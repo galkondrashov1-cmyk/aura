@@ -95,6 +95,11 @@ export type PageDesign = {
   iconFx?: string;
   font?: string;
   textColor?: string;
+  // Layout & shape controls (max-customization dimensions).
+  buttonShape?: string;
+  buttonSize?: string;
+  contentWidth?: string;
+  spacing?: string;
 };
 
 export type PageContent = {
@@ -127,6 +132,10 @@ export function asPageContent(value: unknown): PageContent {
             iconFx: str(v.design.iconFx),
             font: str(v.design.font),
             textColor: str(v.design.textColor),
+            buttonShape: str(v.design.buttonShape),
+            buttonSize: str(v.design.buttonSize),
+            contentWidth: str(v.design.contentWidth),
+            spacing: str(v.design.spacing),
           }
         : undefined;
     return {

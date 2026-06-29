@@ -13,6 +13,10 @@ import {
   ICON_FX,
   BG_FX,
   COLOR_PRESETS,
+  BUTTON_SHAPES,
+  BUTTON_SIZES,
+  CONTENT_WIDTHS,
+  SPACINGS,
   accentFromBackground,
   presetSwatch,
   groupByCategory,
@@ -27,7 +31,11 @@ type Picker =
   | "buttonFx"
   | "iconIdle"
   | "iconFx"
-  | "font";
+  | "font"
+  | "buttonShape"
+  | "buttonSize"
+  | "contentWidth"
+  | "spacing";
 
 export function DesignPanel({
   design,
@@ -47,6 +55,10 @@ export function DesignPanel({
     iconIdle: ICON_IDLE.find((e) => e.id === design.iconIdle)?.name ?? "None",
     iconFx: ICON_FX.find((e) => e.id === design.iconFx)?.name ?? "Default",
     font: FONTS.find((f) => f.id === design.font)?.name ?? "Default",
+    buttonShape: BUTTON_SHAPES.find((s) => s.id === design.buttonShape)?.name ?? "Pill",
+    buttonSize: BUTTON_SIZES.find((s) => s.id === design.buttonSize)?.name ?? "Medium",
+    contentWidth: CONTENT_WIDTHS.find((s) => s.id === design.contentWidth)?.name ?? "Standard",
+    spacing: SPACINGS.find((s) => s.id === design.spacing)?.name ?? "Cozy",
   };
 
   const pick = (patch: Partial<PageDesign>) => {
@@ -169,6 +181,15 @@ export function DesignPanel({
         <MiniRow label="Button hover" value={names.buttonFx} onClick={() => setOpen("buttonFx")} />
         <MiniRow label="Icon idle" value={names.iconIdle} onClick={() => setOpen("iconIdle")} />
         <MiniRow label="Icon hover" value={names.iconFx} onClick={() => setOpen("iconFx")} />
+      </div>
+
+      {/* Layout & shape */}
+      <p className="mt-3 mb-1.5 text-xs text-text-muted">Layout & shape</p>
+      <div className="grid grid-cols-2 gap-2">
+        <MiniRow label="Button shape" value={names.buttonShape} onClick={() => setOpen("buttonShape")} />
+        <MiniRow label="Button size" value={names.buttonSize} onClick={() => setOpen("buttonSize")} />
+        <MiniRow label="Content width" value={names.contentWidth} onClick={() => setOpen("contentWidth")} />
+        <MiniRow label="Spacing" value={names.spacing} onClick={() => setOpen("spacing")} />
       </div>
 
       {open === "font" && (
@@ -295,7 +316,77 @@ export function DesignPanel({
           onClose={() => setOpen(null)}
         />
       )}
+
+      {open === "buttonShape" && (
+        <ChoiceModal
+          title="Button shape"
+          options={BUTTON_SHAPES}
+          selected={design.buttonShape}
+          onPick={(id) => pick({ buttonShape: id })}
+          onClose={() => setOpen(null)}
+        />
+      )}
+      {open === "buttonSize" && (
+        <ChoiceModal
+          title="Button size"
+          options={BUTTON_SIZES}
+          selected={design.buttonSize}
+          onPick={(id) => pick({ buttonSize: id })}
+          onClose={() => setOpen(null)}
+        />
+      )}
+      {open === "contentWidth" && (
+        <ChoiceModal
+          title="Content width"
+          options={CONTENT_WIDTHS}
+          selected={design.contentWidth}
+          onPick={(id) => pick({ contentWidth: id })}
+          onClose={() => setOpen(null)}
+        />
+      )}
+      {open === "spacing" && (
+        <ChoiceModal
+          title="Spacing"
+          options={SPACINGS}
+          selected={design.spacing}
+          onPick={(id) => pick({ spacing: id })}
+          onClose={() => setOpen(null)}
+        />
+      )}
     </div>
+  );
+}
+
+function ChoiceModal({
+  title,
+  options,
+  selected,
+  onPick,
+  onClose,
+}: {
+  title: string;
+  options: { id: string; name: string }[];
+  selected?: string;
+  onPick: (id: string) => void;
+  onClose: () => void;
+}) {
+  return (
+    <Modal title={title} onClose={onClose}>
+      <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+        {options.map((o) => (
+          <button
+            key={o.id}
+            onClick={() => onPick(o.id)}
+            className={cn(
+              "flex h-12 items-center justify-center rounded-xl border text-sm",
+              selected === o.id ? "border-primary text-text" : "border-border text-text-muted hover:text-text",
+            )}
+          >
+            {o.name}
+          </button>
+        ))}
+      </div>
+    </Modal>
   );
 }
 

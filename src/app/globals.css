@@ -270,10 +270,57 @@ textarea,
 .ih-pulse:hover { animation: auraPulse 0.6s ease-in-out infinite; }
 .ih-shake:hover { animation: auraShake 0.4s ease-in-out; }
 
+/* ===== Brutalist / Retro button styles ===== */
+.cs-brutal { background: var(--surface-2); color: var(--text); border: 2px solid var(--text); box-shadow: 4px 4px 0 0 var(--text); }
+.cs-brutal-accent { background: var(--primary); color: var(--primary-ink); border: 2px solid var(--text); box-shadow: 4px 4px 0 0 var(--text); }
+.cs-brutal-mono { background: var(--bg); color: var(--text); border: 2px solid var(--border); box-shadow: 5px 5px 0 0 var(--border); }
+.cs-retro-double { background: var(--surface); color: var(--text); border: 1px solid var(--text); outline: 1px solid var(--text); outline-offset: 3px; }
+.cs-retro-inset { background: var(--surface-2); color: var(--text); box-shadow: inset 0 2px 6px rgba(0,0,0,0.5), inset 0 -1px 0 rgba(255,255,255,0.08); }
+.cs-retro-stripe { background: repeating-linear-gradient(45deg, var(--surface-2) 0 10px, var(--surface) 10px 20px); color: var(--text); border: 1px solid var(--border); }
+
+/* ===== Extra button hover effects ===== */
+.bh-expand { transition: transform 0.25s, letter-spacing 0.25s; } .bh-expand:hover { transform: scale(1.02); letter-spacing: 0.04em; }
+.bh-magnetic { transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1); } .bh-magnetic:hover { transform: translateY(-3px) scale(1.04); }
+.bh-depth { transition: transform 0.2s, box-shadow 0.2s; } .bh-depth:hover { transform: translateY(-2px); box-shadow: 0 10px 0 -2px color-mix(in oklab, var(--primary) 40%, transparent), 0 18px 30px rgba(0,0,0,0.4); }
+.bh-gradient { background-size: 160% 160%; transition: background-position 0.5s ease; } .bh-gradient:hover { background-position: 100% 100%; }
+.bh-sheen { position: relative; overflow: hidden; }
+.bh-sheen::after { content: ""; position: absolute; inset: 0; background: linear-gradient(110deg, transparent 40%, rgba(255,255,255,0.35) 50%, transparent 60%); transform: translateX(-120%); }
+.bh-sheen:hover::after { animation: auraSheen 0.8s ease; }
+@keyframes auraSheen { to { transform: translateX(120%); } }
+
+/* ===== Extra background effects ===== */
+.bgfx-starfield {
+  background-image:
+    radial-gradient(1px 1px at 20% 30%, rgba(255,255,255,0.8), transparent),
+    radial-gradient(1px 1px at 70% 65%, rgba(255,255,255,0.6), transparent),
+    radial-gradient(1.5px 1.5px at 40% 80%, rgba(255,255,255,0.5), transparent),
+    radial-gradient(1px 1px at 85% 20%, rgba(255,255,255,0.7), transparent),
+    radial-gradient(1px 1px at 55% 45%, rgba(255,255,255,0.5), transparent);
+  background-size: 240px 240px;
+}
+.bgfx-noisefine {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='90' height='90'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='1.1' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  opacity: 0.06;
+}
+.bgfx-beam { background: linear-gradient(115deg, transparent 42%, color-mix(in oklab, var(--primary) 16%, transparent) 50%, transparent 58%); }
+.bgfx-meshmove {
+  background:
+    radial-gradient(40% 40% at 20% 20%, color-mix(in oklab, var(--primary) 22%, transparent), transparent 60%),
+    radial-gradient(40% 40% at 80% 70%, color-mix(in oklab, var(--accent) 22%, transparent), transparent 60%);
+  background-size: 180% 180%;
+  animation: auraMeshMove 16s ease-in-out infinite;
+}
+@keyframes auraMeshMove { 0%, 100% { background-position: 0% 0%; } 50% { background-position: 100% 100%; } }
+.bgfx-rotate {
+  background: conic-gradient(from 0deg at 50% 35%, color-mix(in oklab, var(--primary) 16%, transparent), transparent 30%, color-mix(in oklab, var(--accent) 16%, transparent) 60%, transparent 90%);
+  animation: auraRotate 24s linear infinite;
+}
+@keyframes auraRotate { to { transform: rotate(360deg); } }
+
 @media (prefers-reduced-motion: reduce) {
   .bi-float, .bi-pulse, .bi-bounce, .bi-breathe, .bi-sway, .bi-wobble, .bi-drift, .bi-tilt,
   .ii-float, .ii-pulse, .ii-bounce, .ii-breathe, .ii-sway, .ii-wobble, .ii-drift, .ii-spin,
-  .bh-pulse:hover, .bh-wobble:hover, .bh-bounce:hover, .bh-jelly:hover,
+  .bh-pulse:hover, .bh-wobble:hover, .bh-bounce:hover, .bh-jelly:hover, .bh-sheen:hover::after,
   .ih-wiggle:hover, .ih-bounce:hover, .ih-pulse:hover, .ih-shake:hover,
-  .bgfx-aurora, .bgfx-shimmer, .bgfx-pulse { animation: none; }
+  .bgfx-aurora, .bgfx-shimmer, .bgfx-pulse, .bgfx-meshmove, .bgfx-rotate { animation: none; }
 }

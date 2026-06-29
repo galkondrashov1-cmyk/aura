@@ -107,6 +107,61 @@ pushBgs(
     };
   }),
 );
+pushBgs(
+  "Synthwave",
+  Array.from({ length: 8 }, (_, i) => {
+    const h = 300 + i * 8;
+    return {
+      css: `radial-gradient(80% 55% at 50% 100%, ${H(h, 85, 30)} 0%, transparent 60%), radial-gradient(50% 40% at 50% 88%, ${H((h + 40) % 360, 90, 38)} 0%, transparent 55%), linear-gradient(180deg, ${H(255, 60, 8)} 0%, ${H(280, 55, 12)} 60%, ${H(h, 70, 14)} 100%)`,
+    };
+  }),
+);
+pushBgs(
+  "Ember",
+  Array.from({ length: 8 }, (_, i) => {
+    const h = 8 + i * 4;
+    return {
+      css: `radial-gradient(70% 60% at 50% 110%, ${H(h, 90, 28)} 0%, transparent 60%), radial-gradient(40% 35% at 25% 90%, ${H((h + 18) % 360, 85, 24)} 0%, transparent 55%), linear-gradient(180deg, ${H(18, 30, 5)} 0%, ${H(12, 45, 9)} 100%)`,
+    };
+  }),
+);
+pushBgs(
+  "Forest",
+  Array.from({ length: 8 }, (_, i) => {
+    const h = 120 + i * 8;
+    return {
+      css: `radial-gradient(60% 50% at 20% 10%, ${H(h, 50, 16)} 0%, transparent 55%), radial-gradient(55% 45% at 85% 90%, ${H((h + 30) % 360, 45, 13)} 0%, transparent 60%), linear-gradient(165deg, ${H(150, 35, 6)} 0%, ${H(h, 40, 10)} 100%)`,
+    };
+  }),
+);
+pushBgs(
+  "Holographic",
+  Array.from({ length: 8 }, (_, i) => {
+    const h = i * 45;
+    return {
+      css: `linear-gradient(125deg, ${H(h, 70, 16)} 0%, ${H((h + 60) % 360, 70, 18)} 30%, ${H((h + 140) % 360, 70, 16)} 55%, ${H((h + 220) % 360, 70, 18)} 80%, ${H((h + 300) % 360, 70, 16)} 100%)`,
+    };
+  }),
+);
+pushBgs(
+  "Royal",
+  Array.from({ length: 8 }, (_, i) => {
+    const h = 260 + i * 4;
+    return {
+      css: `radial-gradient(60% 50% at 50% 0%, ${H(h, 55, 20)} 0%, transparent 55%), radial-gradient(40% 35% at 85% 95%, ${H(42, 70, 18)} 0%, transparent 55%), linear-gradient(165deg, ${H(h, 45, 7)} 0%, ${H(h - 10, 40, 12)} 100%)`,
+    };
+  }),
+);
+pushBgs(
+  "Candy",
+  Array.from({ length: 8 }, (_, i) => {
+    const h = i * 45;
+    return {
+      css: `radial-gradient(60% 50% at 15% 15%, ${H(h, 85, 80)} 0%, transparent 55%), radial-gradient(60% 50% at 85% 80%, ${H((h + 80) % 360, 85, 82)} 0%, transparent 55%), linear-gradient(160deg, ${H((h + 40) % 360, 70, 90)} 0%, ${H((h + 160) % 360, 70, 86)} 100%)`,
+      light: true,
+    };
+  }),
+);
 
 // ---------- Card styles (24, 6 categories) ----------
 export const CARD_STYLES: CardStyle[] = [
@@ -134,6 +189,12 @@ export const CARD_STYLES: CardStyle[] = [
   { id: "neon-glow", name: "Glow", category: "Neon", className: "cs-neon-glow" },
   { id: "neon-cyber", name: "Cyber", category: "Neon", className: "cs-neon-cyber" },
   { id: "neon-magenta", name: "Magenta", category: "Neon", className: "cs-neon-magenta" },
+  { id: "brutal-hard", name: "Hard", category: "Brutalist", className: "cs-brutal" },
+  { id: "brutal-accent", name: "Accent", category: "Brutalist", className: "cs-brutal-accent" },
+  { id: "brutal-mono", name: "Mono", category: "Brutalist", className: "cs-brutal-mono" },
+  { id: "retro-double", name: "Double", category: "Retro", className: "cs-retro-double" },
+  { id: "retro-inset", name: "Inset", category: "Retro", className: "cs-retro-inset" },
+  { id: "retro-stripe", name: "Stripe", category: "Retro", className: "cs-retro-stripe" },
 ];
 
 // ---------- Button effects (24) ----------
@@ -161,6 +222,11 @@ export const BUTTON_FX: Effect[] = [
   { id: "wobble", name: "Wobble", category: "Animated", className: "bh-wobble" },
   { id: "bounce", name: "Bounce", category: "Animated", className: "bh-bounce" },
   { id: "jelly", name: "Jelly", category: "Animated", className: "bh-jelly" },
+  { id: "expand", name: "Expand", category: "Motion", className: "bh-expand" },
+  { id: "magnetic", name: "Magnetic", category: "Motion", className: "bh-magnetic" },
+  { id: "gradient", name: "Gradient", category: "Glow", className: "bh-gradient" },
+  { id: "sheen", name: "Sheen", category: "Animated", className: "bh-sheen" },
+  { id: "depth", name: "Depth", category: "Glow", className: "bh-depth" },
 ];
 
 // ---------- Button idle animations (continuous) ----------
@@ -220,6 +286,11 @@ export const BG_FX: Effect[] = [
   { id: "aurora", name: "Aurora drift", category: "Animated", className: "bgfx-aurora" },
   { id: "shimmer", name: "Shimmer", category: "Animated", className: "bgfx-shimmer" },
   { id: "pulse", name: "Pulse glow", category: "Animated", className: "bgfx-pulse" },
+  { id: "starfield", name: "Starfield", category: "Texture", className: "bgfx-starfield" },
+  { id: "noisefine", name: "Fine grain", category: "Texture", className: "bgfx-noisefine" },
+  { id: "beam", name: "Light beam", category: "Glow", className: "bgfx-beam" },
+  { id: "meshmove", name: "Mesh drift", category: "Animated", className: "bgfx-meshmove" },
+  { id: "rotate", name: "Rotate glow", category: "Animated", className: "bgfx-rotate" },
 ];
 
 export const LIGHT_VARS: Record<string, string> = {
@@ -229,6 +300,68 @@ export const LIGHT_VARS: Record<string, string> = {
   "--surface-2": "#f3f1ec",
   "--border": "rgba(0,0,0,0.12)",
 };
+
+// ---------- Layout & shape dimensions (max-customization) ----------
+export type LayoutChoice = { id: string; name: string };
+
+/** Corner radius of link buttons. Default (undefined) = pill. */
+export const BUTTON_SHAPES: LayoutChoice[] = [
+  { id: "pill", name: "Pill" },
+  { id: "rounded", name: "Rounded" },
+  { id: "soft", name: "Soft" },
+  { id: "sharp", name: "Sharp" },
+];
+export const BUTTON_SHAPE_CLASS: Record<string, string> = {
+  pill: "rounded-full",
+  rounded: "rounded-2xl",
+  soft: "rounded-xl",
+  sharp: "rounded-none",
+};
+
+/** Height/padding of link buttons. Default (undefined) = medium. */
+export const BUTTON_SIZES: LayoutChoice[] = [
+  { id: "sm", name: "Small" },
+  { id: "md", name: "Medium" },
+  { id: "lg", name: "Large" },
+];
+export const BUTTON_SIZE_CLASS: Record<string, string> = {
+  sm: "h-10 text-sm",
+  md: "h-12 text-sm",
+  lg: "h-14 text-base",
+};
+
+/** Width of the page content column. Default (undefined) = standard. */
+export const CONTENT_WIDTHS: LayoutChoice[] = [
+  { id: "narrow", name: "Narrow" },
+  { id: "standard", name: "Standard" },
+  { id: "wide", name: "Wide" },
+];
+export const CONTENT_WIDTH_CLASS: Record<string, string> = {
+  narrow: "max-w-sm",
+  standard: "max-w-md",
+  wide: "max-w-lg",
+};
+
+/** Vertical gap between blocks. Default (undefined) = cozy. */
+export const SPACINGS: LayoutChoice[] = [
+  { id: "compact", name: "Compact" },
+  { id: "cozy", name: "Cozy" },
+  { id: "roomy", name: "Roomy" },
+];
+export const SPACING_CLASS: Record<string, string> = {
+  compact: "gap-4",
+  cozy: "gap-6",
+  roomy: "gap-9",
+};
+
+export function resolveLayout(d?: PageDesign) {
+  return {
+    buttonShape: d?.buttonShape ? BUTTON_SHAPE_CLASS[d.buttonShape] : undefined,
+    buttonSize: d?.buttonSize ? BUTTON_SIZE_CLASS[d.buttonSize] : undefined,
+    contentWidth: (d?.contentWidth && CONTENT_WIDTH_CLASS[d.contentWidth]) || "max-w-md",
+    spacing: (d?.spacing && SPACING_CLASS[d.spacing]) || "gap-6",
+  };
+}
 
 export function resolveDesign(d?: PageDesign) {
   const bg = d?.background ? BACKGROUNDS.find((b) => b.id === d.background) : undefined;
@@ -319,6 +452,12 @@ export const COLOR_PRESETS: ColorPreset[] = [
   { id: "grape", name: "Grape", accent: "#C084FC", background: "cosmic-7" },
   { id: "sky", name: "Sky", accent: "#38BDF8", background: "ocean-1" },
   { id: "daylight", name: "Daylight", accent: "#7C3AED", background: "light-3" },
+  { id: "synth", name: "Synth", accent: "#F472B6", background: "synthwave-3" },
+  { id: "ember", name: "Ember", accent: "#FB923C", background: "ember-4" },
+  { id: "forest", name: "Forest", accent: "#4ADE80", background: "forest-3" },
+  { id: "holo", name: "Holo", accent: "#22D3EE", background: "holographic-2" },
+  { id: "regal", name: "Regal", accent: "#FBBF24", background: "royal-4" },
+  { id: "candy", name: "Candy", accent: "#EC4899", background: "candy-2" },
 ];
 
 /** Resolve a preset's background css for swatch display (falls back to default). */
