@@ -63,7 +63,7 @@ export type Block =
   | { id: string; type: "image"; url: string; alt?: string; caption?: RichValue; img?: ImageConfig }
   | { id: string; type: "gallery"; images: { url: string; alt?: string }[]; img?: ImageConfig }
   | { id: string; type: "video"; url: string; title?: RichValue }
-  | { id: string; type: "divider" }
+  | { id: string; type: "divider"; color?: string; style?: "line" | "dashed" | "dotted" | "glow" }
   | { id: string; type: "faq"; items: { question: RichValue; answer: RichValue }[] };
 
 export type BlockType = Block["type"];

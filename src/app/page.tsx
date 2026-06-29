@@ -7,7 +7,6 @@ import {
   SiteNav,
   Features,
   HowItWorks,
-  Testimonials,
   CtaBand,
   Footer,
 } from "@/components/marketing";
@@ -69,7 +68,6 @@ export default function Home() {
 
       <Features />
       <HowItWorks />
-      <Testimonials />
       <CtaBand />
       <Footer />
     </div>

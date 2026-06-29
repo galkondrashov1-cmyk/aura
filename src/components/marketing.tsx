@@ -40,7 +40,7 @@ const FEATURES = [
 
 export function Features() {
   return (
-    <section className="mx-auto max-w-6xl px-6 py-24">
+    <section className="mx-auto max-w-6xl px-6 py-16">
       <div className="max-w-2xl">
         <h2 className="font-display text-3xl font-medium tracking-tight md:text-4xl">
           Everything you need to stand out
@@ -76,7 +76,7 @@ const STEPS = [
 
 export function HowItWorks() {
   return (
-    <section className="mx-auto max-w-6xl px-6 py-24">
+    <section className="mx-auto max-w-6xl px-6 py-16">
       <h2 className="font-display text-3xl font-medium tracking-tight md:text-4xl">
         Live in three steps
       </h2>
@@ -93,43 +93,9 @@ export function HowItWorks() {
   );
 }
 
-const TESTIMONIALS = [
-  { quote: "I replaced my whole link-in-bio in an afternoon and it finally looks like my brand.", name: "Ava Chen", role: "Illustrator" },
-  { quote: "The builder is the first one that didn't fight me. The live preview is everything.", name: "Marcus Bell", role: "Founder" },
-  { quote: "Analytics + a real page in one place. My booking link clicks doubled.", name: "Priya N.", role: "Coach" },
-];
-
-export function Testimonials() {
-  return (
-    <section className="mx-auto max-w-6xl px-6 py-24">
-      <h2 className="font-display text-3xl font-medium tracking-tight md:text-4xl">
-        Built for people with something to share
-      </h2>
-      <div className="mt-12 grid gap-5 md:grid-cols-3">
-        {TESTIMONIALS.map((t) => (
-          <figure key={t.name} className="rounded-2xl border border-border bg-surface p-6">
-            <blockquote className="text-sm leading-relaxed text-text">
-              “{t.quote}”
-            </blockquote>
-            <figcaption className="mt-5 flex items-center gap-3">
-              <div className="grid h-9 w-9 place-items-center rounded-full bg-surface-2 text-xs text-primary">
-                {t.name.slice(0, 2).toUpperCase()}
-              </div>
-              <div>
-                <p className="text-sm">{t.name}</p>
-                <p className="text-xs text-text-muted">{t.role}</p>
-              </div>
-            </figcaption>
-          </figure>
-        ))}
-      </div>
-    </section>
-  );
-}
-
 export function CtaBand() {
   return (
-    <section className="mx-auto max-w-6xl px-6 py-24">
+    <section className="mx-auto max-w-6xl px-6 py-16">
       <div className="aura-glow rounded-3xl border border-border bg-surface px-6 py-16 text-center">
         <h2 className="font-display text-3xl font-medium tracking-tight md:text-4xl">
           Ready to build your aura?
@@ -148,35 +114,23 @@ export function CtaBand() {
 }
 
 export function Footer() {
-  const cols = [
-    { title: "Product", links: [["Sign up", "/signup"], ["Log in", "/login"]] },
-    { title: "Company", links: [["About", "#"], ["Blog", "#"], ["Careers", "#"]] },
-    { title: "Legal", links: [["Privacy", "#"], ["Terms", "#"]] },
-  ] as const;
-
   return (
     <footer className="border-t border-border">
-      <div className="mx-auto grid max-w-6xl gap-10 px-6 py-14 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="mx-auto flex max-w-6xl flex-col items-start justify-between gap-6 px-6 py-12 sm:flex-row sm:items-center">
         <div>
           <AuraLogo />
           <p className="mt-3 max-w-xs text-sm text-text-muted">
             The most beautiful way to build a personal page.
           </p>
         </div>
-        {cols.map((col) => (
-          <div key={col.title}>
-            <p className="text-sm font-medium">{col.title}</p>
-            <ul className="mt-3 space-y-2">
-              {col.links.map(([label, href]) => (
-                <li key={label}>
-                  <Link href={href} className="text-sm text-text-muted transition-colors hover:text-text">
-                    {label}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
-        ))}
+        <div className="flex items-center gap-2">
+          <Link href="/login" className={buttonClasses("ghost", "sm")}>
+            Log in
+          </Link>
+          <Link href="/signup" className={buttonClasses("primary", "sm")}>
+            Create your AURA
+          </Link>
+        </div>
       </div>
       <div className="mx-auto max-w-6xl px-6 pb-10 text-xs text-text-muted">
         © {new Date().getFullYear()} AURA · useaura.me

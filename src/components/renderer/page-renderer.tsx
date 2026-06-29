@@ -338,6 +338,37 @@ function FaqBlock({ items }: { items: { question: RichValue; answer: RichValue }
   );
 }
 
+function DividerBlock({
+  color,
+  style = "line",
+}: {
+  color?: string;
+  style?: "line" | "dashed" | "dotted" | "glow";
+}) {
+  // Default look: the signature fading hairline.
+  if (!color && style === "line") return <div className="aura-rule" />;
+  const c = color || "var(--border)";
+  if (style === "glow") {
+    return (
+      <div
+        className="h-px w-full"
+        style={{ background: c, boxShadow: `0 0 12px 1px ${c}` }}
+      />
+    );
+  }
+  if (style === "dashed" || style === "dotted") {
+    return <div className="w-full" style={{ borderTop: `2px ${style} ${c}` }} />;
+  }
+  return (
+    <div
+      className="h-px w-full"
+      style={{
+        background: `linear-gradient(90deg, transparent, ${c} 18%, ${c} 82%, transparent)`,
+      }}
+    />
+  );
+}
+
 function BlockRenderer({
   block,
   pageId,
@@ -396,7 +427,7 @@ function BlockRenderer({
     case "faq":
       return <FaqBlock items={block.items} />;
     case "divider":
-      return <div className="aura-rule" />;
+      return <DividerBlock color={block.color} style={block.style} />;
     default:
       return null;
   }

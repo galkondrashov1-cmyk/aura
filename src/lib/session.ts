@@ -16,7 +16,7 @@ export type SessionUser = {
   role: string;
 };
 
-export async function createSession(user: SessionUser) {
+export async function createSession(user: SessionUser, remember = true) {
   const token = await new SignJWT({ user })
     .setProtectedHeader({ alg: "HS256" })
     .setIssuedAt()
@@ -29,7 +29,9 @@ export async function createSession(user: SessionUser) {
     sameSite: "lax",
     secure: process.env.NODE_ENV === "production",
     path: "/",
-    maxAge: MAX_AGE,
+    // "Remember me" → persistent 30-day cookie. Unchecked → session cookie
+    // (omit maxAge) that clears when the browser closes.
+    ...(remember ? { maxAge: MAX_AGE } : {}),
   });
 }
 

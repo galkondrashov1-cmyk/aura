@@ -46,8 +46,8 @@ const BLOCK_LABELS: Record<BlockType, string> = {
   divider: "Divider",
 };
 
+// Hero is a fixed, single block (every page has exactly one) — not addable.
 const ADDABLE: BlockType[] = [
-  "hero",
   "links",
   "text",
   "socials",
@@ -436,8 +436,61 @@ function BlockFields({
         />
       );
     case "divider":
-      return <p className="text-xs text-text-muted">A thin divider line.</p>;
+      return <DividerEditor block={block} onPatch={onPatch} />;
   }
+}
+
+function DividerEditor({
+  block,
+  onPatch,
+}: {
+  block: Extract<Block, { type: "divider" }>;
+  onPatch: (id: string, p: Record<string, unknown>) => void;
+}) {
+  const styles: { id: "line" | "dashed" | "dotted" | "glow"; label: string }[] = [
+    { id: "line", label: "Line" },
+    { id: "dashed", label: "Dashed" },
+    { id: "dotted", label: "Dotted" },
+    { id: "glow", label: "Glow" },
+  ];
+  return (
+    <div className="space-y-3">
+      <div className="flex items-center gap-2">
+        <input
+          type="color"
+          value={block.color || "#2a2f3a"}
+          onChange={(e) => onPatch(block.id, { color: e.target.value })}
+          className="h-9 w-11 shrink-0 cursor-pointer rounded-lg border border-border bg-surface-2"
+          aria-label="Divider color"
+        />
+        <span className="text-xs text-text-muted">{block.color ?? "Default"}</span>
+        {block.color && (
+          <button
+            onClick={() => onPatch(block.id, { color: undefined })}
+            className="ml-auto text-xs text-text-muted hover:text-text"
+          >
+            Reset
+          </button>
+        )}
+      </div>
+      <div className="grid grid-cols-4 gap-2">
+        {styles.map((s) => (
+          <button
+            key={s.id}
+            onClick={() => onPatch(block.id, { style: s.id })}
+            className={cn(
+              "rounded-lg border px-2 py-1.5 text-xs",
+              (block.style ?? "line") === s.id
+                ? "border-primary text-text"
+                : "border-border text-text-muted hover:text-text",
+            )}
+          >
+            {s.label}
+          </button>
+        ))}
+      </div>
+    </div>
+  );
 }
 
 function ImageUploader({ onUploaded }: { onUploaded: (url: string) => void }) {

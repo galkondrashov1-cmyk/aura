@@ -3,6 +3,7 @@
 import { useActionState } from "react";
 import { signupAction, type AuthState } from "@/lib/actions/auth";
 import { Input } from "@/components/ui/input";
+import { PasswordInput } from "@/components/auth/password-input";
 import { buttonClasses } from "@/components/ui/button";
 
 export function SignupForm() {
@@ -30,9 +31,8 @@ export function SignupForm() {
         autoComplete="email"
         required
       />
-      <Input
+      <PasswordInput
         name="password"
-        type="password"
         placeholder="Choose a password (8+ characters)"
         autoComplete="new-password"
         required

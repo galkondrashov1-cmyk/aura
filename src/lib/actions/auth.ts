@@ -100,13 +100,16 @@ export async function loginAction(
     return { error: "This account has been suspended" };
   }
 
-  await createSession({
-    id: user.id,
-    email: user.email,
-    username: user.username,
-    name: user.name,
-    role: user.role,
-  });
+  await createSession(
+    {
+      id: user.id,
+      email: user.email,
+      username: user.username,
+      name: user.name,
+      role: user.role,
+    },
+    formData.get("remember") !== null,
+  );
 
   redirect("/dashboard");
 }
