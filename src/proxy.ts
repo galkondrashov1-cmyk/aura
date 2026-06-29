@@ -6,6 +6,17 @@ import { SESSION_COOKIE } from "@/lib/session";
 export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
+  // ─── CANONICAL HOST ────────────────────────────────────────────────────
+  // Force the apex (non-www) host. The session + gate cookies are host-only,
+  // so without this a hop between www.useaura.me and useaura.me silently drops
+  // them — which logs the user out mid-session. Redirect www → apex once.
+  const host = request.headers.get("host") ?? "";
+  if (host.startsWith("www.")) {
+    const url = request.nextUrl.clone();
+    url.host = host.slice(4);
+    return NextResponse.redirect(url, 308);
+  }
+
   // ─── TEMPORARY SITE GATE ───────────────────────────────────────────────
   // Whole-site access code. Active only when the SITE_GATE_CODE env var is set.
   // To turn it off after testing: delete SITE_GATE_CODE in Vercel (instant, no
