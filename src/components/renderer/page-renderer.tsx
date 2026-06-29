@@ -15,6 +15,7 @@ import {
   resolveLayout,
   LIGHT_VARS,
   avatarIdleClass,
+  buttonFxClass,
   iconFxClass,
   iconIdleClass,
 } from "@/lib/design";
@@ -163,7 +164,13 @@ function LinksBlock({
   buttonShape,
   buttonSize,
 }: {
-  items: { label: RichValue; url: string; highlighted?: boolean }[];
+  items: {
+    label: RichValue;
+    url: string;
+    highlighted?: boolean;
+    color?: string;
+    fx?: string;
+  }[];
   pageId?: string;
   cardClass?: string;
   buttonFx?: string;
@@ -173,26 +180,39 @@ function LinksBlock({
 }) {
   return (
     <div className="space-y-2.5">
-      {items.map((l, i) => (
-        <div key={i} className={buttonIdle}>
-          <a
-            href={trackedHref(pageId, l.url, toPlain(l.label))}
-            target="_blank"
-            rel="noopener noreferrer"
-            className={cn(
-              "flex items-center justify-center font-medium",
-              buttonShape ?? "rounded-full",
-              buttonSize ?? "h-12 text-sm",
-              l.highlighted
-                ? "aura-glow bg-primary text-primary-ink"
-                : (cardClass ?? "border border-border bg-surface-2 text-text"),
-              buttonFx ?? "transition-all duration-150 hover:brightness-110",
-            )}
-          >
-            <RichTextView value={l.label} />
-          </a>
-        </div>
-      ))}
+      {items.map((l, i) => {
+        // Per-button color: solid fill for highlighted buttons, tinted
+        // border/text for the rest. Per-button effect overrides the global one.
+        const fx = buttonFxClass(l.fx) ?? buttonFx;
+        const style = l.color
+          ? l.highlighted
+            ? { background: l.color, color: "#fff", borderColor: l.color }
+            : { borderColor: l.color, color: l.color }
+          : undefined;
+        return (
+          <div key={i} className={buttonIdle}>
+            <a
+              href={trackedHref(pageId, l.url, toPlain(l.label))}
+              target="_blank"
+              rel="noopener noreferrer"
+              style={style}
+              className={cn(
+                "flex items-center justify-center font-medium",
+                buttonShape ?? "rounded-full",
+                buttonSize ?? "h-12 text-sm",
+                l.color
+                  ? "border"
+                  : l.highlighted
+                    ? "aura-glow bg-primary text-primary-ink"
+                    : (cardClass ?? "border border-border bg-surface-2 text-text"),
+                fx ?? "transition-all duration-150 hover:brightness-110",
+              )}
+            >
+              <RichTextView value={l.label} />
+            </a>
+          </div>
+        );
+      })}
     </div>
   );
 }

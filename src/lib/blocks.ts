@@ -38,6 +38,9 @@ export type LinkItem = {
   label: RichValue;
   url: string;
   highlighted?: boolean;
+  /** Per-button overrides (override the page's global button styling). */
+  color?: string;
+  fx?: string;
 };
 
 export type AvatarShape = "circle" | "rounded" | "square";

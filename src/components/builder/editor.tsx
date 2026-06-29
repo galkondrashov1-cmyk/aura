@@ -29,7 +29,7 @@ import type {
 } from "@/lib/blocks";
 import { DesignPanel } from "./design-panel";
 import { SOCIAL_OPTIONS, SocialIcon } from "@/lib/socials";
-import { AVATAR_IDLE, ICON_FX, ICON_IDLE } from "@/lib/design";
+import { AVATAR_IDLE, ICON_FX, ICON_IDLE, BUTTON_FX } from "@/lib/design";
 import { SIZE_OPTS, ASPECT_OPTS, RADIUS_OPTS } from "@/lib/image";
 import type { ImageConfig } from "@/lib/image";
 import { RichTextInput } from "./rich-text-input";
@@ -944,6 +944,32 @@ function LinksEditor({
             placeholder="https://"
             className="bg-bg"
           />
+          <div className="flex items-center gap-2">
+            <label className="flex items-center gap-1.5 text-xs text-text-muted">
+              <input
+                type="color"
+                value={it.color || "#00e5a0"}
+                onChange={(e) => update(i, { color: e.target.value })}
+                className="h-7 w-8 cursor-pointer rounded border border-border bg-bg"
+                aria-label="Button color"
+              />
+              Color
+              {it.color && (
+                <button onClick={() => update(i, { color: undefined })} className="text-text-muted hover:text-text">✕</button>
+              )}
+            </label>
+            <select
+              value={it.fx ?? ""}
+              onChange={(e) => update(i, { fx: e.target.value || undefined })}
+              className="h-7 flex-1 rounded-lg border border-border bg-bg px-2 text-xs text-text"
+              aria-label="Button effect"
+            >
+              <option value="">Effect: default</option>
+              {BUTTON_FX.map((e) => (
+                <option key={e.id} value={e.id}>{e.name}</option>
+              ))}
+            </select>
+          </div>
         </div>
       ))}
       <AddItemBtn onClick={() => onChange([...items, { label: "New link", url: "https://" }])} />
