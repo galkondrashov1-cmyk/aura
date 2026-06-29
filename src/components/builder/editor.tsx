@@ -29,7 +29,7 @@ import type {
 } from "@/lib/blocks";
 import { DesignPanel } from "./design-panel";
 import { SOCIAL_OPTIONS, SocialIcon } from "@/lib/socials";
-import { AVATAR_IDLE } from "@/lib/design";
+import { AVATAR_IDLE, ICON_FX, ICON_IDLE } from "@/lib/design";
 import { SIZE_OPTS, ASPECT_OPTS, RADIUS_OPTS } from "@/lib/image";
 import type { ImageConfig } from "@/lib/image";
 import { RichTextInput } from "./rich-text-input";
@@ -344,21 +344,7 @@ function BlockFields({
     case "hero":
       return <HeroEditor block={block} onPatch={(p) => onPatch(block.id, p)} />;
     case "text":
-      return (
-        <div className="space-y-2">
-          <RichTextInput
-            value={block.heading}
-            onChange={(heading) => onPatch(block.id, { heading })}
-            placeholder="Heading (optional)"
-          />
-          <RichTextInput
-            value={block.body}
-            onChange={(body) => onPatch(block.id, { body })}
-            placeholder="Text"
-            multiline
-          />
-        </div>
-      );
+      return <TextEditor block={block} onPatch={onPatch} />;
     case "image":
       return (
         <div className="space-y-2">
@@ -422,12 +408,7 @@ function BlockFields({
         />
       );
     case "socials":
-      return (
-        <SocialsEditor
-          items={block.items}
-          onChange={(items) => onPatch(block.id, { items })}
-        />
-      );
+      return <SocialsEditor block={block} onPatch={onPatch} />;
     case "faq":
       return (
         <FaqEditor
@@ -438,6 +419,101 @@ function BlockFields({
     case "divider":
       return <DividerEditor block={block} onPatch={onPatch} />;
   }
+}
+
+function TextEditor({
+  block,
+  onPatch,
+}: {
+  block: Extract<Block, { type: "text" }>;
+  onPatch: (id: string, p: Record<string, unknown>) => void;
+}) {
+  const aligns: { id: "left" | "center" | "right"; label: string }[] = [
+    { id: "left", label: "Left" },
+    { id: "center", label: "Center" },
+    { id: "right", label: "Right" },
+  ];
+  const sizes: { id: "sm" | "md" | "lg"; label: string }[] = [
+    { id: "sm", label: "S" },
+    { id: "md", label: "M" },
+    { id: "lg", label: "L" },
+  ];
+  return (
+    <div className="space-y-2.5">
+      <RichTextInput
+        value={block.heading}
+        onChange={(heading) => onPatch(block.id, { heading })}
+        placeholder="Heading (optional)"
+      />
+      <RichTextInput
+        value={block.body}
+        onChange={(body) => onPatch(block.id, { body })}
+        placeholder="Text"
+        multiline
+      />
+      <div className="flex flex-wrap items-center gap-2">
+        <div className="flex overflow-hidden rounded-lg border border-border">
+          {aligns.map((a) => (
+            <button
+              key={a.id}
+              onClick={() => onPatch(block.id, { align: a.id })}
+              className={cn(
+                "px-2.5 py-1.5 text-xs",
+                (block.align ?? "left") === a.id
+                  ? "bg-surface-2 text-text"
+                  : "text-text-muted hover:text-text",
+              )}
+            >
+              {a.label}
+            </button>
+          ))}
+        </div>
+        <div className="flex overflow-hidden rounded-lg border border-border">
+          {sizes.map((s) => (
+            <button
+              key={s.id}
+              onClick={() => onPatch(block.id, { size: s.id })}
+              className={cn(
+                "px-2.5 py-1.5 text-xs",
+                (block.size ?? "md") === s.id
+                  ? "bg-surface-2 text-text"
+                  : "text-text-muted hover:text-text",
+              )}
+            >
+              {s.label}
+            </button>
+          ))}
+        </div>
+        <label className="flex items-center gap-1.5 text-xs text-text-muted">
+          <input
+            type="color"
+            value={block.color || "#9aa3af"}
+            onChange={(e) => onPatch(block.id, { color: e.target.value })}
+            className="h-7 w-8 cursor-pointer rounded border border-border bg-surface-2"
+            aria-label="Text color"
+          />
+          Color
+          {block.color && (
+            <button
+              onClick={() => onPatch(block.id, { color: undefined })}
+              className="text-text-muted hover:text-text"
+            >
+              ✕
+            </button>
+          )}
+        </label>
+        <label className="flex cursor-pointer items-center gap-1.5 text-xs text-text-muted select-none">
+          <input
+            type="checkbox"
+            checked={!!block.spoiler}
+            onChange={(e) => onPatch(block.id, { spoiler: e.target.checked || undefined })}
+            className="h-3.5 w-3.5 accent-primary"
+          />
+          Spoiler (tap to reveal)
+        </label>
+      </div>
+    </div>
+  );
 }
 
 function DividerEditor({
@@ -858,16 +934,68 @@ function LinksEditor({
 }
 
 function SocialsEditor({
-  items,
-  onChange,
+  block,
+  onPatch,
 }: {
-  items: { platform: SocialPlatform; url: string }[];
-  onChange: (items: { platform: SocialPlatform; url: string }[]) => void;
+  block: Extract<Block, { type: "socials" }>;
+  onPatch: (id: string, p: Record<string, unknown>) => void;
 }) {
+  const items = block.items;
+  const onChange = (next: { platform: SocialPlatform; url: string }[]) =>
+    onPatch(block.id, { items: next });
   const update = (i: number, p: Partial<{ platform: SocialPlatform; url: string }>) =>
     onChange(items.map((it, j) => (j === i ? { ...it, ...p } : it)));
   return (
-    <div className="space-y-2">
+    <div className="space-y-3">
+      {/* Centralized icon styling for this Socials block */}
+      <div className="space-y-2 rounded-xl border border-border bg-surface-2 p-2.5">
+        <div className="flex items-center gap-2">
+          <input
+            type="color"
+            value={block.iconColor || "#9aa3af"}
+            onChange={(e) => onPatch(block.id, { iconColor: e.target.value })}
+            className="h-8 w-10 shrink-0 cursor-pointer rounded-lg border border-border bg-bg"
+            aria-label="Icon color"
+          />
+          <span className="text-xs text-text-muted">Icon color</span>
+          {block.iconColor && (
+            <button
+              onClick={() => onPatch(block.id, { iconColor: undefined })}
+              className="ml-auto text-xs text-text-muted hover:text-text"
+            >
+              Reset
+            </button>
+          )}
+        </div>
+        <div className="grid grid-cols-2 gap-2">
+          <label className="flex flex-col gap-1 text-[11px] text-text-muted">
+            Hover effect
+            <select
+              value={block.iconFx ?? ""}
+              onChange={(e) => onPatch(block.id, { iconFx: e.target.value || undefined })}
+              className="h-8 rounded-lg border border-border bg-bg px-2 text-xs text-text"
+            >
+              <option value="">Default</option>
+              {ICON_FX.map((e) => (
+                <option key={e.id} value={e.id}>{e.name}</option>
+              ))}
+            </select>
+          </label>
+          <label className="flex flex-col gap-1 text-[11px] text-text-muted">
+            Idle motion
+            <select
+              value={block.iconIdle ?? ""}
+              onChange={(e) => onPatch(block.id, { iconIdle: e.target.value || undefined })}
+              className="h-8 rounded-lg border border-border bg-bg px-2 text-xs text-text"
+            >
+              <option value="">None</option>
+              {ICON_IDLE.map((e) => (
+                <option key={e.id} value={e.id}>{e.name}</option>
+              ))}
+            </select>
+          </label>
+        </div>
+      </div>
       {items.map((it, i) => (
         <div key={i} className="flex items-center gap-2">
           <span className="grid h-9 w-9 shrink-0 place-items-center rounded-lg border border-border bg-surface-2 text-text">

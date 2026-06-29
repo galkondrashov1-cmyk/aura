@@ -447,6 +447,16 @@ export function avatarIdleClass(id?: string): string | undefined {
   return id && id !== "none" ? ICON_IDLE.find((e) => e.id === id)?.className : undefined;
 }
 
+/** Resolve an icon hover-effect id to its class (for per-block overrides). */
+export function iconFxClass(id?: string): string | undefined {
+  return id && id !== "none" ? ICON_FX.find((e) => e.id === id)?.className : undefined;
+}
+
+/** Resolve an icon idle-animation id to its class (for per-block overrides). */
+export function iconIdleClass(id?: string): string | undefined {
+  return id && id !== "none" ? ICON_IDLE.find((e) => e.id === id)?.className : undefined;
+}
+
 // ---------- Accent derived from the chosen background ----------
 function hslToHex(h: number, s: number, l: number): string {
   s /= 100;

@@ -9,7 +9,14 @@ import type {
   AvatarShape,
   BannerHeight,
 } from "@/lib/blocks";
-import { resolveDesign, resolveLayout, LIGHT_VARS, avatarIdleClass } from "@/lib/design";
+import {
+  resolveDesign,
+  resolveLayout,
+  LIGHT_VARS,
+  avatarIdleClass,
+  iconFxClass,
+  iconIdleClass,
+} from "@/lib/design";
 import { resolveImage } from "@/lib/image";
 import type { ImageConfig, ImageSize, ImageRadius } from "@/lib/image";
 import { fontFamilyVar } from "@/lib/fonts";
@@ -189,17 +196,50 @@ function LinksBlock({
   );
 }
 
-function TextBlock({ heading, body }: { heading?: RichValue; body: RichValue }) {
+function TextBlock({
+  heading,
+  body,
+  align = "left",
+  color,
+  size = "md",
+  spoiler,
+}: {
+  heading?: RichValue;
+  body: RichValue;
+  align?: "left" | "center" | "right";
+  color?: string;
+  size?: "sm" | "md" | "lg";
+  spoiler?: boolean;
+}) {
+  const alignClass =
+    align === "center" ? "text-center" : align === "right" ? "text-right" : "text-left";
+  const headSize = size === "sm" ? "text-base" : size === "lg" ? "text-2xl" : "text-lg";
+  const bodySize = size === "sm" ? "text-xs" : size === "lg" ? "text-base" : "text-sm";
+  const bodyEl = (
+    <p
+      className={cn("leading-relaxed", bodySize, color ? "" : "text-text-muted")}
+      style={color ? { color } : undefined}
+    >
+      <RichTextView value={body} />
+    </p>
+  );
   return (
-    <div>
+    <div className={alignClass} style={color ? { color } : undefined}>
       {!isEmptyRich(heading) && (
-        <h2 className="font-display mb-2 text-lg font-medium tracking-tight">
+        <h2 className={cn("font-display mb-2 font-medium tracking-tight", headSize)}>
           <RichTextView value={heading} />
         </h2>
       )}
-      <p className="text-sm leading-relaxed text-text-muted">
-        <RichTextView value={body} />
-      </p>
+      {spoiler ? (
+        <details className="group rounded-xl border border-border bg-surface/40 px-4 py-2.5">
+          <summary className="cursor-pointer list-none text-sm font-medium text-text select-none">
+            <span className="text-primary">▸</span> Spoiler — tap to reveal
+          </summary>
+          <div className="mt-2">{bodyEl}</div>
+        </details>
+      ) : (
+        bodyEl
+      )}
     </div>
   );
 }
@@ -209,14 +249,19 @@ function SocialsBlock({
   pageId,
   iconFx,
   iconIdle,
+  iconColor,
 }: {
   items: { platform: SocialPlatform; url: string }[];
   pageId?: string;
   iconFx?: string;
   iconIdle?: string;
+  iconColor?: string;
 }) {
   return (
-    <div className="flex flex-wrap justify-center gap-5 text-text-muted">
+    <div
+      className="flex flex-wrap justify-center gap-5 text-text-muted"
+      style={iconColor ? { color: iconColor } : undefined}
+    >
       {items.map((s, i) => {
         const href = normalizeSocialUrl(s.platform, s.url);
         // mailto:/tel: links can't be routed through the click-tracking redirect.
@@ -406,14 +451,24 @@ function BlockRenderer({
         />
       );
     case "text":
-      return <TextBlock heading={block.heading} body={block.body} />;
+      return (
+        <TextBlock
+          heading={block.heading}
+          body={block.body}
+          align={block.align}
+          color={block.color}
+          size={block.size}
+          spoiler={block.spoiler}
+        />
+      );
     case "socials":
       return (
         <SocialsBlock
           items={block.items}
           pageId={pageId}
-          iconFx={d.iconFx}
-          iconIdle={d.iconIdle}
+          iconFx={iconFxClass(block.iconFx) ?? d.iconFx}
+          iconIdle={iconIdleClass(block.iconIdle) ?? d.iconIdle}
+          iconColor={block.iconColor}
         />
       );
     case "video":

@@ -58,8 +58,24 @@ export type Block =
       banner?: ImageConfig;
     }
   | { id: string; type: "links"; items: LinkItem[] }
-  | { id: string; type: "text"; heading?: RichValue; body: RichValue }
-  | { id: string; type: "socials"; items: { platform: SocialPlatform; url: string }[] }
+  | {
+      id: string;
+      type: "text";
+      heading?: RichValue;
+      body: RichValue;
+      align?: "left" | "center" | "right";
+      color?: string;
+      size?: "sm" | "md" | "lg";
+      spoiler?: boolean;
+    }
+  | {
+      id: string;
+      type: "socials";
+      items: { platform: SocialPlatform; url: string }[];
+      iconColor?: string;
+      iconFx?: string;
+      iconIdle?: string;
+    }
   | { id: string; type: "image"; url: string; alt?: string; caption?: RichValue; img?: ImageConfig }
   | { id: string; type: "gallery"; images: { url: string; alt?: string }[]; img?: ImageConfig }
   | { id: string; type: "video"; url: string; title?: RichValue }
