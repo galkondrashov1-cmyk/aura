@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { AuraMark } from "@/components/aura-logo";
 import { ViewBeacon } from "@/components/view-beacon";
+import { GalleryView } from "./gallery-view";
 import { cn } from "@/lib/utils";
 import type {
   Block,
@@ -345,25 +346,17 @@ function ImageBlock({
 function GalleryBlock({
   images,
   img,
+  layout,
 }: {
   images: { url: string; alt?: string }[];
   img?: ImageConfig;
+  layout?: "grid" | "carousel";
 }) {
   const valid = images.filter((i) => i.url);
   if (valid.length === 0) return null;
-  const r = resolveImage(img, { lockWidth: "w-full", defaultAspect: "square", defaultRadius: "sm" });
-  return (
-    <div className="grid grid-cols-2 gap-2">
-      {valid.map((image, i) => (
-        <div key={i} className={cn("border border-border", r.box)}>
-          <div className={r.frame}>
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={image.url} alt={image.alt ?? ""} className={r.img} />
-          </div>
-        </div>
-      ))}
-    </div>
-  );
+  const aspect = layout === "carousel" ? "wide" : "square";
+  const r = resolveImage(img, { lockWidth: "w-full", defaultAspect: aspect, defaultRadius: "sm" });
+  return <GalleryView images={valid} layout={layout} box={r.box} frame={r.frame} img={r.img} />;
 }
 
 function FaqBlock({ items }: { items: { question: RichValue; answer: RichValue }[] }) {
@@ -478,7 +471,7 @@ function BlockRenderer({
         <ImageBlock url={block.url} alt={block.alt} caption={block.caption} img={block.img} />
       );
     case "gallery":
-      return <GalleryBlock images={block.images} img={block.img} />;
+      return <GalleryBlock images={block.images} img={block.img} layout={block.layout} />;
     case "faq":
       return <FaqBlock items={block.items} />;
     case "divider":

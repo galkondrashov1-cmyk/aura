@@ -377,12 +377,30 @@ function BlockFields({
       );
     case "gallery":
       return (
-        <GalleryEditor
-          images={block.images}
-          img={block.img}
-          onChange={(images) => onPatch(block.id, { images })}
-          onConfig={(img) => onPatch(block.id, { img })}
-        />
+        <div className="space-y-2">
+          <div className="flex overflow-hidden rounded-lg border border-border">
+            {(["grid", "carousel"] as const).map((l) => (
+              <button
+                key={l}
+                onClick={() => onPatch(block.id, { layout: l })}
+                className={cn(
+                  "flex-1 px-3 py-1.5 text-xs capitalize",
+                  (block.layout ?? "grid") === l
+                    ? "bg-surface-2 text-text"
+                    : "text-text-muted hover:text-text",
+                )}
+              >
+                {l === "carousel" ? "Slideshow" : "Grid"}
+              </button>
+            ))}
+          </div>
+          <GalleryEditor
+            images={block.images}
+            img={block.img}
+            onChange={(images) => onPatch(block.id, { images })}
+            onConfig={(img) => onPatch(block.id, { img })}
+          />
+        </div>
       );
     case "video":
       return (
