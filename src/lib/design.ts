@@ -13,7 +13,7 @@ export type Effect = { id: string; name: string; category: string; className: st
 const H = (h: number, s: number, l: number) => `hsl(${h} ${s}% ${l}%)`;
 const slug = (s: string) => s.toLowerCase().replace(/\s+/g, "-");
 
-// ---------- Backgrounds (10 categories × 10 = 100) ----------
+// ---------- Backgrounds (18 categories × 6 = 108) ----------
 export const BACKGROUNDS: Background[] = [];
 function pushBgs(category: string, items: { css: string; light?: boolean }[]) {
   items.forEach((it, i) =>
@@ -26,7 +26,7 @@ function pushBgs(category: string, items: { css: string; light?: boolean }[]) {
     }),
   );
 }
-const HUES = Array.from({ length: 10 }, (_, i) => i * 36);
+const HUES = Array.from({ length: 6 }, (_, i) => i * 60);
 
 pushBgs(
   "Gradient",
@@ -42,7 +42,7 @@ pushBgs(
 );
 pushBgs(
   "Aurora",
-  Array.from({ length: 10 }, (_, i) => {
+  Array.from({ length: 6 }, (_, i) => {
     const h = 150 + i * 8;
     return {
       css: `radial-gradient(at 20% 0%, ${H(h, 75, 20)} 0, transparent 50%), radial-gradient(at 80% 12%, ${H(h + 60, 70, 18)} 0, transparent 45%), radial-gradient(at 50% 100%, ${H(h + 120, 70, 16)} 0, transparent 55%), #05060a`,
@@ -51,13 +51,13 @@ pushBgs(
 );
 pushBgs(
   "Sunset",
-  Array.from({ length: 10 }, (_, i) => ({
+  Array.from({ length: 6 }, (_, i) => ({
     css: `linear-gradient(160deg, ${H(285, 40, 8)} 0%, ${H(15 + i * 4, 60, 16)} 60%, ${H(40, 72, 18)} 100%)`,
   })),
 );
 pushBgs(
   "Ocean",
-  Array.from({ length: 10 }, (_, i) => {
+  Array.from({ length: 6 }, (_, i) => {
     const h = 185 + i * 6;
     return { css: `linear-gradient(160deg, ${H(h, 55, 8)} 0%, ${H(h + 20, 60, 16)} 100%)` };
   }),
@@ -70,13 +70,13 @@ pushBgs(
 );
 pushBgs(
   "Noir",
-  Array.from({ length: 10 }, (_, i) => ({
+  Array.from({ length: 6 }, (_, i) => ({
     css: `linear-gradient(160deg, hsl(240 8% ${4 + i}%), hsl(240 6% ${10 + i}%))`,
   })),
 );
 pushBgs(
   "Cosmic",
-  Array.from({ length: 10 }, (_, i) => {
+  Array.from({ length: 6 }, (_, i) => {
     const h = 235 + i * 6;
     return {
       css: `radial-gradient(60% 50% at 30% 10%, ${H(h, 60, 16)} 0, transparent 55%), radial-gradient(40% 40% at 80% 80%, ${H(h + 40, 60, 14)} 0, transparent 60%), #03030a`,
@@ -85,7 +85,7 @@ pushBgs(
 );
 pushBgs(
   "Pattern",
-  Array.from({ length: 10 }, (_, i) => {
+  Array.from({ length: 6 }, (_, i) => {
     const h = i * 36;
     const kind = i % 3;
     const css =
@@ -99,7 +99,7 @@ pushBgs(
 );
 pushBgs(
   "Light",
-  Array.from({ length: 10 }, (_, i) => {
+  Array.from({ length: 6 }, (_, i) => {
     const h = i * 36;
     return {
       css: `linear-gradient(160deg, ${H(h, 55, 95)} 0%, ${H((h + 30) % 360, 60, 88)} 100%)`,
@@ -109,7 +109,7 @@ pushBgs(
 );
 pushBgs(
   "Synthwave",
-  Array.from({ length: 8 }, (_, i) => {
+  Array.from({ length: 6 }, (_, i) => {
     const h = 300 + i * 8;
     return {
       css: `radial-gradient(80% 55% at 50% 100%, ${H(h, 85, 30)} 0%, transparent 60%), radial-gradient(50% 40% at 50% 88%, ${H((h + 40) % 360, 90, 38)} 0%, transparent 55%), linear-gradient(180deg, ${H(255, 60, 8)} 0%, ${H(280, 55, 12)} 60%, ${H(h, 70, 14)} 100%)`,
@@ -118,7 +118,7 @@ pushBgs(
 );
 pushBgs(
   "Ember",
-  Array.from({ length: 8 }, (_, i) => {
+  Array.from({ length: 6 }, (_, i) => {
     const h = 8 + i * 4;
     return {
       css: `radial-gradient(70% 60% at 50% 110%, ${H(h, 90, 28)} 0%, transparent 60%), radial-gradient(40% 35% at 25% 90%, ${H((h + 18) % 360, 85, 24)} 0%, transparent 55%), linear-gradient(180deg, ${H(18, 30, 5)} 0%, ${H(12, 45, 9)} 100%)`,
@@ -127,7 +127,7 @@ pushBgs(
 );
 pushBgs(
   "Forest",
-  Array.from({ length: 8 }, (_, i) => {
+  Array.from({ length: 6 }, (_, i) => {
     const h = 120 + i * 8;
     return {
       css: `radial-gradient(60% 50% at 20% 10%, ${H(h, 50, 16)} 0%, transparent 55%), radial-gradient(55% 45% at 85% 90%, ${H((h + 30) % 360, 45, 13)} 0%, transparent 60%), linear-gradient(165deg, ${H(150, 35, 6)} 0%, ${H(h, 40, 10)} 100%)`,
@@ -136,7 +136,7 @@ pushBgs(
 );
 pushBgs(
   "Holographic",
-  Array.from({ length: 8 }, (_, i) => {
+  Array.from({ length: 6 }, (_, i) => {
     const h = i * 45;
     return {
       css: `linear-gradient(125deg, ${H(h, 70, 16)} 0%, ${H((h + 60) % 360, 70, 18)} 30%, ${H((h + 140) % 360, 70, 16)} 55%, ${H((h + 220) % 360, 70, 18)} 80%, ${H((h + 300) % 360, 70, 16)} 100%)`,
@@ -145,7 +145,7 @@ pushBgs(
 );
 pushBgs(
   "Royal",
-  Array.from({ length: 8 }, (_, i) => {
+  Array.from({ length: 6 }, (_, i) => {
     const h = 260 + i * 4;
     return {
       css: `radial-gradient(60% 50% at 50% 0%, ${H(h, 55, 20)} 0%, transparent 55%), radial-gradient(40% 35% at 85% 95%, ${H(42, 70, 18)} 0%, transparent 55%), linear-gradient(165deg, ${H(h, 45, 7)} 0%, ${H(h - 10, 40, 12)} 100%)`,
@@ -154,7 +154,7 @@ pushBgs(
 );
 pushBgs(
   "Candy",
-  Array.from({ length: 8 }, (_, i) => {
+  Array.from({ length: 6 }, (_, i) => {
     const h = i * 45;
     return {
       css: `radial-gradient(60% 50% at 15% 15%, ${H(h, 85, 80)} 0%, transparent 55%), radial-gradient(60% 50% at 85% 80%, ${H((h + 80) % 360, 85, 82)} 0%, transparent 55%), linear-gradient(160deg, ${H((h + 40) % 360, 70, 90)} 0%, ${H((h + 160) % 360, 70, 86)} 100%)`,
@@ -164,14 +164,14 @@ pushBgs(
 );
 pushBgs(
   "Mono",
-  Array.from({ length: 8 }, (_, i) => {
+  Array.from({ length: 6 }, (_, i) => {
     const l = 6 + i * 1.5;
     return { css: `linear-gradient(160deg, hsl(220 6% ${l}%) 0%, hsl(220 5% ${l + 6}%) 100%)` };
   }),
 );
 pushBgs(
   "Vapor",
-  Array.from({ length: 8 }, (_, i) => {
+  Array.from({ length: 6 }, (_, i) => {
     const h = 180 + i * 22;
     return {
       css: `radial-gradient(55% 45% at 25% 15%, ${H(h, 45, 22)} 0%, transparent 55%), radial-gradient(55% 45% at 80% 85%, ${H((h + 90) % 360, 45, 22)} 0%, transparent 55%), linear-gradient(160deg, ${H(h - 20, 25, 9)} 0%, ${H(h + 40, 25, 12)} 100%)`,
@@ -480,7 +480,7 @@ export const COLOR_PRESETS: ColorPreset[] = [
   { id: "sunset", name: "Sunset", accent: "#FB923C", background: "sunset-6" },
   { id: "rose", name: "Rose", accent: "#FB7185", background: "neon-1" },
   { id: "gold", name: "Gold", accent: "#FBBF24", background: "noir-5" },
-  { id: "grape", name: "Grape", accent: "#C084FC", background: "cosmic-7" },
+  { id: "grape", name: "Grape", accent: "#C084FC", background: "cosmic-5" },
   { id: "sky", name: "Sky", accent: "#38BDF8", background: "ocean-1" },
   { id: "daylight", name: "Daylight", accent: "#7C3AED", background: "light-3" },
   { id: "synth", name: "Synth", accent: "#F472B6", background: "synthwave-3" },

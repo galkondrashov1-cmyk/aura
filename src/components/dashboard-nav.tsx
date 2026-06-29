@@ -5,7 +5,6 @@ import { usePathname } from "next/navigation";
 import {
   LayoutGrid,
   BarChart3,
-  LayoutTemplate,
   Image as ImageIcon,
   Settings,
 } from "lucide-react";
@@ -14,7 +13,6 @@ import { cn } from "@/lib/utils";
 const NAV = [
   { href: "/dashboard", label: "My pages", icon: LayoutGrid, exact: true },
   { href: "/dashboard/analytics", label: "Analytics", icon: BarChart3 },
-  { href: "/dashboard/templates", label: "Templates", icon: LayoutTemplate },
   { href: "/dashboard/media", label: "Media", icon: ImageIcon },
   { href: "/dashboard/settings", label: "Settings", icon: Settings },
 ];

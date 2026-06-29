@@ -25,7 +25,6 @@ import type {
   LinkItem,
   PageContent,
   PageDesign,
-  PageTheme,
   SocialPlatform,
 } from "@/lib/blocks";
 import { DesignPanel } from "./design-panel";
@@ -44,8 +43,6 @@ const BLOCK_LABELS: Record<BlockType, string> = {
   gallery: "Gallery",
   video: "Video",
   faq: "FAQ",
-  products: "Products",
-  form: "Contact form",
   divider: "Divider",
 };
 
@@ -58,8 +55,6 @@ const ADDABLE: BlockType[] = [
   "gallery",
   "video",
   "faq",
-  "products",
-  "form",
   "divider",
 ];
 
@@ -82,10 +77,6 @@ function newBlock(type: BlockType): Block {
       return { id, type, url: "", title: "" };
     case "faq":
       return { id, type, items: [{ question: "Question?", answer: "Answer." }] };
-    case "products":
-      return { id, type, items: [{ title: "New product" }] };
-    case "form":
-      return { id, type, heading: "Get in touch", buttonLabel: "Send" };
     case "divider":
       return { id, type };
   }
@@ -103,7 +94,6 @@ export function Editor({
   initialContent: PageContent;
 }) {
   const [blocks, setBlocks] = useState<Block[]>(initialContent.blocks);
-  const theme: PageTheme = initialContent.theme;
   const [design, setDesign] = useState<PageDesign>(initialContent.design ?? {});
   const [published, setPublished] = useState(initialPublished);
   const [saved, setSaved] = useState(false);
@@ -111,8 +101,8 @@ export function Editor({
   const [pending, start] = useTransition();
 
   const content: PageContent = useMemo(
-    () => ({ theme, blocks, design }),
-    [theme, blocks, design],
+    () => ({ blocks, design }),
+    [blocks, design],
   );
 
   const patch = (id: string, p: Record<string, unknown>) =>
@@ -445,29 +435,6 @@ function BlockFields({
           onChange={(items) => onPatch(block.id, { items })}
         />
       );
-    case "products":
-      return (
-        <ProductsEditor
-          items={block.items}
-          onChange={(items) => onPatch(block.id, { items })}
-        />
-      );
-    case "form":
-      return (
-        <div className="space-y-2">
-          <RichTextInput
-            value={block.heading}
-            onChange={(heading) => onPatch(block.id, { heading })}
-            placeholder="Heading"
-          />
-          <Input
-            value={block.buttonLabel ?? ""}
-            onChange={(e) => onPatch(block.id, { buttonLabel: e.target.value })}
-            placeholder="Button label"
-            className="bg-surface-2"
-          />
-        </div>
-      );
     case "divider":
       return <p className="text-xs text-text-muted">A thin divider line.</p>;
   }
@@ -712,73 +679,6 @@ function HeroEditor({
           defaults={{ aspect: "wide", radius: "lg" }}
         />
       </div>
-    </div>
-  );
-}
-
-type ProductItem = Extract<Block, { type: "products" }>["items"][number];
-
-function ProductsEditor({
-  items,
-  onChange,
-}: {
-  items: ProductItem[];
-  onChange: (items: ProductItem[]) => void;
-}) {
-  const update = (i: number, patch: Partial<ProductItem>) =>
-    onChange(items.map((it, j) => (j === i ? { ...it, ...patch } : it)));
-  return (
-    <div className="space-y-2">
-      {items.map((p, i) => (
-        <div key={i} className="space-y-2 rounded-xl border border-border bg-surface-2 p-2.5">
-          <div className="flex flex-1 flex-col gap-2">
-            <RichTextInput
-              value={p.title}
-              onChange={(title) => update(i, { title })}
-              placeholder="Title"
-            />
-          </div>
-          <div className="flex gap-2">
-            <Input
-              value={p.price ?? ""}
-              onChange={(e) => update(i, { price: e.target.value })}
-              placeholder="$"
-              className="w-20 bg-bg"
-            />
-            <RemoveBtn onClick={() => onChange(items.filter((_, j) => j !== i))} />
-          </div>
-          <RichTextInput
-            value={p.description}
-            onChange={(description) => update(i, { description })}
-            placeholder="Description"
-            multiline
-          />
-          <div className="flex gap-2">
-            <Input
-              value={p.imageUrl ?? ""}
-              onChange={(e) => update(i, { imageUrl: e.target.value })}
-              placeholder="Image URL"
-              className="bg-bg"
-            />
-            <ImageUploader onUploaded={(url) => update(i, { imageUrl: url })} />
-          </div>
-          <div className="flex gap-2">
-            <Input
-              value={p.ctaLabel ?? ""}
-              onChange={(e) => update(i, { ctaLabel: e.target.value })}
-              placeholder="Button label"
-              className="bg-bg"
-            />
-            <Input
-              value={p.ctaUrl ?? ""}
-              onChange={(e) => update(i, { ctaUrl: e.target.value })}
-              placeholder="https://"
-              className="bg-bg"
-            />
-          </div>
-        </div>
-      ))}
-      <AddItemBtn onClick={() => onChange([...items, { title: "New product" }])} />
     </div>
   );
 }

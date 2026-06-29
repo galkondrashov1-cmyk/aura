@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Plus, Sparkles, ExternalLink, Pencil } from "lucide-react";
+import { Plus, ExternalLink, Pencil } from "lucide-react";
 import { AuraMark } from "@/components/aura-logo";
 import { buttonClasses } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -25,7 +25,7 @@ export default async function DashboardHome() {
             Create and manage your AURA pages.
           </p>
         </div>
-        <form action={createPage.bind(null, "minimal")}>
+        <form action={createPage}>
           <button type="submit" className={buttonClasses("primary", "md")}>
             <Plus className="h-4 w-4" />
             New page
@@ -40,23 +40,15 @@ export default async function DashboardHome() {
           </div>
           <h2 className="font-display text-xl font-medium">Create your first AURA</h2>
           <p className="mt-2 max-w-sm text-sm text-text-muted">
-            Start from a template, build from scratch, or describe yourself and let
-            AURA design a page for you.
+            Build your page from scratch and make it yours with the design studio.
           </p>
           <div className="mt-7 flex flex-col gap-3 sm:flex-row">
-            <form action={createPage.bind(null, "minimal")}>
+            <form action={createPage}>
               <button type="submit" className={buttonClasses("primary", "md")}>
                 <Plus className="h-4 w-4" />
-                Start from scratch
+                Create a page
               </button>
             </form>
-            <Link href="/dashboard/templates" className={buttonClasses("secondary", "md")}>
-              Browse templates
-            </Link>
-            <Link href="/dashboard/ai" className={buttonClasses("ghost", "md")}>
-              <Sparkles className="h-4 w-4" />
-              Generate with AI
-            </Link>
           </div>
         </div>
       ) : (

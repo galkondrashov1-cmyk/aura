@@ -1,7 +1,6 @@
 import Link from "next/link";
 import { AuraMark } from "@/components/aura-logo";
 import { ViewBeacon } from "@/components/view-beacon";
-import { ContactForm } from "./contact-form";
 import { cn } from "@/lib/utils";
 import type {
   Block,
@@ -339,66 +338,6 @@ function FaqBlock({ items }: { items: { question: RichValue; answer: RichValue }
   );
 }
 
-function ProductsBlock({
-  items,
-  pageId,
-  buttonFx,
-  buttonIdle,
-}: {
-  items: {
-    title: RichValue;
-    description?: RichValue;
-    price?: string;
-    imageUrl?: string;
-    ctaLabel?: string;
-    ctaUrl?: string;
-  }[];
-  pageId?: string;
-  buttonFx?: string;
-  buttonIdle?: string;
-}) {
-  return (
-    <div className="space-y-3">
-      {items.map((p, i) => (
-        <div key={i} className="overflow-hidden rounded-2xl border border-border bg-surface">
-          {p.imageUrl && (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img src={p.imageUrl} alt="" className="h-40 w-full object-cover" />
-          )}
-          <div className="p-4">
-            <div className="flex items-start justify-between gap-3">
-              <p className="font-display text-base font-medium">
-                <RichTextView value={p.title} />
-              </p>
-              {p.price && <span className="shrink-0 text-sm text-primary">{p.price}</span>}
-            </div>
-            {!isEmptyRich(p.description) && (
-              <p className="mt-1 text-sm text-text-muted">
-                <RichTextView value={p.description} />
-              </p>
-            )}
-            {p.ctaUrl && (
-              <div className={cn("mt-3", buttonIdle)}>
-                <a
-                  href={trackedHref(pageId, p.ctaUrl, p.ctaLabel ?? toPlain(p.title))}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className={cn(
-                    "aura-glow flex h-10 items-center justify-center rounded-full bg-primary text-sm font-medium text-primary-ink",
-                    buttonFx,
-                  )}
-                >
-                  {p.ctaLabel ?? "View"}
-                </a>
-              </div>
-            )}
-          </div>
-        </div>
-      ))}
-    </div>
-  );
-}
-
 function BlockRenderer({
   block,
   pageId,
@@ -456,25 +395,6 @@ function BlockRenderer({
       return <GalleryBlock images={block.images} img={block.img} />;
     case "faq":
       return <FaqBlock items={block.items} />;
-    case "products":
-      return (
-        <ProductsBlock
-          items={block.items}
-          pageId={pageId}
-          buttonFx={d.buttonFx}
-          buttonIdle={d.buttonIdle}
-        />
-      );
-    case "form":
-      return (
-        <ContactForm
-          pageId={pageId}
-          heading={block.heading}
-          buttonLabel={block.buttonLabel}
-          buttonFx={d.buttonFx}
-          buttonIdle={d.buttonIdle}
-        />
-      );
     case "divider":
       return <div className="aura-rule" />;
     default:
@@ -518,7 +438,6 @@ export function PageRenderer({
 
   return (
     <div
-      data-mode={content.theme}
       style={style as React.CSSProperties}
       className={cn(
         "relative overflow-hidden",

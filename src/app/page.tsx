@@ -6,7 +6,6 @@ import { cn } from "@/lib/utils";
 import {
   SiteNav,
   Features,
-  TemplatesShowcase,
   HowItWorks,
   Testimonials,
   CtaBand,
@@ -52,8 +51,8 @@ export default function Home() {
               <Link href="/signup" className={buttonClasses("primary", "lg")}>
                 Create your AURA
               </Link>
-              <Link href="/examples" className={buttonClasses("secondary", "lg")}>
-                See examples
+              <Link href="/login" className={buttonClasses("secondary", "lg")}>
+                Log in
               </Link>
             </div>
 
@@ -69,7 +68,6 @@ export default function Home() {
       </div>
 
       <Features />
-      <TemplatesShowcase />
       <HowItWorks />
       <Testimonials />
       <CtaBand />

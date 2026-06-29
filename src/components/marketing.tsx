@@ -1,16 +1,14 @@
 import Link from "next/link";
 import {
-  Sparkles,
-  LayoutTemplate,
+  Wand2,
+  SlidersHorizontal,
   Palette,
   BarChart3,
   Link2,
   Globe,
 } from "lucide-react";
 import { AuraLogo } from "@/components/aura-logo";
-import { PageRenderer } from "@/components/renderer/page-renderer";
 import { buttonClasses } from "@/components/ui/button";
-import { templates } from "@/lib/templates";
 
 export function SiteNav() {
   return (
@@ -19,9 +17,6 @@ export function SiteNav() {
         <AuraLogo />
       </Link>
       <nav className="flex items-center gap-1.5 sm:gap-2">
-        <Link href="/examples" className={buttonClasses("ghost", "sm", "hidden sm:inline-flex")}>
-          Examples
-        </Link>
         <Link href="/login" className={buttonClasses("ghost", "sm")}>
           Log in
         </Link>
@@ -35,11 +30,11 @@ export function SiteNav() {
 }
 
 const FEATURES = [
-  { icon: LayoutTemplate, title: "Premium templates", body: "Start from a designer-made page and make it yours in minutes." },
   { icon: Palette, title: "Visual builder", body: "Add, reorder, and restyle blocks with a true-to-life live preview." },
+  { icon: SlidersHorizontal, title: "Total customization", body: "Backgrounds, fonts, button shapes, spacing, and motion — tune every detail." },
   { icon: Link2, title: "Dynamic link cards", body: "Turn a pasted URL into a rich, styled card — not a boring button." },
   { icon: BarChart3, title: "Built-in analytics", body: "See views, clicks, top links, and devices, all in one place." },
-  { icon: Sparkles, title: "AI page builder", body: "Describe yourself and let AURA design a starting page for you." },
+  { icon: Wand2, title: "One-click theming", body: "Match your accent color to any background instantly with the design studio." },
   { icon: Globe, title: "Your own URL", body: "Claim useaura.me/you and share one beautiful link everywhere." },
 ];
 
@@ -73,53 +68,8 @@ export function Features() {
   );
 }
 
-export function TemplatesShowcase() {
-  return (
-    <section className="mx-auto max-w-6xl px-6 py-24">
-      <div className="flex flex-wrap items-end justify-between gap-4">
-        <div className="max-w-2xl">
-          <h2 className="font-display text-3xl font-medium tracking-tight md:text-4xl">
-            Start from a beautiful template
-          </h2>
-          <p className="mt-3 text-text-muted">
-            Pick a starting point and customize everything.
-          </p>
-        </div>
-        <Link href="/examples" className={buttonClasses("secondary", "md")}>
-          See all
-        </Link>
-      </div>
-      <div className="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
-        {templates.map((tpl) => (
-          <div
-            key={tpl.id}
-            className="group relative flex flex-col overflow-hidden rounded-2xl border border-border bg-surface transition-colors hover:border-primary/40"
-          >
-            <div className="pointer-events-none h-64 overflow-hidden border-b border-border">
-              <div className="origin-top scale-[0.72]">
-                <PageRenderer content={tpl.content} embedded />
-              </div>
-            </div>
-            <div className="flex items-center justify-between p-4">
-              <span className="font-display text-base font-medium">{tpl.name}</span>
-              <span className="text-xs text-text-muted group-hover:text-primary">
-                Use →
-              </span>
-            </div>
-            <Link
-              href="/signup"
-              aria-label={`Use the ${tpl.name} template`}
-              className="absolute inset-0"
-            />
-          </div>
-        ))}
-      </div>
-    </section>
-  );
-}
-
 const STEPS = [
-  { n: "01", title: "Pick a starting point", body: "Choose a template, start from scratch, or describe yourself to the AI." },
+  { n: "01", title: "Create your page", body: "Start fresh and add the blocks you need — links, socials, text, and more." },
   { n: "02", title: "Make it yours", body: "Edit blocks, colors, and links with a live preview as you go." },
   { n: "03", title: "Publish & share", body: "Go live at useaura.me/you and watch the analytics roll in." },
 ];
@@ -199,7 +149,7 @@ export function CtaBand() {
 
 export function Footer() {
   const cols = [
-    { title: "Product", links: [["Examples", "/examples"], ["Templates", "/signup"], ["Log in", "/login"]] },
+    { title: "Product", links: [["Sign up", "/signup"], ["Log in", "/login"]] },
     { title: "Company", links: [["About", "#"], ["Blog", "#"], ["Careers", "#"]] },
     { title: "Legal", links: [["Privacy", "#"], ["Terms", "#"]] },
   ] as const;

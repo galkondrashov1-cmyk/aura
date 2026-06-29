@@ -4,17 +4,30 @@ import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { getSession } from "@/lib/session";
-import { getTemplate } from "@/lib/templates";
 import type { Block, PageContent } from "@/lib/blocks";
 import { asPageContent } from "@/lib/blocks";
 import { toPlain } from "@/lib/richtext";
-import { generatePageContent } from "@/lib/ai";
 
 async function requireUser() {
   const user = await getSession();
   if (!user) redirect("/login");
   return user;
 }
+
+/** A fresh page starts from this minimal, ready-to-edit layout. */
+const DEFAULT_PAGE: PageContent = {
+  blocks: [
+    { id: "hero", type: "hero", name: "Your Name", tagline: "What you do" },
+    {
+      id: "links",
+      type: "links",
+      items: [
+        { label: "My website", url: "https://", highlighted: true },
+        { label: "Say hello", url: "mailto:you@email.com" },
+      ],
+    },
+  ],
+};
 
 function personalize(content: PageContent, name: string): PageContent {
   const blocks = content.blocks.map((b): Block =>
@@ -28,9 +41,9 @@ function heroName(content: PageContent): string {
   return (hero && hero.type === "hero" && toPlain(hero.name)) || "Untitled";
 }
 
-export async function createPage(templateId: string) {
+export async function createPage() {
   const user = await requireUser();
-  const content = personalize(getTemplate(templateId), user.name ?? user.username);
+  const content = personalize(DEFAULT_PAGE, user.name ?? user.username);
 
   const count = await prisma.page.count({ where: { userId: user.id } });
   const slug = count === 0 ? "home" : `page-${count + 1}`;
@@ -42,7 +55,7 @@ export async function createPage(templateId: string) {
       title: heroName(content),
       status: "DRAFT",
       isPrimary: count === 0,
-      theme: content.theme,
+      theme: "vivid",
       draftContent: content,
     },
   });
@@ -56,7 +69,7 @@ export async function savePage(pageId: string, content: PageContent) {
 
   await prisma.page.updateMany({
     where: { id: pageId, userId: user.id },
-    data: { draftContent: safe, theme: safe.theme, title: heroName(safe) },
+    data: { draftContent: safe, theme: "vivid", title: heroName(safe) },
   });
 
   return { ok: true as const };
@@ -71,7 +84,7 @@ export async function publishPage(pageId: string, content: PageContent) {
     data: {
       draftContent: safe,
       publishedContent: safe,
-      theme: safe.theme,
+      theme: "vivid",
       title: heroName(safe),
       status: "PUBLISHED",
       publishedAt: new Date(),
@@ -87,43 +100,4 @@ export async function deletePage(pageId: string) {
   await prisma.page.deleteMany({ where: { id: pageId, userId: user.id } });
   revalidatePath(`/${user.username}`);
   redirect("/dashboard");
-}
-
-export type AiState = { error?: string } | undefined;
-
-export async function aiGenerateAction(
-  _prev: AiState,
-  formData: FormData,
-): Promise<AiState> {
-  const user = await requireUser();
-  const prompt = String(formData.get("prompt") ?? "").trim();
-  if (prompt.length < 8) {
-    return { error: "Tell me a bit more about you — at least a sentence." };
-  }
-
-  let content: PageContent;
-  try {
-    content = await generatePageContent(prompt);
-  } catch (err) {
-    return { error: err instanceof Error ? err.message : "Generation failed" };
-  }
-  if (content.blocks.length === 0) {
-    return { error: "The AI returned an empty page — try rephrasing." };
-  }
-
-  const count = await prisma.page.count({ where: { userId: user.id } });
-  const slug = count === 0 ? "home" : `page-${count + 1}`;
-  const page = await prisma.page.create({
-    data: {
-      userId: user.id,
-      slug,
-      title: heroName(content),
-      status: "DRAFT",
-      isPrimary: count === 0,
-      theme: content.theme,
-      draftContent: content,
-    },
-  });
-
-  redirect(`/builder/${page.id}`);
 }

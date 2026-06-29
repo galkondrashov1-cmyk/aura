@@ -64,26 +64,11 @@ export type Block =
   | { id: string; type: "gallery"; images: { url: string; alt?: string }[]; img?: ImageConfig }
   | { id: string; type: "video"; url: string; title?: RichValue }
   | { id: string; type: "divider" }
-  | { id: string; type: "faq"; items: { question: RichValue; answer: RichValue }[] }
-  | {
-      id: string;
-      type: "products";
-      items: {
-        title: RichValue;
-        description?: RichValue;
-        price?: string;
-        imageUrl?: string;
-        ctaLabel?: string;
-        ctaUrl?: string;
-      }[];
-    }
-  | { id: string; type: "form"; heading?: RichValue; buttonLabel?: string };
+  | { id: string; type: "faq"; items: { question: RichValue; answer: RichValue }[] };
 
 export type BlockType = Block["type"];
 
-export type PageTheme = "vivid" | "muted";
-
-/** Per-page design overrides (applied on top of the chosen theme). */
+/** Per-page design overrides applied on top of the base (dark) theme. */
 export type PageDesign = {
   accent?: string;
   background?: string;
@@ -104,12 +89,11 @@ export type PageDesign = {
 };
 
 export type PageContent = {
-  theme: PageTheme;
   blocks: Block[];
   design?: PageDesign;
 };
 
-export const EMPTY_PAGE: PageContent = { theme: "vivid", blocks: [] };
+export const EMPTY_PAGE: PageContent = { blocks: [] };
 
 /** Narrow unknown JSON (Prisma Json column) into PageContent with a safe fallback. */
 export function asPageContent(value: unknown): PageContent {
@@ -141,7 +125,6 @@ export function asPageContent(value: unknown): PageContent {
           }
         : undefined;
     return {
-      theme: v.theme === "muted" ? "muted" : "vivid",
       blocks: v.blocks,
       design,
     };
