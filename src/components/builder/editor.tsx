@@ -12,6 +12,9 @@ import {
   ChevronDown,
   GripVertical,
   Star,
+  Layers,
+  Palette,
+  Eye,
 } from "lucide-react";
 import { AuraLogo } from "@/components/aura-logo";
 import { PageRenderer } from "@/components/renderer/page-renderer";
@@ -99,6 +102,7 @@ export function Editor({
   const [saved, setSaved] = useState(false);
   const [dragId, setDragId] = useState<string | null>(null);
   const [pending, start] = useTransition();
+  const [tab, setTab] = useState<"content" | "design" | "preview">("content");
 
   const content: PageContent = useMemo(
     () => ({ blocks, design }),
@@ -191,58 +195,122 @@ export function Editor({
         </div>
       </header>
 
-      <div className="mx-auto grid max-w-6xl gap-8 px-4 py-8 lg:grid-cols-2">
-        <div className="min-w-0 space-y-3">
-          <DesignPanel
-            design={design}
-            onChange={(patch) => setDesign((d) => ({ ...d, ...patch }))}
-          />
+      {/* Tab bar — switch the editing panel; Preview tab shows on mobile only */}
+      <div className="sticky top-[57px] z-10 border-b border-border bg-bg/85 backdrop-blur">
+        <div className="mx-auto flex max-w-6xl gap-1 px-4 py-2">
+          <TabButton active={tab === "content"} onClick={() => setTab("content")} icon={Layers}>
+            Content
+          </TabButton>
+          <TabButton active={tab === "design"} onClick={() => setTab("design")} icon={Palette}>
+            Design
+          </TabButton>
+          <TabButton
+            active={tab === "preview"}
+            onClick={() => setTab("preview")}
+            icon={Eye}
+            mobileOnly
+          >
+            Preview
+          </TabButton>
+        </div>
+      </div>
 
-          {blocks.map((block, i) => (
-            <BlockCard
-              key={block.id}
-              block={block}
-              index={i}
-              total={blocks.length}
-              dragId={dragId}
-              setDragId={setDragId}
-              onPatch={patch}
-              onRemove={removeBlock}
-              onMove={moveBlock}
-              onDropBlock={dropBefore}
+      <div className="mx-auto grid max-w-6xl gap-6 px-4 py-6 lg:grid-cols-[minmax(0,1fr)_390px]">
+        {/* Editing panel: Content (blocks) or Design */}
+        <div className={cn("min-w-0 space-y-3", tab === "preview" ? "hidden lg:block" : "block")}>
+          {tab === "design" ? (
+            <DesignPanel
+              design={design}
+              onChange={(patch) => setDesign((d) => ({ ...d, ...patch }))}
             />
-          ))}
-
-          {blocks.length === 0 && (
-            <p className="rounded-2xl border border-dashed border-border p-6 text-center text-sm text-text-muted">
-              No blocks yet. Add one below.
-            </p>
-          )}
-
-          <div className="rounded-2xl border border-border bg-surface p-4">
-            <p className="mb-3 text-sm font-medium">Add block</p>
-            <div className="flex flex-wrap gap-2">
-              {ADDABLE.map((t) => (
-                <button
-                  key={t}
-                  onClick={() => addBlock(t)}
-                  className="rounded-lg border border-border px-3 py-1.5 text-sm text-text-muted transition-colors hover:border-primary/50 hover:text-text"
-                >
-                  {BLOCK_LABELS[t]}
-                </button>
+          ) : (
+            <>
+              {blocks.map((block, i) => (
+                <BlockCard
+                  key={block.id}
+                  block={block}
+                  index={i}
+                  total={blocks.length}
+                  dragId={dragId}
+                  setDragId={setDragId}
+                  onPatch={patch}
+                  onRemove={removeBlock}
+                  onMove={moveBlock}
+                  onDropBlock={dropBefore}
+                />
               ))}
-            </div>
-          </div>
+
+              {blocks.length === 0 && (
+                <p className="rounded-2xl border border-dashed border-border p-6 text-center text-sm text-text-muted">
+                  No blocks yet. Add one below.
+                </p>
+              )}
+
+              <div className="rounded-2xl border border-border bg-surface p-4">
+                <p className="mb-3 text-sm font-medium">Add block</p>
+                <div className="flex flex-wrap gap-2">
+                  {ADDABLE.map((t) => (
+                    <button
+                      key={t}
+                      onClick={() => addBlock(t)}
+                      className="flex items-center gap-1.5 rounded-lg border border-border px-3 py-1.5 text-sm text-text-muted transition-colors hover:border-primary/50 hover:text-text"
+                    >
+                      <Plus className="h-3.5 w-3.5" />
+                      {BLOCK_LABELS[t]}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </>
+          )}
         </div>
 
-        <div className="min-w-0 lg:sticky lg:top-24 lg:self-start">
-          <p className="mb-3 truncate text-xs text-text-muted">Live preview · useaura.me/{username}</p>
-          <div className="mx-auto max-w-sm overflow-hidden rounded-[28px] border border-border">
+        {/* Live preview: always docked on desktop; on mobile only when Preview tab active */}
+        <div
+          className={cn(
+            "min-w-0 lg:sticky lg:top-28 lg:block lg:self-start",
+            tab === "preview" ? "block" : "hidden",
+          )}
+        >
+          <p className="mb-3 truncate text-center text-xs text-text-muted lg:text-left">
+            Live preview · useaura.me/{username}
+          </p>
+          <div className="mx-auto max-w-sm overflow-hidden rounded-[34px] border-[6px] border-surface-2 shadow-2xl ring-1 ring-border">
             <PageRenderer content={content} embedded />
           </div>
         </div>
       </div>
     </div>
+  );
+}
+
+function TabButton({
+  active,
+  onClick,
+  icon: Icon,
+  mobileOnly,
+  children,
+}: {
+  active: boolean;
+  onClick: () => void;
+  icon: React.ComponentType<{ className?: string }>;
+  mobileOnly?: boolean;
+  children: React.ReactNode;
+}) {
+  return (
+    <button
+      onClick={onClick}
+      className={cn(
+        "flex flex-1 items-center justify-center gap-2 rounded-xl px-4 py-2 text-sm font-medium transition-colors sm:flex-none",
+        mobileOnly && "lg:hidden",
+        active
+          ? "bg-surface-2 text-text"
+          : "text-text-muted hover:bg-surface hover:text-text",
+      )}
+    >
+      <Icon className="h-4 w-4" />
+      {children}
+    </button>
   );
 }
 
