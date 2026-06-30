@@ -8,7 +8,6 @@ import {
   BACKGROUNDS,
   CARD_STYLES,
   BUTTON_IDLE,
-  BUTTON_FX,
   ICON_IDLE,
   ICON_FX,
   BG_FX,
@@ -30,7 +29,6 @@ type Picker =
   | "bgFx"
   | "card"
   | "buttonIdle"
-  | "buttonFx"
   | "iconIdle"
   | "iconFx"
   | "font"
@@ -54,7 +52,6 @@ export function DesignPanel({
     bgFx: BG_FX.find((e) => e.id === design.bgFx)?.name ?? "None",
     card: CARD_STYLES.find((c) => c.id === design.card)?.name ?? "Default",
     buttonIdle: BUTTON_IDLE.find((e) => e.id === design.buttonIdle)?.name ?? "None",
-    buttonFx: BUTTON_FX.find((e) => e.id === design.buttonFx)?.name ?? "Default",
     iconIdle: ICON_IDLE.find((e) => e.id === design.iconIdle)?.name ?? "None",
     iconFx: ICON_FX.find((e) => e.id === design.iconFx)?.name ?? "Default",
     font: FONTS.find((f) => f.id === design.font)?.name ?? "Default",
@@ -210,26 +207,33 @@ export function DesignPanel({
         </div>
       </div>
 
-      {/* Compact options grid */}
+      {/* Page basics */}
+      <p className="mb-1.5 text-xs text-text-muted">Page</p>
       <div className="grid grid-cols-2 gap-2">
         <MiniRow label="Font" value={names.font} onClick={() => setOpen("font")} />
+        <MiniRow label="Text size" value={names.textScale} onClick={() => setOpen("textScale")} />
         <MiniRow label="Background" value={names.background} onClick={() => setOpen("background")} />
         <MiniRow label="Bg effect" value={names.bgFx} onClick={() => setOpen("bgFx")} />
-        <MiniRow label="Button style" value={names.card} onClick={() => setOpen("card")} />
-        <MiniRow label="Button idle" value={names.buttonIdle} onClick={() => setOpen("buttonIdle")} />
-        <MiniRow label="Button hover" value={names.buttonFx} onClick={() => setOpen("buttonFx")} />
-        <MiniRow label="Icon idle" value={names.iconIdle} onClick={() => setOpen("iconIdle")} />
-        <MiniRow label="Icon hover" value={names.iconFx} onClick={() => setOpen("iconFx")} />
-      </div>
-
-      {/* Layout & shape */}
-      <p className="mt-3 mb-1.5 text-xs text-text-muted">Layout & shape</p>
-      <div className="grid grid-cols-2 gap-2">
-        <MiniRow label="Button shape" value={names.buttonShape} onClick={() => setOpen("buttonShape")} />
-        <MiniRow label="Button size" value={names.buttonSize} onClick={() => setOpen("buttonSize")} />
         <MiniRow label="Content width" value={names.contentWidth} onClick={() => setOpen("contentWidth")} />
         <MiniRow label="Spacing" value={names.spacing} onClick={() => setOpen("spacing")} />
-        <MiniRow label="Text size" value={names.textScale} onClick={() => setOpen("textScale")} />
+      </div>
+
+      {/* Buttons (page defaults — override any single button in its block) */}
+      <p className="mt-3 mb-1.5 text-xs text-text-muted">
+        Buttons <span className="text-text-muted/60">· defaults (override per button in its block)</span>
+      </p>
+      <div className="grid grid-cols-2 gap-2">
+        <MiniRow label="Style" value={names.card} onClick={() => setOpen("card")} />
+        <MiniRow label="Shape" value={names.buttonShape} onClick={() => setOpen("buttonShape")} />
+        <MiniRow label="Size" value={names.buttonSize} onClick={() => setOpen("buttonSize")} />
+        <MiniRow label="Idle motion" value={names.buttonIdle} onClick={() => setOpen("buttonIdle")} />
+      </div>
+
+      {/* Icons */}
+      <p className="mt-3 mb-1.5 text-xs text-text-muted">Icons</p>
+      <div className="grid grid-cols-2 gap-2">
+        <MiniRow label="Idle motion" value={names.iconIdle} onClick={() => setOpen("iconIdle")} />
+        <MiniRow label="Hover effect" value={names.iconFx} onClick={() => setOpen("iconFx")} />
       </div>
 
       {open === "font" && (
@@ -323,16 +327,6 @@ export function DesignPanel({
           selected={design.buttonIdle}
           onPick={(id) => pick({ buttonIdle: id })}
           onDefault={() => pick({ buttonIdle: undefined })}
-          onClose={() => setOpen(null)}
-        />
-      )}
-      {open === "buttonFx" && (
-        <PillModal
-          title="Button hover effects"
-          options={BUTTON_FX}
-          selected={design.buttonFx}
-          onPick={(id) => pick({ buttonFx: id })}
-          onDefault={() => pick({ buttonFx: undefined })}
           onClose={() => setOpen(null)}
         />
       )}
