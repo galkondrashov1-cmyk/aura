@@ -3,6 +3,8 @@ import { redirect } from "next/navigation";
 import { LayoutDashboard, Users, FileText, ArrowLeft } from "lucide-react";
 import { AuraLogo } from "@/components/aura-logo";
 import { getSession } from "@/lib/session";
+import { isAdminUnlocked } from "@/lib/admin-gate";
+import { AdminUnlock } from "@/components/admin/admin-unlock";
 
 const nav = [
   { href: "/admin", label: "Overview", icon: LayoutDashboard },
@@ -18,6 +20,9 @@ export default async function AdminLayout({
   const user = await getSession();
   if (!user) redirect("/login");
   if (user.role !== "ADMIN") redirect("/dashboard");
+
+  // Second factor: admins must also enter the admin code.
+  if (!(await isAdminUnlocked())) return <AdminUnlock />;
 
   return (
     <div data-mode="muted" className="min-h-screen bg-bg text-text">

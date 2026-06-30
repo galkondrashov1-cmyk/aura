@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { Shield, LogOut } from "lucide-react";
+import { LogOut } from "lucide-react";
 import { AuraLogo } from "@/components/aura-logo";
 import { DashboardNav } from "@/components/dashboard-nav";
 import { getSession } from "@/lib/session";
@@ -24,7 +24,7 @@ export default async function DashboardLayout({
             <AuraLogo />
           </Link>
 
-          <DashboardNav />
+          <DashboardNav isAdmin={user.role === "ADMIN"} />
 
           <div className="mt-auto space-y-2">
             <div className="flex items-center gap-3 rounded-xl border border-border bg-surface px-3 py-2.5">
@@ -38,16 +38,6 @@ export default async function DashboardLayout({
                 </p>
               </div>
             </div>
-
-            {user.role === "ADMIN" && (
-              <Link
-                href="/admin"
-                className="flex w-full items-center gap-3 rounded-xl px-3 py-2 text-sm text-text-muted transition-colors hover:bg-surface hover:text-text"
-              >
-                <Shield className="h-[18px] w-[18px]" />
-                Admin
-              </Link>
-            )}
 
             <form action={logoutAction}>
               <button
@@ -68,15 +58,6 @@ export default async function DashboardLayout({
                 <AuraLogo />
               </Link>
               <div className="flex items-center gap-1">
-                {user.role === "ADMIN" && (
-                  <Link
-                    href="/admin"
-                    aria-label="Admin"
-                    className="grid h-9 w-9 place-items-center rounded-xl text-text-muted transition-colors hover:bg-surface hover:text-text"
-                  >
-                    <Shield className="h-[18px] w-[18px]" />
-                  </Link>
-                )}
                 <form action={logoutAction}>
                   <button
                     type="submit"
@@ -88,7 +69,7 @@ export default async function DashboardLayout({
                 </form>
               </div>
             </div>
-            <DashboardNav orientation="horizontal" />
+            <DashboardNav orientation="horizontal" isAdmin={user.role === "ADMIN"} />
           </header>
 
           <main className="flex-1 px-6 py-6 md:px-10 md:py-8">{children}</main>

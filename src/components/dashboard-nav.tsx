@@ -7,26 +7,40 @@ import {
   BarChart3,
   Image as ImageIcon,
   Settings,
+  Shield,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-const NAV = [
+type NavItem = {
+  href: string;
+  label: string;
+  longLabel?: string;
+  icon: typeof LayoutGrid;
+  exact?: boolean;
+};
+
+const NAV: NavItem[] = [
   { href: "/dashboard", label: "Pages", longLabel: "My pages", icon: LayoutGrid, exact: true },
   { href: "/dashboard/analytics", label: "Analytics", icon: BarChart3 },
   { href: "/dashboard/media", label: "Media", icon: ImageIcon },
   { href: "/dashboard/settings", label: "Settings", icon: Settings },
 ];
 
+const ADMIN_ITEM: NavItem = { href: "/admin", label: "Admin", icon: Shield };
+
 export function DashboardNav({
   orientation = "vertical",
+  isAdmin = false,
 }: {
   orientation?: "vertical" | "horizontal";
+  isAdmin?: boolean;
 }) {
   const pathname = usePathname();
   const horizontal = orientation === "horizontal";
+  const items = isAdmin ? [...NAV, ADMIN_ITEM] : NAV;
   return (
     <nav className={cn(horizontal ? "flex w-full gap-1" : "mt-8 space-y-1")}>
-      {NAV.map(({ href, label, longLabel, icon: Icon, exact }) => {
+      {items.map(({ href, label, longLabel, icon: Icon, exact }) => {
         const active = exact ? pathname === href : pathname.startsWith(href);
         return (
           <Link
