@@ -1012,27 +1012,29 @@ function LinksEditor({
             placeholder="https://"
             className="bg-bg"
           />
-          <div className="flex items-center gap-2">
-            <label className="flex items-center gap-1.5 text-xs text-text-muted">
+          {/* Per-button override (the Design tab sets the default for all buttons) */}
+          <div className="flex items-center gap-2 border-t border-border/60 pt-2">
+            <span className="shrink-0 text-[11px] text-text-muted">This button</span>
+            <label className="flex items-center gap-1" title="Override this button's fill color">
               <input
                 type="color"
                 value={it.color || "#00e5a0"}
                 onChange={(e) => update(i, { color: e.target.value })}
                 className="h-7 w-8 cursor-pointer rounded border border-border bg-bg"
-                aria-label="Button color"
+                aria-label="Button fill color"
               />
-              Color
               {it.color && (
-                <button onClick={() => update(i, { color: undefined })} className="text-text-muted hover:text-text">✕</button>
+                <button onClick={() => update(i, { color: undefined })} className="text-text-muted hover:text-text" title="Reset to default">✕</button>
               )}
             </label>
             <select
               value={it.fx ?? ""}
               onChange={(e) => update(i, { fx: e.target.value || undefined })}
               className="h-7 flex-1 rounded-lg border border-border bg-bg px-2 text-xs text-text"
-              aria-label="Button effect"
+              aria-label="Button effect override"
+              title="Override this button's hover effect"
             >
-              <option value="">Effect: default</option>
+              <option value="">Effect: use default</option>
               {BUTTON_FX.map((e) => (
                 <option key={e.id} value={e.id}>{e.name}</option>
               ))}
