@@ -38,6 +38,21 @@ const loginSchema = z.object({
   password: z.string().min(1, "Enter your password"),
 });
 
+// One-time bootstrap: the email in ADMIN_BOOTSTRAP_EMAIL is auto-promoted to
+// ADMIN on its next login/signup. Lets the owner self-promote without DB access.
+async function maybePromote(user: {
+  id: string;
+  email: string;
+  role: string;
+}): Promise<string> {
+  const boot = process.env.ADMIN_BOOTSTRAP_EMAIL?.trim().toLowerCase();
+  if (boot && user.email.toLowerCase() === boot && user.role !== "ADMIN") {
+    await prisma.user.update({ where: { id: user.id }, data: { role: "ADMIN" } });
+    return "ADMIN";
+  }
+  return user.role;
+}
+
 export async function signupAction(
   _prev: AuthState,
   formData: FormData,
@@ -68,12 +83,13 @@ export async function signupAction(
     data: { email, username, passwordHash },
   });
 
+  const role = await maybePromote(user);
   await createSession({
     id: user.id,
     email: user.email,
     username: user.username,
     name: user.name,
-    role: user.role,
+    role,
   });
 
   redirect("/dashboard");
@@ -100,13 +116,14 @@ export async function loginAction(
     return { error: "This account has been suspended" };
   }
 
+  const role = await maybePromote(user);
   await createSession(
     {
       id: user.id,
       email: user.email,
       username: user.username,
       name: user.name,
-      role: user.role,
+      role,
     },
     formData.get("remember") !== null,
   );
