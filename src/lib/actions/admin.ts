@@ -6,6 +6,7 @@ import { cookies } from "next/headers";
 import { prisma } from "@/lib/prisma";
 import { getSession } from "@/lib/session";
 import { ADMIN_COOKIE, adminCode } from "@/lib/admin-gate";
+import { asPlan } from "@/lib/plans";
 
 async function requireAdmin() {
   const user = await getSession();
@@ -52,5 +53,12 @@ export async function deleteUser(id: string) {
   const admin = await requireAdmin();
   if (admin.id === id) return;
   await prisma.user.delete({ where: { id } });
+  revalidatePath("/admin/users");
+}
+
+export async function setUserPlan(id: string, formData: FormData) {
+  await requireAdmin();
+  const next = asPlan(String(formData.get("plan") ?? ""));
+  await prisma.$executeRaw`UPDATE "User" SET plan = ${next} WHERE id = ${id}`;
   revalidatePath("/admin/users");
 }

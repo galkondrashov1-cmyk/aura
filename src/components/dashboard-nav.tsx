@@ -8,6 +8,7 @@ import {
   Image as ImageIcon,
   Settings,
   Shield,
+  Sparkles,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -23,6 +24,7 @@ const NAV: NavItem[] = [
   { href: "/dashboard", label: "Pages", longLabel: "My pages", icon: LayoutGrid, exact: true },
   { href: "/dashboard/analytics", label: "Analytics", icon: BarChart3 },
   { href: "/dashboard/media", label: "Media", icon: ImageIcon },
+  { href: "/dashboard/upgrade", label: "Upgrade", icon: Sparkles },
   { href: "/dashboard/settings", label: "Settings", icon: Settings },
 ];
 

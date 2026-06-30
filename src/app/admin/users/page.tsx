@@ -2,6 +2,8 @@ import { Search } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import { cn } from "@/lib/utils";
 import { suspendUser, activateUser, deleteUser } from "@/lib/actions/admin";
+import { PlanSelect } from "@/components/admin/plan-select";
+import { asPlan } from "@/lib/plans";
 
 type SP = { searchParams: Promise<{ q?: string }> };
 
@@ -23,6 +25,12 @@ export default async function AdminUsers({ searchParams }: SP) {
     orderBy: { createdAt: "desc" },
     take: 100,
   });
+
+  // The generated client may lag the `plan` column locally; read it raw.
+  const planRows = await prisma.$queryRaw<{ id: string; plan: string | null }[]>`
+    SELECT id, plan FROM "User"
+  `;
+  const planById = new Map(planRows.map((r) => [r.id, asPlan(r.plan)]));
 
   return (
     <div>
@@ -48,6 +56,7 @@ export default async function AdminUsers({ searchParams }: SP) {
             <tr className="border-b border-border text-left text-xs text-text-muted">
               <th className="px-4 py-3 font-medium">User</th>
               <th className="px-4 py-3 font-medium">Pages</th>
+              <th className="px-4 py-3 font-medium">Plan</th>
               <th className="px-4 py-3 font-medium">Status</th>
               <th className="px-4 py-3 font-medium">Joined</th>
               <th className="px-4 py-3 text-right font-medium">Actions</th>
@@ -70,6 +79,9 @@ export default async function AdminUsers({ searchParams }: SP) {
                     <div className="truncate text-xs text-text-muted">{u.email}</div>
                   </td>
                   <td className="px-4 py-3 text-text-muted">{u._count.pages}</td>
+                  <td className="px-4 py-3">
+                    <PlanSelect userId={u.id} plan={planById.get(u.id) ?? "FREE"} />
+                  </td>
                   <td className="px-4 py-3">
                     <span
                       className={cn(
@@ -104,7 +116,7 @@ export default async function AdminUsers({ searchParams }: SP) {
             })}
             {users.length === 0 && (
               <tr>
-                <td colSpan={5} className="px-4 py-10 text-center text-sm text-text-muted">
+                <td colSpan={6} className="px-4 py-10 text-center text-sm text-text-muted">
                   No users found.
                 </td>
               </tr>

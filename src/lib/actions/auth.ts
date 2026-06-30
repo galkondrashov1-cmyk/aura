@@ -5,6 +5,7 @@ import bcrypt from "bcryptjs";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { createSession, destroySession } from "@/lib/session";
+import { asPlan } from "@/lib/plans";
 
 export type AuthState = { error?: string } | undefined;
 
@@ -90,6 +91,7 @@ export async function signupAction(
     username: user.username,
     name: user.name,
     role,
+    plan: asPlan((user as { plan?: string }).plan),
   });
 
   redirect("/dashboard");
@@ -124,6 +126,7 @@ export async function loginAction(
       username: user.username,
       name: user.name,
       role,
+      plan: asPlan((user as { plan?: string }).plan),
     },
     formData.get("remember") !== null,
   );

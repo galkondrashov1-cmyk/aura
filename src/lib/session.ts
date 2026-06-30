@@ -14,6 +14,7 @@ export type SessionUser = {
   username: string;
   name: string | null;
   role: string;
+  plan?: string;
 };
 
 export async function createSession(user: SessionUser, remember = true) {
