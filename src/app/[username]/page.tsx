@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import { prisma } from "@/lib/prisma";
 import { PageRenderer } from "@/components/renderer/page-renderer";
 import { asPageContent } from "@/lib/blocks";
+import { asPlan, caps } from "@/lib/plans";
 
 type Params = { params: Promise<{ username: string }> };
 
@@ -43,5 +44,12 @@ export default async function UserPage({ params }: Params) {
   if (!data) notFound();
 
   const content = asPageContent(data.page.publishedContent);
-  return <PageRenderer content={content} trackPageId={data.page.id} />;
+  const ownerPlan = asPlan((data.user as { plan?: string }).plan);
+  return (
+    <PageRenderer
+      content={content}
+      trackPageId={data.page.id}
+      hideBadge={caps(ownerPlan).removeBadge}
+    />
+  );
 }

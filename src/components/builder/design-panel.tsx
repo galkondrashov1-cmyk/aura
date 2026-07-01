@@ -23,6 +23,8 @@ import {
   groupByCategory,
 } from "@/lib/design";
 import { FONTS } from "@/lib/fonts";
+import { caps, type Plan } from "@/lib/plans";
+import { PlanLock, PlanPill } from "./plan-lock";
 
 type Picker =
   | "background"
@@ -40,12 +42,15 @@ type Picker =
 
 export function DesignPanel({
   design,
+  plan,
   onChange,
 }: {
   design: PageDesign;
+  plan: Plan;
   onChange: (patch: Partial<PageDesign>) => void;
 }) {
   const [open, setOpen] = useState<Picker | null>(null);
+  const c = caps(plan);
 
   const names = {
     background: BACKGROUNDS.find((b) => b.id === design.background)?.name ?? "Default",
@@ -79,18 +84,23 @@ export function DesignPanel({
       {/* One-click full themes */}
       <div className="mb-3">
         <div className="mb-1.5 flex items-center justify-between">
-          <p className="text-xs text-text-muted">One-click themes</p>
-          <button
-            type="button"
-            onClick={() => {
-              const t = FULL_THEMES[Math.floor(Math.random() * FULL_THEMES.length)];
-              onChange(t.design);
-            }}
-            className="flex items-center gap-1 rounded-lg border border-border bg-surface-2 px-2 py-1 text-[11px] text-text-muted transition-colors hover:border-primary/50 hover:text-text"
-          >
-            <Shuffle className="h-3 w-3" /> Surprise me
-          </button>
+          <p className="flex items-center gap-1.5 text-xs text-text-muted">
+            One-click themes {!c.premiumThemes && <PlanPill />}
+          </p>
+          {c.premiumThemes && (
+            <button
+              type="button"
+              onClick={() => {
+                const t = FULL_THEMES[Math.floor(Math.random() * FULL_THEMES.length)];
+                onChange(t.design);
+              }}
+              className="flex items-center gap-1 rounded-lg border border-border bg-surface-2 px-2 py-1 text-[11px] text-text-muted transition-colors hover:border-primary/50 hover:text-text"
+            >
+              <Shuffle className="h-3 w-3" /> Surprise me
+            </button>
+          )}
         </div>
+        <PlanLock locked={!c.premiumThemes}>
         <div className="flex flex-wrap gap-2">
           {FULL_THEMES.map((t) => {
             const active = design.accent === t.accent && design.background === t.design.background;
@@ -119,6 +129,7 @@ export function DesignPanel({
             );
           })}
         </div>
+        </PlanLock>
       </div>
 
       {/* Quick accent presets */}

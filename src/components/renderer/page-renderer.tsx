@@ -505,10 +505,12 @@ export function PageRenderer({
   content,
   embedded = false,
   trackPageId,
+  hideBadge = false,
 }: {
   content: PageContent;
   embedded?: boolean;
   trackPageId?: string;
+  hideBadge?: boolean;
 }) {
   const r = resolveDesign(content.design);
   const layout = resolveLayout(content.design);
@@ -557,12 +559,14 @@ export function PageRenderer({
         {content.blocks.map((block) => (
           <BlockRenderer key={block.id} block={block} pageId={trackPageId} d={d} />
         ))}
-        <Link
-          href="/"
-          className="mt-4 flex items-center justify-center gap-1.5 text-xs text-text-muted transition-colors hover:text-text"
-        >
-          Made with <span className="font-display font-medium">AURA</span>
-        </Link>
+        {!hideBadge && (
+          <Link
+            href="/"
+            className="mt-4 flex items-center justify-center gap-1.5 text-xs text-text-muted transition-colors hover:text-text"
+          >
+            Made with <span className="font-display font-medium">AURA</span>
+          </Link>
+        )}
         {trackPageId && <ViewBeacon pageId={trackPageId} />}
       </div>
     </div>

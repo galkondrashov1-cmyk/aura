@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useRef, useState, useTransition } from "react";
+import { useMemo, useRef, useState, useTransition, createContext, useContext } from "react";
 import Link from "next/link";
 import {
   ArrowLeft,
@@ -15,6 +15,7 @@ import {
   Layers,
   Palette,
   Eye,
+  Lock,
 } from "lucide-react";
 import { AuraLogo } from "@/components/aura-logo";
 import { PageRenderer } from "@/components/renderer/page-renderer";
@@ -31,11 +32,17 @@ import type {
   SocialPlatform,
 } from "@/lib/blocks";
 import { DesignPanel } from "./design-panel";
+import { PlanLock } from "./plan-lock";
 import { SOCIAL_OPTIONS, SocialIcon } from "@/lib/socials";
 import { AVATAR_IDLE, ICON_FX, ICON_IDLE, BUTTON_FX } from "@/lib/design";
 import { SIZE_OPTS, ASPECT_OPTS, RADIUS_OPTS } from "@/lib/image";
 import type { ImageConfig } from "@/lib/image";
 import { RichTextInput } from "./rich-text-input";
+import { caps, type Caps, type Plan } from "@/lib/plans";
+
+// Plan capabilities for the whole editor tree (block editors read this).
+const CapsContext = createContext<Caps>(caps("PRO"));
+const useCaps = () => useContext(CapsContext);
 
 const BLOCK_LABELS: Record<BlockType, string> = {
   hero: "Hero",
@@ -89,13 +96,16 @@ export function Editor({
   pageId,
   username,
   published: initialPublished,
+  plan,
   initialContent,
 }: {
   pageId: string;
   username: string;
   published: boolean;
+  plan: Plan;
   initialContent: PageContent;
 }) {
+  const c = caps(plan);
   const [blocks, setBlocks] = useState<Block[]>(initialContent.blocks);
   const [design, setDesign] = useState<PageDesign>(initialContent.design ?? {});
   const [published, setPublished] = useState(initialPublished);
@@ -148,6 +158,7 @@ export function Editor({
     });
 
   return (
+    <CapsContext.Provider value={c}>
     <div data-mode="muted" className="min-h-screen bg-bg text-text">
       <header className="sticky top-0 z-10 flex items-center justify-between gap-2 border-b border-border bg-bg/90 px-4 py-3 backdrop-blur sm:gap-4">
         <div className="flex items-center gap-3">
@@ -221,6 +232,7 @@ export function Editor({
           {tab === "design" ? (
             <DesignPanel
               design={design}
+              plan={plan}
               onChange={(patch) => setDesign((d) => ({ ...d, ...patch }))}
             />
           ) : (
@@ -276,11 +288,12 @@ export function Editor({
             Live preview · useaura.me/{username}
           </p>
           <div className="mx-auto max-w-sm overflow-hidden rounded-[34px] border-[6px] border-surface-2 shadow-2xl ring-1 ring-border">
-            <PageRenderer content={content} embedded />
+            <PageRenderer content={content} embedded hideBadge={c.removeBadge} />
           </div>
         </div>
       </div>
     </div>
+    </CapsContext.Provider>
   );
 }
 
@@ -408,6 +421,7 @@ function BlockFields({
   block: Block;
   onPatch: (id: string, patch: Record<string, unknown>) => void;
 }) {
+  const c = useCaps();
   switch (block.type) {
     case "hero":
       return <HeroEditor block={block} onPatch={(p) => onPatch(block.id, p)} />;
@@ -447,20 +461,28 @@ function BlockFields({
       return (
         <div className="space-y-2">
           <div className="flex overflow-hidden rounded-lg border border-border">
-            {(["grid", "carousel"] as const).map((l) => (
-              <button
-                key={l}
-                onClick={() => onPatch(block.id, { layout: l })}
-                className={cn(
-                  "flex-1 px-3 py-1.5 text-xs capitalize",
-                  (block.layout ?? "grid") === l
-                    ? "bg-surface-2 text-text"
-                    : "text-text-muted hover:text-text",
-                )}
-              >
-                {l === "carousel" ? "Slideshow" : "Grid"}
-              </button>
-            ))}
+            {(["grid", "carousel"] as const).map((l) => {
+              const locked = l === "carousel" && !c.gallerySlideshow;
+              return (
+                <button
+                  key={l}
+                  onClick={() =>
+                    locked
+                      ? (window.location.href = "/dashboard/upgrade")
+                      : onPatch(block.id, { layout: l })
+                  }
+                  className={cn(
+                    "flex flex-1 items-center justify-center gap-1 px-3 py-1.5 text-xs capitalize",
+                    (block.layout ?? "grid") === l
+                      ? "bg-surface-2 text-text"
+                      : "text-text-muted hover:text-text",
+                  )}
+                >
+                  {l === "carousel" ? "Slideshow" : "Grid"}
+                  {locked && <Lock className="h-3 w-3 text-primary" />}
+                </button>
+              );
+            })}
           </div>
           <GalleryEditor
             images={block.images}
@@ -524,6 +546,7 @@ function TextEditor({
     { id: "md", label: "M" },
     { id: "lg", label: "L" },
   ];
+  const c = useCaps();
   return (
     <div className="space-y-2.5">
       <RichTextInput
@@ -570,24 +593,26 @@ function TextEditor({
             </button>
           ))}
         </div>
-        <label className="flex items-center gap-1.5 text-xs text-text-muted">
-          <input
-            type="color"
-            value={block.color || "#9aa3af"}
-            onChange={(e) => onPatch(block.id, { color: e.target.value })}
-            className="h-7 w-8 cursor-pointer rounded border border-border bg-surface-2"
-            aria-label="Text color"
-          />
-          Color
-          {block.color && (
-            <button
-              onClick={() => onPatch(block.id, { color: undefined })}
-              className="text-text-muted hover:text-text"
-            >
-              ✕
-            </button>
-          )}
-        </label>
+        <PlanLock locked={!c.perElement}>
+          <label className="flex items-center gap-1.5 text-xs text-text-muted">
+            <input
+              type="color"
+              value={block.color || "#9aa3af"}
+              onChange={(e) => onPatch(block.id, { color: e.target.value })}
+              className="h-7 w-8 cursor-pointer rounded border border-border bg-surface-2"
+              aria-label="Text color"
+            />
+            Color
+            {block.color && (
+              <button
+                onClick={() => onPatch(block.id, { color: undefined })}
+                className="text-text-muted hover:text-text"
+              >
+                ✕
+              </button>
+            )}
+          </label>
+        </PlanLock>
         <label className="flex cursor-pointer items-center gap-1.5 text-xs text-text-muted select-none">
           <input
             type="checkbox"
@@ -615,8 +640,10 @@ function DividerEditor({
     { id: "dotted", label: "Dotted" },
     { id: "glow", label: "Glow" },
   ];
+  const c = useCaps();
   return (
     <div className="space-y-3">
+      <PlanLock locked={!c.perElement}>
       <div className="flex items-center gap-2">
         <input
           type="color"
@@ -635,6 +662,7 @@ function DividerEditor({
           </button>
         )}
       </div>
+      </PlanLock>
       <div className="grid grid-cols-4 gap-2">
         {styles.map((s) => (
           <button
@@ -978,6 +1006,7 @@ function LinksEditor({
   items: LinkItem[];
   onChange: (items: LinkItem[]) => void;
 }) {
+  const c = useCaps();
   const update = (i: number, p: Partial<LinkItem>) =>
     onChange(items.map((it, j) => (j === i ? { ...it, ...p } : it)));
   return (
@@ -1013,33 +1042,35 @@ function LinksEditor({
             className="bg-bg"
           />
           {/* Per-button override (the Design tab sets the default for all buttons) */}
-          <div className="flex items-center gap-2 border-t border-border/60 pt-2">
-            <span className="shrink-0 text-[11px] text-text-muted">This button</span>
-            <label className="flex items-center gap-1" title="Override this button's fill color">
-              <input
-                type="color"
-                value={it.color || "#00e5a0"}
-                onChange={(e) => update(i, { color: e.target.value })}
-                className="h-7 w-8 cursor-pointer rounded border border-border bg-bg"
-                aria-label="Button fill color"
-              />
-              {it.color && (
-                <button onClick={() => update(i, { color: undefined })} className="text-text-muted hover:text-text" title="Reset to default">✕</button>
-              )}
-            </label>
-            <select
-              value={it.fx ?? ""}
-              onChange={(e) => update(i, { fx: e.target.value || undefined })}
-              className="h-7 flex-1 rounded-lg border border-border bg-bg px-2 text-xs text-text"
-              aria-label="Button effect override"
-              title="Override this button's hover effect"
-            >
-              <option value="">Effect: use default</option>
-              {BUTTON_FX.map((e) => (
-                <option key={e.id} value={e.id}>{e.name}</option>
-              ))}
-            </select>
-          </div>
+          <PlanLock locked={!c.perElement}>
+            <div className="flex items-center gap-2 border-t border-border/60 pt-2">
+              <span className="shrink-0 text-[11px] text-text-muted">This button</span>
+              <label className="flex items-center gap-1" title="Override this button's fill color">
+                <input
+                  type="color"
+                  value={it.color || "#00e5a0"}
+                  onChange={(e) => update(i, { color: e.target.value })}
+                  className="h-7 w-8 cursor-pointer rounded border border-border bg-bg"
+                  aria-label="Button fill color"
+                />
+                {it.color && (
+                  <button onClick={() => update(i, { color: undefined })} className="text-text-muted hover:text-text" title="Reset to default">✕</button>
+                )}
+              </label>
+              <select
+                value={it.fx ?? ""}
+                onChange={(e) => update(i, { fx: e.target.value || undefined })}
+                className="h-7 flex-1 rounded-lg border border-border bg-bg px-2 text-xs text-text"
+                aria-label="Button effect override"
+                title="Override this button's hover effect"
+              >
+                <option value="">Effect: use default</option>
+                {BUTTON_FX.map((e) => (
+                  <option key={e.id} value={e.id}>{e.name}</option>
+                ))}
+              </select>
+            </div>
+          </PlanLock>
         </div>
       ))}
       <AddItemBtn onClick={() => onChange([...items, { label: "New link", url: "https://" }])} />
@@ -1055,6 +1086,7 @@ function SocialsEditor({
   onPatch: (id: string, p: Record<string, unknown>) => void;
 }) {
   const items = block.items;
+  const c = useCaps();
   const onChange = (next: { platform: SocialPlatform; url: string }[]) =>
     onPatch(block.id, { items: next });
   const update = (i: number, p: Partial<{ platform: SocialPlatform; url: string }>) =>
@@ -1062,6 +1094,7 @@ function SocialsEditor({
   return (
     <div className="space-y-3">
       {/* Centralized icon styling for this Socials block */}
+      <PlanLock locked={!c.perElement}>
       <div className="space-y-2 rounded-xl border border-border bg-surface-2 p-2.5">
         <div className="flex items-center gap-2">
           <input
@@ -1110,6 +1143,7 @@ function SocialsEditor({
           </label>
         </div>
       </div>
+      </PlanLock>
       {items.map((it, i) => (
         <div key={i} className="flex items-center gap-2">
           <span className="grid h-9 w-9 shrink-0 place-items-center rounded-lg border border-border bg-surface-2 text-text">
