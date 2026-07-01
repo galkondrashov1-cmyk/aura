@@ -23,7 +23,8 @@ import {
   groupByCategory,
 } from "@/lib/design";
 import { FONTS } from "@/lib/fonts";
-import { caps, type Plan } from "@/lib/plans";
+import { caps, PLAN_RANK, type Plan } from "@/lib/plans";
+import { bgCategoryTier, fontCategoryTier } from "@/lib/design";
 import { PlanLock, PlanPill } from "./plan-lock";
 
 type Picker =
@@ -250,47 +251,58 @@ export function DesignPanel({
       {open === "font" && (
         <Modal title="Fonts" onClose={() => setOpen(null)}>
           <DefaultTile selected={!design.font} onClick={() => pick({ font: undefined })} />
-          {groupByCategory(FONTS).map(([cat, items]) => (
-            <Section key={cat} title={cat} cols={3}>
-              {items.map((f) => (
-                <button
-                  key={f.id}
-                  onClick={() => pick({ font: f.id })}
-                  className={cn(
-                    "flex flex-col items-center gap-0.5 rounded-xl border px-2 py-3",
-                    design.font === f.id ? "border-primary" : "border-border",
-                  )}
-                  style={{ fontFamily: `var(${f.variable})` }}
-                >
-                  <span className="text-2xl leading-none text-text">Ag</span>
-                  <span className="text-[11px] text-text-muted">{f.name}</span>
-                </button>
-              ))}
-            </Section>
-          ))}
+          {groupByCategory(FONTS).map(([cat, items]) => {
+            const locked = PLAN_RANK[fontCategoryTier(cat)] > PLAN_RANK[plan];
+            return (
+              <PlanLock key={cat} locked={locked}>
+                <Section title={cat} cols={3}>
+                  {items.map((f) => (
+                    <button
+                      key={f.id}
+                      onClick={() => pick({ font: f.id })}
+                      className={cn(
+                        "flex flex-col items-center gap-0.5 rounded-xl border px-2 py-3",
+                        design.font === f.id ? "border-primary" : "border-border",
+                      )}
+                      style={{ fontFamily: `var(${f.variable})` }}
+                    >
+                      <span className="text-2xl leading-none text-text">Ag</span>
+                      <span className="text-[11px] text-text-muted">{f.name}</span>
+                    </button>
+                  ))}
+                </Section>
+              </PlanLock>
+            );
+          })}
         </Modal>
       )}
 
       {open === "background" && (
         <Modal title="Backgrounds" onClose={() => setOpen(null)}>
           <DefaultTile selected={!design.background} onClick={() => pick({ background: undefined })} />
-          {groupByCategory(BACKGROUNDS).map(([cat, items]) => (
-            <Section key={cat} title={cat}>
-              {items.map((b) => (
-                <button
-                  key={b.id}
-                  onClick={() => pick({ background: b.id })}
-                  className={cn(
-                    "overflow-hidden rounded-xl border",
-                    design.background === b.id ? "border-primary" : "border-border",
-                  )}
-                  title={b.name}
-                >
-                  <span className="block h-14 w-full" style={{ background: b.css }} />
-                </button>
-              ))}
-            </Section>
-          ))}
+          {groupByCategory(BACKGROUNDS).map(([cat, items]) => {
+            const tier = bgCategoryTier(cat);
+            const locked = PLAN_RANK[tier] > PLAN_RANK[plan];
+            return (
+              <PlanLock key={cat} locked={locked} tier={tier === "PRO" ? "Pro" : "Plus"}>
+                <Section title={cat}>
+                  {items.map((b) => (
+                    <button
+                      key={b.id}
+                      onClick={() => pick({ background: b.id })}
+                      className={cn(
+                        "overflow-hidden rounded-xl border",
+                        design.background === b.id ? "border-primary" : "border-border",
+                      )}
+                      title={b.name}
+                    >
+                      <span className="block h-14 w-full" style={{ background: b.css }} />
+                    </button>
+                  ))}
+                </Section>
+              </PlanLock>
+            );
+          })}
         </Modal>
       )}
 

@@ -1,4 +1,17 @@
 import type { PageDesign } from "@/lib/blocks";
+import type { Plan } from "@/lib/plans";
+
+// Category → required plan tier. Free gets a generous base; the rest is paid.
+const FREE_BG_CATEGORIES = new Set(["Gradient", "Mesh", "Aurora", "Sunset", "Ocean", "Neon"]);
+const PRO_BG_CATEGORIES = new Set(["Liquid", "Foil", "Nebula"]);
+export function bgCategoryTier(category: string): Plan {
+  if (PRO_BG_CATEGORIES.has(category)) return "PRO";
+  if (FREE_BG_CATEGORIES.has(category)) return "FREE";
+  return "PLUS";
+}
+export function fontCategoryTier(category: string): Plan {
+  return category === "Sans" ? "FREE" : "PLUS";
+}
 
 export type Background = {
   id: string;
@@ -175,6 +188,34 @@ pushBgs(
     const h = 180 + i * 22;
     return {
       css: `radial-gradient(55% 45% at 25% 15%, ${H(h, 45, 22)} 0%, transparent 55%), radial-gradient(55% 45% at 80% 85%, ${H((h + 90) % 360, 45, 22)} 0%, transparent 55%), linear-gradient(160deg, ${H(h - 20, 25, 9)} 0%, ${H(h + 40, 25, 12)} 100%)`,
+    };
+  }),
+);
+// ---- Pro-exclusive background categories ----
+pushBgs(
+  "Liquid",
+  Array.from({ length: 6 }, (_, i) => {
+    const h = i * 60;
+    return {
+      css: `radial-gradient(40% 55% at 22% 30%, ${H(h, 80, 26)} 0%, transparent 55%), radial-gradient(45% 50% at 78% 40%, ${H((h + 70) % 360, 80, 24)} 0%, transparent 55%), radial-gradient(50% 55% at 55% 92%, ${H((h + 160) % 360, 80, 24)} 0%, transparent 60%), radial-gradient(40% 40% at 90% 90%, ${H((h + 240) % 360, 80, 22)} 0%, transparent 55%), #06060c`,
+    };
+  }),
+);
+pushBgs(
+  "Foil",
+  Array.from({ length: 6 }, (_, i) => {
+    const h = i * 60;
+    return {
+      css: `repeating-linear-gradient(115deg, ${H(h, 55, 16)} 0 8%, ${H((h + 45) % 360, 55, 22)} 12%, ${H((h + 120) % 360, 55, 16)} 20%, ${H((h + 200) % 360, 55, 22)} 28%, ${H(h, 55, 16)} 36%)`,
+    };
+  }),
+);
+pushBgs(
+  "Nebula",
+  Array.from({ length: 6 }, (_, i) => {
+    const h = 250 + i * 12;
+    return {
+      css: `radial-gradient(50% 45% at 30% 25%, ${H(h, 70, 22)} 0%, transparent 55%), radial-gradient(45% 45% at 75% 60%, ${H((h + 80) % 360, 65, 20)} 0%, transparent 55%), radial-gradient(1px 1px at 20% 30%, rgba(255,255,255,0.8), transparent), radial-gradient(1px 1px at 70% 65%, rgba(255,255,255,0.6), transparent), radial-gradient(1.5px 1.5px at 45% 80%, rgba(255,255,255,0.5), transparent), linear-gradient(160deg, ${H(h - 20, 55, 6)}, ${H(h + 30, 55, 10)})`,
     };
   }),
 );
