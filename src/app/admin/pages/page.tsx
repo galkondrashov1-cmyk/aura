@@ -1,7 +1,8 @@
 import Link from "next/link";
-import { ExternalLink } from "lucide-react";
+import { ExternalLink, Eye } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import { cn } from "@/lib/utils";
+import { signDraft } from "@/lib/draft-token";
 
 export default async function AdminPages() {
   const pages = await prisma.page.findMany({
@@ -50,17 +51,28 @@ export default async function AdminPages() {
                   <td className="px-4 py-3 text-text-muted">
                     {new Date(p.updatedAt).toLocaleDateString()}
                   </td>
-                  <td className="px-4 py-3 text-right">
-                    {published && (
+                  <td className="px-4 py-3">
+                    <div className="flex items-center justify-end gap-3">
                       <Link
-                        href={`/${p.user.username}`}
+                        href={`/d/${signDraft(p.id)}`}
                         target="_blank"
                         className="inline-flex items-center gap-1 text-xs text-text-muted hover:text-text"
+                        title="View this user's draft"
                       >
-                        <ExternalLink className="h-3.5 w-3.5" />
-                        View
+                        <Eye className="h-3.5 w-3.5" />
+                        Draft
                       </Link>
-                    )}
+                      {published && (
+                        <Link
+                          href={`/${p.user.username}`}
+                          target="_blank"
+                          className="inline-flex items-center gap-1 text-xs text-text-muted hover:text-text"
+                        >
+                          <ExternalLink className="h-3.5 w-3.5" />
+                          Live
+                        </Link>
+                      )}
+                    </div>
                   </td>
                 </tr>
               );

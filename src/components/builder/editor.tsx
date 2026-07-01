@@ -97,12 +97,14 @@ export function Editor({
   username,
   published: initialPublished,
   plan,
+  draftToken,
   initialContent,
 }: {
   pageId: string;
   username: string;
   published: boolean;
   plan: Plan;
+  draftToken: string;
   initialContent: PageContent;
 }) {
   const c = caps(plan);
@@ -170,6 +172,15 @@ export function Editor({
           </span>
         </div>
         <div className="flex items-center gap-1.5 sm:gap-2">
+          <Link
+            href={`/d/${draftToken}`}
+            target="_blank"
+            className={buttonClasses("ghost", "sm")}
+            title="Open a shareable draft preview"
+          >
+            <Eye className="h-4 w-4" />
+            <span className="hidden sm:inline">Preview</span>
+          </Link>
           {published && (
             <Link href={`/${username}`} target="_blank" className={buttonClasses("ghost", "sm")}>
               <ExternalLink className="h-4 w-4" />
