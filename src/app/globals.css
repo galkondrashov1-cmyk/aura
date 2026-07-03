@@ -163,18 +163,18 @@ textarea,
 .bgfx-aurora {
   background: linear-gradient(120deg, color-mix(in oklab, var(--primary) 20%, transparent), transparent 45%, color-mix(in oklab, var(--accent) 20%, transparent));
   background-size: 200% 200%;
-  animation: auraDrift 12s ease-in-out infinite;
+  animation: auraDrift calc(12s * var(--spd, 1)) ease-in-out infinite;
 }
 @keyframes auraDrift { 0%, 100% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } }
 .bgfx-shimmer {
   background: linear-gradient(110deg, transparent 35%, rgba(255, 255, 255, 0.06) 50%, transparent 65%);
   background-size: 200% 100%;
-  animation: auraShimmer 7s linear infinite;
+  animation: auraShimmer calc(7s * var(--spd, 1)) linear infinite;
 }
 @keyframes auraShimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
 .bgfx-pulse {
   background: radial-gradient(50% 40% at 50% 0%, color-mix(in oklab, var(--primary) 20%, transparent), transparent 70%);
-  animation: auraGlowPulse 4s ease-in-out infinite;
+  animation: auraGlowPulse calc(4s * var(--spd, 1)) ease-in-out infinite;
 }
 @keyframes auraGlowPulse { 0%, 100% { opacity: 0.4; } 50% { opacity: 0.9; } }
 
@@ -190,15 +190,15 @@ textarea,
 @keyframes auraIdleSpin { to { transform: rotate(360deg); } }
 
 /* Idle animations (applied to a wrapper element) */
-.bi-float, .ii-float { animation: auraIdleFloat 3s ease-in-out infinite; }
-.bi-pulse, .ii-pulse { animation: auraIdleScale 2.2s ease-in-out infinite; }
-.bi-bounce, .ii-bounce { animation: auraIdleHop 1.8s ease-in-out infinite; }
-.bi-breathe, .ii-breathe { animation: auraIdleBreathe 3s ease-in-out infinite; }
-.bi-sway, .ii-sway { animation: auraIdleSway 3.5s ease-in-out infinite; }
-.bi-wobble, .ii-wobble { animation: auraIdleRock 3s ease-in-out infinite; }
-.bi-drift, .ii-drift { animation: auraIdleDrift 3.2s ease-in-out infinite; }
-.bi-tilt { animation: auraIdleTilt 3s ease-in-out infinite; }
-.ii-spin { display: inline-flex; animation: auraIdleSpin 8s linear infinite; }
+.bi-float, .ii-float { animation: auraIdleFloat calc(3s * var(--spd, 1)) ease-in-out infinite; }
+.bi-pulse, .ii-pulse { animation: auraIdleScale calc(2.2s * var(--spd, 1)) ease-in-out infinite; }
+.bi-bounce, .ii-bounce { animation: auraIdleHop calc(1.8s * var(--spd, 1)) ease-in-out infinite; }
+.bi-breathe, .ii-breathe { animation: auraIdleBreathe calc(3s * var(--spd, 1)) ease-in-out infinite; }
+.bi-sway, .ii-sway { animation: auraIdleSway calc(3.5s * var(--spd, 1)) ease-in-out infinite; }
+.bi-wobble, .ii-wobble { animation: auraIdleRock calc(3s * var(--spd, 1)) ease-in-out infinite; }
+.bi-drift, .ii-drift { animation: auraIdleDrift calc(3.2s * var(--spd, 1)) ease-in-out infinite; }
+.bi-tilt { animation: auraIdleTilt calc(3s * var(--spd, 1)) ease-in-out infinite; }
+.ii-spin { display: inline-flex; animation: auraIdleSpin calc(8s * var(--spd, 1)) linear infinite; }
 
 /* Button styles (applied to the link button itself) */
 .cs-surface { background: var(--surface-2); color: var(--text); }
@@ -282,6 +282,59 @@ textarea,
 .cs-retro-inset { background: var(--surface-2); color: var(--text); box-shadow: inset 0 2px 6px rgba(0,0,0,0.5), inset 0 -1px 0 rgba(255,255,255,0.08); }
 .cs-retro-stripe { background: repeating-linear-gradient(45deg, var(--surface-2) 0 10px, var(--surface) 10px 20px); color: var(--text); border: 1px solid var(--border); }
 
+/* ===== Special button styles (Pro) ===== */
+.cs-sp-sticker { background: var(--text); color: var(--bg); border: 3px solid #fff; box-shadow: 0 6px 18px rgba(0,0,0,0.45); transform: rotate(-1.2deg); }
+.cs-sp-ticket {
+  background: var(--surface-2); color: var(--text); border: 1px dashed color-mix(in oklab, var(--primary) 55%, transparent);
+  -webkit-mask: radial-gradient(circle 9px at 0 50%, transparent 98%, #000) left / 51% 100% no-repeat,
+                radial-gradient(circle 9px at 100% 50%, transparent 98%, #000) right / 51% 100% no-repeat;
+  mask: radial-gradient(circle 9px at 0 50%, transparent 98%, #000) left / 51% 100% no-repeat,
+        radial-gradient(circle 9px at 100% 50%, transparent 98%, #000) right / 51% 100% no-repeat;
+}
+.cs-sp-slant { background: color-mix(in oklab, var(--primary) 14%, var(--surface-2)); color: var(--text); clip-path: polygon(3% 0, 100% 0, 97% 100%, 0 100%); }
+.cs-sp-underline { background: transparent; color: var(--text); border-radius: 0 !important; border-bottom: 2px solid var(--primary); }
+.cs-sp-3d { background: var(--surface-2); color: var(--text); border: 1px solid var(--border); border-bottom: 4px solid color-mix(in oklab, var(--primary) 70%, transparent); }
+.cs-sp-aurora-edge { position: relative; background: var(--surface); color: var(--text); z-index: 0; }
+.cs-sp-aurora-edge::before {
+  content: ""; position: absolute; inset: -2px; border-radius: inherit; z-index: -1; padding: 2px;
+  background: linear-gradient(100deg, var(--primary), var(--accent), var(--secondary), var(--primary));
+  background-size: 250% 100%;
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor; mask-composite: exclude;
+  animation: auraEdgeFlow calc(5s * var(--spd, 1)) linear infinite;
+}
+@keyframes auraEdgeFlow { to { background-position: 250% 0; } }
+
+/* Slanted button shape (clip-path can't live in Tailwind utility maps) */
+.shape-slant { border-radius: 0 !important; clip-path: polygon(6% 0, 100% 0, 94% 100%, 0 100%); }
+
+/* ===== Dividers — all tapered at the far edges via mask ===== */
+.dv {
+  --dvc: var(--border);
+  width: 100%;
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 18%, #000 82%, transparent);
+  mask-image: linear-gradient(90deg, transparent, #000 18%, #000 82%, transparent);
+}
+.dv-line { height: 1px; background: var(--dvc); }
+.dv-dashed { height: 0; border-top: 2px dashed var(--dvc); }
+.dv-dotted { height: 0; border-top: 3px dotted var(--dvc); }
+.dv-glow { height: 2px; background: var(--dvc); box-shadow: 0 0 12px 1px var(--dvc); border-radius: 2px; }
+.dv-double { height: 7px; border-top: 1px solid var(--dvc); border-bottom: 1px solid var(--dvc); }
+.dv-wave {
+  height: 7px;
+  background: radial-gradient(circle at 50% 130%, transparent 0 3px, var(--dvc) 3px 4px, transparent 4.5px) 0 0 / 14px 7px repeat-x;
+}
+.dv-shimmer {
+  height: 2px;
+  border-radius: 2px;
+  background: linear-gradient(90deg, var(--dvc), color-mix(in oklab, var(--dvc) 20%, white), var(--dvc));
+  background-size: 200% 100%;
+  animation: auraShimmer calc(3s * var(--spd, 1)) linear infinite;
+}
+.dv-march { height: 0; border-top: 3px dashed var(--dvc); animation: auraMarch calc(1.2s * var(--spd, 1)) linear infinite; }
+@keyframes auraMarch { to { transform: translateX(14px); } }
+.dv-pulse { height: 2px; background: var(--dvc); box-shadow: 0 0 14px 2px var(--dvc); border-radius: 2px; animation: auraGlowPulse calc(2.4s * var(--spd, 1)) ease-in-out infinite; }
+
 /* ===== Extra button hover effects ===== */
 .bh-expand { transition: transform 0.25s, letter-spacing 0.25s; } .bh-expand:hover { transform: scale(1.02); letter-spacing: 0.04em; }
 .bh-magnetic { transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1); } .bh-magnetic:hover { transform: translateY(-3px) scale(1.04); }
@@ -307,14 +360,22 @@ textarea,
     radial-gradient(40% 40% at 20% 20%, color-mix(in oklab, var(--primary) 22%, transparent), transparent 60%),
     radial-gradient(40% 40% at 80% 70%, color-mix(in oklab, var(--accent) 22%, transparent), transparent 60%);
   background-size: 180% 180%;
-  animation: auraMeshMove 16s ease-in-out infinite;
+  animation: auraMeshMove calc(16s * var(--spd, 1)) ease-in-out infinite;
 }
 @keyframes auraMeshMove { 0%, 100% { background-position: 0% 0%; } 50% { background-position: 100% 100%; } }
-.bgfx-rotate {
-  background: conic-gradient(from 0deg at 50% 35%, color-mix(in oklab, var(--primary) 16%, transparent), transparent 30%, color-mix(in oklab, var(--accent) 16%, transparent) 60%, transparent 90%);
-  animation: auraRotate 24s linear infinite;
+.bgfx-rotate { overflow: hidden; }
+.bgfx-rotate::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 30%;
+  width: 220vmax;
+  height: 220vmax;
+  margin: -110vmax 0 0 -110vmax;
+  background: conic-gradient(from 0deg, color-mix(in oklab, var(--primary) 16%, transparent), transparent 30%, color-mix(in oklab, var(--accent) 16%, transparent) 60%, transparent 90%);
+  animation: auraRotate calc(24s * var(--spd, 1)) linear infinite;
 }
-@keyframes auraRotate { from { transform: rotate(0deg) scale(1.6); } to { transform: rotate(360deg) scale(1.6); } }
+@keyframes auraRotate { to { transform: rotate(360deg); } }
 
 /* ===== Creative button hover effects ===== */
 .bh-glitch { position: relative; transition: transform 0.1s; }
@@ -342,6 +403,28 @@ textarea,
 }
 @keyframes auraNeon { 0%,18%,22%,100% { opacity: 1; } 20% { opacity: 0.7; } }
 
+/* ===== Extra overlay / glow / animated background effects ===== */
+.bgfx-topfade { background: linear-gradient(180deg, rgba(0,0,0,0.55), transparent 40%); }
+.bgfx-bottomfade { background: linear-gradient(0deg, rgba(0,0,0,0.6), transparent 45%); }
+.bgfx-frame { box-shadow: inset 0 0 0 10px rgba(0,0,0,0.35), inset 0 0 0 11px color-mix(in oklab, var(--primary) 45%, transparent); }
+.bgfx-haze { background: radial-gradient(80% 60% at 50% 40%, rgba(255,255,255,0.07), transparent 70%); }
+.bgfx-sideglow {
+  background:
+    radial-gradient(30% 55% at 0% 50%, color-mix(in oklab, var(--primary) 22%, transparent), transparent 70%),
+    radial-gradient(30% 55% at 100% 50%, color-mix(in oklab, var(--accent) 22%, transparent), transparent 70%);
+}
+.bgfx-underglow { background: radial-gradient(60% 40% at 50% 100%, color-mix(in oklab, var(--primary) 26%, transparent), transparent 70%); }
+.bgfx-stardrift {
+  background-image:
+    radial-gradient(1px 1px at 20% 30%, rgba(255,255,255,0.8), transparent),
+    radial-gradient(1px 1px at 70% 65%, rgba(255,255,255,0.6), transparent),
+    radial-gradient(1.5px 1.5px at 40% 80%, rgba(255,255,255,0.5), transparent),
+    radial-gradient(1px 1px at 85% 20%, rgba(255,255,255,0.7), transparent);
+  background-size: 260px 260px;
+  animation: auraStarDrift calc(60s * var(--spd, 1)) linear infinite;
+}
+@keyframes auraStarDrift { to { background-position: 260px 520px; } }
+
 /* ===== Creative background effects ===== */
 .bgfx-gridpersp {
   background-image:
@@ -365,7 +448,7 @@ textarea,
   background: linear-gradient(120deg, color-mix(in oklab, var(--primary) 26%, transparent), transparent 35%, color-mix(in oklab, var(--accent) 26%, transparent) 65%, transparent);
   background-size: 220% 220%;
   filter: blur(6px);
-  animation: auraWave 10s ease-in-out infinite;
+  animation: auraWave calc(10s * var(--spd, 1)) ease-in-out infinite;
 }
 @keyframes auraWave { 0%,100% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } }
 
@@ -375,6 +458,8 @@ textarea,
   .bh-pulse:hover, .bh-wobble:hover, .bh-bounce:hover, .bh-jelly:hover,
   .bh-glitch:hover, .bh-rainbow:hover::before, .bh-neonflicker:hover,
   .ih-wiggle:hover, .ih-bounce:hover, .ih-pulse:hover, .ih-shake:hover,
-  .bgfx-aurora, .bgfx-shimmer, .bgfx-pulse, .bgfx-meshmove, .bgfx-rotate,
+  .bgfx-aurora, .bgfx-shimmer, .bgfx-pulse, .bgfx-meshmove, .bgfx-rotate::before, .bgfx-rays::before,
+  .bgfx-stardrift, .bgfx-sparkle, .bgfx-blobs::before, .bgfx-blobs::after,
+  .dv-shimmer, .dv-march, .dv-pulse, .cs-sp-aurora-edge::before,
   .bgfx-orbs::before, .bgfx-orbs::after, .bgfx-aurorawave { animation: none; }
 }

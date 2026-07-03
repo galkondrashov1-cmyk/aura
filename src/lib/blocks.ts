@@ -44,6 +44,9 @@ export type LinkItem = {
 };
 
 export type AvatarShape = "circle" | "rounded" | "square";
+export type DividerStyle =
+  | "line" | "dashed" | "dotted" | "glow" | "double" | "wave"
+  | "shimmer" | "march" | "pulse";
 export type BannerHeight = "sm" | "md" | "lg";
 
 export type Block =
@@ -55,6 +58,8 @@ export type Block =
       avatarUrl?: string | null;
       avatarShape?: AvatarShape;
       avatarIdle?: string;
+      /** Avatar size as a free scale (px width). Overrides preset sizes. */
+      avatarScale?: number;
       avatar?: ImageConfig;
       bannerUrl?: string | null;
       bannerHeight?: BannerHeight;
@@ -95,8 +100,18 @@ export type Block =
       layout?: "grid" | "carousel";
     }
   | { id: string; type: "video"; url: string; title?: RichValue }
-  | { id: string; type: "divider"; color?: string; style?: "line" | "dashed" | "dotted" | "glow" }
-  | { id: string; type: "faq"; items: { question: RichValue; answer: RichValue }[] }
+  | {
+      id: string;
+      type: "divider";
+      color?: string;
+      style?: DividerStyle;
+    }
+  | {
+      id: string;
+      type: "faq";
+      items: { question: RichValue; answer: RichValue }[];
+      align?: "left" | "center" | "right";
+    }
   // ── Advanced blocks (Pro) ──
   | { id: string; type: "embed"; url: string; height?: "sm" | "md" | "lg" }
   | { id: string; type: "music"; url: string }
@@ -122,6 +137,7 @@ export type PageDesign = {
   contentWidth?: string;
   spacing?: string;
   textScale?: string;
+  motionSpeed?: string;
   // Custom SEO (Pro) — override the public page's <title> / description.
   seoTitle?: string;
   seoDescription?: string;
@@ -161,6 +177,7 @@ export function asPageContent(value: unknown): PageContent {
             contentWidth: str(v.design.contentWidth),
             spacing: str(v.design.spacing),
             textScale: str(v.design.textScale),
+            motionSpeed: str(v.design.motionSpeed),
             seoTitle: str(v.design.seoTitle),
             seoDescription: str(v.design.seoDescription),
           }

@@ -7,7 +7,8 @@ import { getSession } from "@/lib/session";
 import type { Block, PageContent } from "@/lib/blocks";
 import { asPageContent } from "@/lib/blocks";
 import { toPlain } from "@/lib/richtext";
-import { asPlan, caps } from "@/lib/plans";
+import { caps } from "@/lib/plans";
+import { getEffectivePlan } from "@/lib/plan-source";
 
 async function requireUser() {
   const user = await getSession();
@@ -48,7 +49,7 @@ export async function createPage() {
 
   const count = await prisma.page.count({ where: { userId: user.id } });
   // Plan limit: Free = 1 page, Plus = 5, Pro = unlimited.
-  if (count >= caps(asPlan(user.plan)).maxPages) {
+  if (count >= caps(await getEffectivePlan(user.id)).maxPages) {
     redirect("/dashboard/upgrade?limit=pages");
   }
   const slug = count === 0 ? "home" : `page-${count + 1}`;

@@ -22,7 +22,9 @@ model User {
   image        String?
   role         String   @default("USER") // USER | ADMIN
   status       String   @default("ACTIVE") // ACTIVE | SUSPENDED
-  plan         String   @default("FREE") // FREE | PLUS | PRO
+  plan          String    @default("FREE") // FREE | PLUS | PRO
+  paypalSubId   String?   // active PayPal subscription id
+  planExpiresAt String?   // ISO date — paid-through date once a sub is cancelled/suspended
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 

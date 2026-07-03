@@ -575,12 +575,7 @@ function BlockFields({
     case "socials":
       return <SocialsEditor block={block} onPatch={onPatch} />;
     case "faq":
-      return (
-        <FaqEditor
-          items={block.items}
-          onChange={(items) => onPatch(block.id, { items })}
-        />
-      );
+      return <FaqEditor block={block} onPatch={onPatch} />;
     case "divider":
       return <DividerEditor block={block} onPatch={onPatch} />;
     case "embed":
@@ -753,11 +748,16 @@ function DividerEditor({
   block: Extract<Block, { type: "divider" }>;
   onPatch: (id: string, p: Record<string, unknown>) => void;
 }) {
-  const styles: { id: "line" | "dashed" | "dotted" | "glow"; label: string }[] = [
+  const styles: { id: import("@/lib/blocks").DividerStyle; label: string; plus?: boolean }[] = [
     { id: "line", label: "Line" },
     { id: "dashed", label: "Dashed" },
     { id: "dotted", label: "Dotted" },
     { id: "glow", label: "Glow" },
+    { id: "double", label: "Double" },
+    { id: "wave", label: "Wave" },
+    { id: "shimmer", label: "Shimmer", plus: true },
+    { id: "march", label: "Marching", plus: true },
+    { id: "pulse", label: "Pulse", plus: true },
   ];
   const c = useCaps();
   return (
@@ -782,21 +782,37 @@ function DividerEditor({
         )}
       </div>
       </PlanLock>
-      <div className="grid grid-cols-4 gap-2">
-        {styles.map((s) => (
-          <button
-            key={s.id}
-            onClick={() => onPatch(block.id, { style: s.id })}
-            className={cn(
-              "rounded-lg border px-2 py-1.5 text-xs",
-              (block.style ?? "line") === s.id
-                ? "border-primary text-text"
-                : "border-border text-text-muted hover:text-text",
-            )}
-          >
-            {s.label}
-          </button>
-        ))}
+      <div className="grid grid-cols-3 gap-2">
+        {styles.map((s) => {
+          const locked = !!s.plus && !c.perElement;
+          return (
+            <button
+              key={s.id}
+              onClick={() =>
+                locked
+                  ? (window.location.href = "/dashboard/upgrade")
+                  : onPatch(block.id, { style: s.id })
+              }
+              className={cn(
+                "flex items-center justify-center gap-1 rounded-lg border px-2 py-1.5 text-xs",
+                (block.style ?? "line") === s.id
+                  ? "border-primary text-text"
+                  : "border-border text-text-muted hover:text-text",
+                locked && "opacity-60",
+              )}
+            >
+              {s.label}
+              {locked && <Lock className="h-3 w-3 text-primary" />}
+            </button>
+          );
+        })}
+      </div>
+      {/* live preview strip of the chosen style */}
+      <div className="rounded-lg border border-border bg-bg px-3 py-4">
+        <div
+          className={cn("dv", `dv-${block.style ?? "line"}`)}
+          style={block.color ? ({ "--dvc": block.color } as React.CSSProperties) : undefined}
+        />
       </div>
     </div>
   );
@@ -986,9 +1002,25 @@ function HeroEditor({
           />
           <ImageUploader onUploaded={(url) => onPatch({ avatarUrl: url })} />
         </div>
+        {/* Free-scale size slider instead of S/M/L presets */}
+        <label className="flex items-center gap-2 text-xs text-text-muted">
+          <span className="w-8 shrink-0">Size</span>
+          <input
+            type="range"
+            min={48}
+            max={200}
+            step={4}
+            value={block.avatarScale ?? 80}
+            onChange={(e) => onPatch({ avatarScale: Number(e.target.value) })}
+            className="flex-1 accent-primary"
+            aria-label="Profile image size"
+          />
+          <span className="w-10 text-right tabular-nums">{block.avatarScale ?? 80}px</span>
+        </label>
         <ImageControls
           value={block.avatar}
           onChange={(avatar) => onPatch({ avatar })}
+          showSize={false}
           defaults={{ aspect: "square", radius: "full" }}
         />
         <select
@@ -1003,43 +1035,6 @@ function HeroEditor({
             </option>
           ))}
         </select>
-      </div>
-
-      <div className="space-y-2 rounded-xl border border-border bg-surface-2 p-2.5">
-        <div className="flex items-center justify-between">
-          <p className="text-xs font-medium text-text-muted">Banner (behind image)</p>
-          {block.bannerUrl && (
-            <button
-              onClick={() => onPatch({ bannerUrl: null })}
-              className="text-xs text-text-muted hover:text-text"
-            >
-              Remove
-            </button>
-          )}
-        </div>
-        {block.bannerUrl && (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
-            src={block.bannerUrl}
-            alt=""
-            className="h-16 w-full rounded-lg border border-border object-cover"
-          />
-        )}
-        <div className="flex items-center gap-2">
-          <Input
-            value={block.bannerUrl ?? ""}
-            onChange={(e) => onPatch({ bannerUrl: e.target.value })}
-            placeholder="Banner URL or upload →"
-            className="bg-bg"
-          />
-          <ImageUploader onUploaded={(url) => onPatch({ bannerUrl: url })} />
-        </div>
-        <ImageControls
-          value={block.banner}
-          onChange={(banner) => onPatch({ banner })}
-          showSize={false}
-          defaults={{ aspect: "wide", radius: "lg" }}
-        />
       </div>
     </div>
   );
@@ -1343,16 +1338,38 @@ function SocialsEditor({
 type FaqItem = Extract<Block, { type: "faq" }>["items"][number];
 
 function FaqEditor({
-  items,
-  onChange,
+  block,
+  onPatch,
 }: {
-  items: FaqItem[];
-  onChange: (items: FaqItem[]) => void;
+  block: Extract<Block, { type: "faq" }>;
+  onPatch: (id: string, p: Record<string, unknown>) => void;
 }) {
+  const items = block.items;
+  const onChange = (next: FaqItem[]) => onPatch(block.id, { items: next });
   const update = (i: number, p: Partial<FaqItem>) =>
     onChange(items.map((it, j) => (j === i ? { ...it, ...p } : it)));
+  const aligns: { id: "left" | "center" | "right"; label: string }[] = [
+    { id: "left", label: "Left" },
+    { id: "center", label: "Center" },
+    { id: "right", label: "Right" },
+  ];
   return (
     <div className="space-y-2">
+      <div className="flex overflow-hidden rounded-lg border border-border">
+        {aligns.map((a) => (
+          <button
+            key={a.id}
+            onClick={() => onPatch(block.id, { align: a.id })}
+            className={
+              (block.align ?? "left") === a.id
+                ? "flex-1 bg-surface-2 px-3 py-1.5 text-xs text-text"
+                : "flex-1 px-3 py-1.5 text-xs text-text-muted hover:text-text"
+            }
+          >
+            {a.label}
+          </button>
+        ))}
+      </div>
       {items.map((it, i) => (
         <div key={i} className="space-y-2 rounded-xl border border-border bg-surface-2 p-2.5">
           <div className="flex items-start gap-2">

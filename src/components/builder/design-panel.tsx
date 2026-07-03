@@ -17,12 +17,19 @@ import {
   CONTENT_WIDTHS,
   SPACINGS,
   TEXT_SCALES,
+  MOTION_SPEEDS,
   accentFromBackground,
   groupByCategory,
 } from "@/lib/design";
 import { FONTS } from "@/lib/fonts";
 import { caps, PLAN_RANK, type Plan } from "@/lib/plans";
-import { bgCategoryTier, fontCategoryTier } from "@/lib/design";
+import {
+  bgCategoryTier,
+  fontCategoryTier,
+  cardCategoryTier,
+  shapeTier,
+  bgFxCategoryTier,
+} from "@/lib/design";
 import { PlanLock, PlanPill } from "./plan-lock";
 
 type Picker =
@@ -34,7 +41,8 @@ type Picker =
   | "buttonSize"
   | "contentWidth"
   | "spacing"
-  | "textScale";
+  | "textScale"
+  | "motionSpeed";
 
 export function DesignPanel({
   design,
@@ -58,6 +66,7 @@ export function DesignPanel({
     contentWidth: CONTENT_WIDTHS.find((s) => s.id === design.contentWidth)?.name ?? "Standard",
     spacing: SPACINGS.find((s) => s.id === design.spacing)?.name ?? "Cozy",
     textScale: TEXT_SCALES.find((s) => s.id === design.textScale)?.name ?? "Normal",
+    motionSpeed: MOTION_SPEEDS.find((s) => s.id === design.motionSpeed)?.name ?? "Normal",
   };
 
   const pick = (patch: Partial<PageDesign>) => {
@@ -219,6 +228,9 @@ export function DesignPanel({
         <MiniRow label="Bg effect" value={names.bgFx} onClick={() => setOpen("bgFx")} />
         <MiniRow label="Content width" value={names.contentWidth} onClick={() => setOpen("contentWidth")} />
         <MiniRow label="Spacing" value={names.spacing} onClick={() => setOpen("spacing")} />
+        <PlanLock locked={!c.creativeEffects}>
+          <MiniRow label="Motion speed" value={names.motionSpeed} onClick={() => setOpen("motionSpeed")} />
+        </PlanLock>
       </div>
 
       {/* Buttons (page defaults — override any single button in its block) */}
@@ -320,8 +332,11 @@ export function DesignPanel({
 
       {open === "bgFx" && (
         <Modal title="Background effects" onClose={() => setOpen(null)}>
-          {groupByCategory(BG_FX).map(([cat, items]) => (
-            <Section key={cat} title={cat} cols={3}>
+          {groupByCategory(BG_FX).map(([cat, items]) => {
+            const locked = PLAN_RANK[bgFxCategoryTier(cat)] > PLAN_RANK[plan];
+            return (
+            <PlanLock key={cat} locked={locked}>
+            <Section title={cat} cols={3}>
               {items.map((e) => (
                 <button
                   key={e.id}
@@ -341,29 +356,67 @@ export function DesignPanel({
                 </button>
               ))}
             </Section>
-          ))}
+            </PlanLock>
+            );
+          })}
         </Modal>
       )}
 
       {open === "card" && (
-        <PillModal
-          title="Button styles"
-          options={CARD_STYLES}
-          selected={design.card}
-          onPick={(id) => pick({ card: id })}
-          onDefault={() => pick({ card: undefined })}
-          onClose={() => setOpen(null)}
-        />
+        <Modal title="Button styles" onClose={() => setOpen(null)}>
+          <DefaultTile selected={!design.card} onClick={() => pick({ card: undefined })} />
+          {groupByCategory(CARD_STYLES).map(([cat, items]) => {
+            const tier = cardCategoryTier(cat);
+            const locked = PLAN_RANK[tier] > PLAN_RANK[plan];
+            return (
+              <PlanLock key={cat} locked={locked} tier="Pro">
+                <Section title={cat} cols={3}>
+                  {items.map((o) => (
+                    <button
+                      key={o.id}
+                      onClick={() => pick({ card: o.id })}
+                      className={cn("rounded-xl border p-2", design.card === o.id ? "border-primary" : "border-border")}
+                    >
+                      <span
+                        className={cn(
+                          "flex h-10 items-center justify-center rounded-full border border-border bg-surface-2 text-xs",
+                          o.className,
+                        )}
+                      >
+                        {o.name}
+                      </span>
+                    </button>
+                  ))}
+                </Section>
+              </PlanLock>
+            );
+          })}
+        </Modal>
       )}
 
       {open === "buttonShape" && (
-        <ChoiceModal
-          title="Button shape"
-          options={BUTTON_SHAPES}
-          selected={design.buttonShape}
-          onPick={(id) => pick({ buttonShape: id })}
-          onClose={() => setOpen(null)}
-        />
+        <Modal title="Button shape" onClose={() => setOpen(null)}>
+          <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+            {BUTTON_SHAPES.map((o) => {
+              const locked = PLAN_RANK[shapeTier(o.id)] > PLAN_RANK[plan];
+              return (
+                <PlanLock key={o.id} locked={locked}>
+                  <button
+                    onClick={() => pick({ buttonShape: o.id })}
+                    className={cn(
+                      "flex h-12 w-full items-center justify-center rounded-xl border text-sm",
+                      design.buttonShape === o.id
+                        ? "border-primary text-text"
+                        : "border-border text-text-muted hover:text-text",
+                    )}
+                  >
+                    {o.name}
+                  </button>
+                </PlanLock>
+              );
+            })}
+          </div>
+        </Modal>
       )}
       {open === "buttonSize" && (
         <ChoiceModal
@@ -389,6 +442,15 @@ export function DesignPanel({
           options={SPACINGS}
           selected={design.spacing}
           onPick={(id) => pick({ spacing: id })}
+          onClose={() => setOpen(null)}
+        />
+      )}
+      {open === "motionSpeed" && (
+        <ChoiceModal
+          title="Motion speed"
+          options={MOTION_SPEEDS}
+          selected={design.motionSpeed}
+          onPick={(id) => pick({ motionSpeed: id })}
           onClose={() => setOpen(null)}
         />
       )}
@@ -478,50 +540,6 @@ function ChoiceModal({
           </button>
         ))}
       </div>
-    </Modal>
-  );
-}
-
-type Opt = { id: string; name: string; category: string; className: string };
-
-function PillModal({
-  title,
-  options,
-  selected,
-  onPick,
-  onDefault,
-  onClose,
-}: {
-  title: string;
-  options: Opt[];
-  selected?: string;
-  onPick: (id: string) => void;
-  onDefault: () => void;
-  onClose: () => void;
-}) {
-  return (
-    <Modal title={title} onClose={onClose}>
-      <DefaultTile selected={!selected} onClick={onDefault} />
-      {groupByCategory(options).map(([cat, items]) => (
-        <Section key={cat} title={cat} cols={3}>
-          {items.map((o) => (
-            <button
-              key={o.id}
-              onClick={() => onPick(o.id)}
-              className={cn("rounded-xl border p-2", selected === o.id ? "border-primary" : "border-border")}
-            >
-              <span
-                className={cn(
-                  "flex h-10 items-center justify-center rounded-full border border-border bg-surface-2 text-xs",
-                  o.className,
-                )}
-              >
-                {o.name}
-              </span>
-            </button>
-          ))}
-        </Section>
-      ))}
     </Modal>
   );
 }

@@ -5,8 +5,20 @@ import { Check, Sparkles } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { PLANS, monthlyPrice, type Plan } from "@/lib/plans";
 import { upgradeAction } from "@/lib/actions/plan";
+import { PayPalSubscribe } from "./paypal-button";
 
-export function UpgradePlans({ current }: { current: Plan }) {
+export type PaypalPublicConfig = {
+  clientId: string;
+  plans: { PLUS: { monthly: string; yearly: string }; PRO: { monthly: string; yearly: string } };
+};
+
+export function UpgradePlans({
+  current,
+  paypal,
+}: {
+  current: Plan;
+  paypal?: PaypalPublicConfig;
+}) {
   const [billing, setBilling] = useState<"yearly" | "monthly">("yearly");
 
   return (
@@ -96,6 +108,11 @@ export function UpgradePlans({ current }: { current: Plan }) {
                   >
                     Current plan
                   </button>
+                ) : paypal && p.id !== "FREE" ? (
+                  <PayPalSubscribe
+                    clientId={paypal.clientId}
+                    planId={paypal.plans[p.id as "PLUS" | "PRO"][billing]}
+                  />
                 ) : (
                   <form action={upgradeAction.bind(null, p.id)}>
                     <button

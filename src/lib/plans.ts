@@ -81,7 +81,7 @@ export const PLANS: PlanInfo[] = [
     features: [
       "Up to 5 pages",
       "All standard backgrounds + 12 one-click themes",
-      "Creative effects (glitch, rainbow, liquid, neon…)",
+      "Creative effects, special shapes & motion speed",
       "Per-element colors & effects",
       "Gallery slideshow + lightbox",
       "All premium fonts",
@@ -96,7 +96,7 @@ export const PLANS: PlanInfo[] = [
     features: [
       "Unlimited pages",
       "Everything in Plus",
-      "6 Pro themes + Liquid, Foil & Nebula backgrounds",
+      "6 Pro themes, special button styles & Pro backgrounds",
       "Advanced blocks: embed, music, countdown",
       "Custom SEO title & description",
       "Remove the AURA badge",

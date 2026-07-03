@@ -252,6 +252,12 @@ export const CARD_STYLES: CardStyle[] = [
   { id: "retro-double", name: "Double", category: "Retro", className: "cs-retro-double" },
   { id: "retro-inset", name: "Inset", category: "Retro", className: "cs-retro-inset" },
   { id: "retro-stripe", name: "Stripe", category: "Retro", className: "cs-retro-stripe" },
+  { id: "sp-sticker", name: "Sticker", category: "Special", className: "cs-sp-sticker" },
+  { id: "sp-ticket", name: "Ticket", category: "Special", className: "cs-sp-ticket" },
+  { id: "sp-slant", name: "Slanted", category: "Special", className: "cs-sp-slant" },
+  { id: "sp-underline", name: "Underline", category: "Special", className: "cs-sp-underline" },
+  { id: "sp-3d", name: "3D press", category: "Special", className: "cs-sp-3d" },
+  { id: "sp-aurora-edge", name: "Aurora edge", category: "Special", className: "cs-sp-aurora-edge" },
 ];
 
 // ---------- Button effects (24) ----------
@@ -333,9 +339,15 @@ export const ICON_IDLE: Effect[] = [
 export const BG_FX: Effect[] = [
   { id: "none", name: "None", category: "Overlay", className: "" },
   { id: "vignette", name: "Vignette", category: "Overlay", className: "bgfx-vignette" },
+  { id: "topfade", name: "Top fade", category: "Overlay", className: "bgfx-topfade" },
+  { id: "bottomfade", name: "Bottom fade", category: "Overlay", className: "bgfx-bottomfade" },
+  { id: "frame", name: "Frame", category: "Overlay", className: "bgfx-frame" },
+  { id: "haze", name: "Haze", category: "Overlay", className: "bgfx-haze" },
   { id: "topglow", name: "Top glow", category: "Glow", className: "bgfx-topglow" },
   { id: "spotlight", name: "Spotlight", category: "Glow", className: "bgfx-spotlight" },
   { id: "edges", name: "Glow edges", category: "Glow", className: "bgfx-edges" },
+  { id: "sideglow", name: "Side glow", category: "Glow", className: "bgfx-sideglow" },
+  { id: "underglow", name: "Under glow", category: "Glow", className: "bgfx-underglow" },
   { id: "grain", name: "Grain", category: "Texture", className: "bgfx-grain" },
   { id: "scanlines", name: "Scanlines", category: "Texture", className: "bgfx-scanlines" },
   { id: "grid", name: "Grid", category: "Texture", className: "bgfx-grid" },
@@ -348,9 +360,13 @@ export const BG_FX: Effect[] = [
   { id: "beam", name: "Light beam", category: "Glow", className: "bgfx-beam" },
   { id: "meshmove", name: "Mesh drift", category: "Animated", className: "bgfx-meshmove" },
   { id: "rotate", name: "Rotate glow", category: "Animated", className: "bgfx-rotate" },
+  { id: "stardrift", name: "Star drift", category: "Animated", className: "bgfx-stardrift" },
   { id: "gridpersp", name: "Retro grid", category: "Creative", className: "bgfx-gridpersp" },
   { id: "orbs", name: "Floating orbs", category: "Creative", className: "bgfx-orbs" },
   { id: "aurorawave", name: "Aurora waves", category: "Creative", className: "bgfx-aurorawave" },
+  { id: "rays", name: "Light rays", category: "Creative", className: "bgfx-rays" },
+  { id: "blobs", name: "Lava blobs", category: "Creative", className: "bgfx-blobs" },
+  { id: "sparkle", name: "Sparkle", category: "Creative", className: "bgfx-sparkle" },
 ];
 
 export const LIGHT_VARS: Record<string, string> = {
@@ -370,13 +386,32 @@ export const BUTTON_SHAPES: LayoutChoice[] = [
   { id: "rounded", name: "Rounded" },
   { id: "soft", name: "Soft" },
   { id: "sharp", name: "Sharp" },
+  { id: "leaf", name: "Leaf" },
+  { id: "slant", name: "Slant" },
 ];
 export const BUTTON_SHAPE_CLASS: Record<string, string> = {
   pill: "rounded-full",
   rounded: "rounded-2xl",
   soft: "rounded-xl",
   sharp: "rounded-none",
+  leaf: "rounded-tl-3xl rounded-br-3xl rounded-tr-md rounded-bl-md",
+  slant: "shape-slant",
 };
+
+/** Special shapes are Plus; the classic four are free. */
+export function shapeTier(id: string): Plan {
+  return id === "leaf" || id === "slant" ? "PLUS" : "FREE";
+}
+
+/** The Special button-style category is a Pro exclusive. */
+export function cardCategoryTier(category: string): Plan {
+  return category === "Special" ? "PRO" : "FREE";
+}
+
+/** Creative background effects are Plus. */
+export function bgFxCategoryTier(category: string): Plan {
+  return category === "Creative" ? "PLUS" : "FREE";
+}
 
 /** Height/padding of link buttons. Default (undefined) = medium. */
 export const BUTTON_SIZES: LayoutChoice[] = [
@@ -414,6 +449,18 @@ export const SPACING_CLASS: Record<string, string> = {
   roomy: "gap-9",
 };
 
+/** Animation speed for idle/background motion. Default = normal. */
+export const MOTION_SPEEDS: LayoutChoice[] = [
+  { id: "slow", name: "Slow" },
+  { id: "normal", name: "Normal" },
+  { id: "fast", name: "Fast" },
+];
+export const MOTION_SPEED_VALUE: Record<string, string> = {
+  slow: "1.6",
+  normal: "1",
+  fast: "0.55",
+};
+
 /** Overall typography scale. Default (undefined) = normal (1×). */
 export const TEXT_SCALES: LayoutChoice[] = [
   { id: "compact", name: "Compact" },
@@ -435,6 +482,7 @@ export function resolveLayout(d?: PageDesign) {
     contentWidth: (d?.contentWidth && CONTENT_WIDTH_CLASS[d.contentWidth]) || "max-w-md",
     spacing: (d?.spacing && SPACING_CLASS[d.spacing]) || "gap-6",
     textScale: (d?.textScale && TEXT_SCALE_VALUE[d.textScale]) || undefined,
+    motionSpeed: (d?.motionSpeed && MOTION_SPEED_VALUE[d.motionSpeed]) || undefined,
   };
 }
 

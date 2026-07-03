@@ -77,6 +77,7 @@ function HeroBlock({
   avatarUrl,
   avatarShape,
   avatarIdle,
+  avatarScale,
   avatar,
   bannerUrl,
   bannerHeight,
@@ -87,6 +88,7 @@ function HeroBlock({
   avatarUrl?: string | null;
   avatarShape?: AvatarShape;
   avatarIdle?: string;
+  avatarScale?: number;
   avatar?: ImageConfig;
   bannerUrl?: string | null;
   bannerHeight?: BannerHeight;
@@ -100,9 +102,12 @@ function HeroBlock({
     defaultAspect: "square",
     defaultRadius: "full",
   });
+  const scaleStyle = avatarScale
+    ? ({ width: `${Math.min(Math.max(avatarScale, 48), 200)}px` } as React.CSSProperties)
+    : undefined;
   const avatarEl = (
     <span className={cn("inline-flex", idle)}>
-      <span className={cn("block border-2 border-bg", av.box)}>
+      <span className={cn("block border-2 border-bg", av.box)} style={scaleStyle}>
         <div className={av.frame}>
           {avatarUrl ? (
             // eslint-disable-next-line @next/next/no-img-element
@@ -381,9 +386,17 @@ function GalleryBlock({
   return <GalleryView images={valid} layout={layout} box={r.box} frame={r.frame} img={r.img} />;
 }
 
-function FaqBlock({ items }: { items: { question: RichValue; answer: RichValue }[] }) {
+function FaqBlock({
+  items,
+  align = "left",
+}: {
+  items: { question: RichValue; answer: RichValue }[];
+  align?: "left" | "center" | "right";
+}) {
+  const alignClass =
+    align === "center" ? "text-center" : align === "right" ? "text-right" : "text-left";
   return (
-    <div className="divide-y divide-border overflow-hidden rounded-2xl border border-border">
+    <div className={cn("divide-y divide-border overflow-hidden rounded-2xl border border-border", alignClass)}>
       {items.map((f, i) => (
         <details key={i} className="group px-4 py-3">
           <summary className="cursor-pointer list-none text-sm font-medium">
@@ -478,28 +491,14 @@ function DividerBlock({
   style = "line",
 }: {
   color?: string;
-  style?: "line" | "dashed" | "dotted" | "glow";
+  style?: import("@/lib/blocks").DividerStyle;
 }) {
-  // Default look: the signature fading hairline.
+  // Default look stays the signature fading hairline.
   if (!color && style === "line") return <div className="aura-rule" />;
-  const c = color || "var(--border)";
-  if (style === "glow") {
-    return (
-      <div
-        className="h-px w-full"
-        style={{ background: c, boxShadow: `0 0 12px 1px ${c}` }}
-      />
-    );
-  }
-  if (style === "dashed" || style === "dotted") {
-    return <div className="w-full" style={{ borderTop: `2px ${style} ${c}` }} />;
-  }
   return (
     <div
-      className="h-px w-full"
-      style={{
-        background: `linear-gradient(90deg, transparent, ${c} 18%, ${c} 82%, transparent)`,
-      }}
+      className={cn("dv", `dv-${style}`)}
+      style={color ? ({ "--dvc": color } as React.CSSProperties) : undefined}
     />
   );
 }
@@ -522,6 +521,7 @@ function BlockRenderer({
           avatarUrl={block.avatarUrl}
           avatarShape={block.avatarShape}
           avatarIdle={block.avatarIdle}
+          avatarScale={block.avatarScale}
           avatar={block.avatar}
           bannerUrl={block.bannerUrl}
           bannerHeight={block.bannerHeight}
@@ -570,7 +570,7 @@ function BlockRenderer({
     case "gallery":
       return <GalleryBlock images={block.images} img={block.img} layout={block.layout} />;
     case "faq":
-      return <FaqBlock items={block.items} />;
+      return <FaqBlock items={block.items} align={block.align} />;
     case "divider":
       return <DividerBlock color={block.color} style={block.style} />;
     case "embed":
@@ -616,6 +616,7 @@ export function PageRenderer({
     style["--font-display"] = fam;
   }
   if (layout.textScale) style["--ts"] = layout.textScale;
+  if (layout.motionSpeed) style["--spd"] = layout.motionSpeed;
   const d: DesignClasses = {
     card: r.card,
     buttonFx: r.buttonFx,
