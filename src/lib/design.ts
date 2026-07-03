@@ -493,6 +493,11 @@ export function buttonFxClass(id?: string): string | undefined {
   return id && id !== "none" ? BUTTON_FX.find((e) => e.id === id)?.className : undefined;
 }
 
+/** Resolve a button idle-animation id to its class (for per-block overrides). */
+export function buttonIdleClass(id?: string): string | undefined {
+  return id && id !== "none" ? BUTTON_IDLE.find((e) => e.id === id)?.className : undefined;
+}
+
 /** Resolve an icon hover-effect id to its class (for per-block overrides). */
 export function iconFxClass(id?: string): string | undefined {
   return id && id !== "none" ? ICON_FX.find((e) => e.id === id)?.className : undefined;

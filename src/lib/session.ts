@@ -2,7 +2,10 @@ import { cookies } from "next/headers";
 import { SignJWT, jwtVerify } from "jose";
 
 export const SESSION_COOKIE = "aura_session";
-const MAX_AGE = 60 * 60 * 24 * 30; // 30 days
+// "Remember me" (default) → 90 days. Unchecked → still persisted for a day,
+// so closing the browser never silently logs you out mid-day.
+export const MAX_AGE = 60 * 60 * 24 * 90;
+const SHORT_AGE = 60 * 60 * 24;
 
 const secret = new TextEncoder().encode(
   process.env.AUTH_SECRET ?? "dev-insecure-secret-change-me",
@@ -17,22 +20,24 @@ export type SessionUser = {
   plan?: string;
 };
 
-export async function createSession(user: SessionUser, remember = true) {
-  const token = await new SignJWT({ user })
+/** Sign a session JWT. Shared by createSession and the proxy's sliding refresh. */
+export async function signSession(user: SessionUser): Promise<string> {
+  return new SignJWT({ user })
     .setProtectedHeader({ alg: "HS256" })
     .setIssuedAt()
-    .setExpirationTime("30d")
+    .setExpirationTime("90d")
     .sign(secret);
+}
 
+export async function createSession(user: SessionUser, remember = true) {
+  const token = await signSession(user);
   const jar = await cookies();
   jar.set(SESSION_COOKIE, token, {
     httpOnly: true,
     sameSite: "lax",
     secure: process.env.NODE_ENV === "production",
     path: "/",
-    // "Remember me" → persistent 30-day cookie. Unchecked → session cookie
-    // (omit maxAge) that clears when the browser closes.
-    ...(remember ? { maxAge: MAX_AGE } : {}),
+    maxAge: remember ? MAX_AGE : SHORT_AGE,
   });
 }
 

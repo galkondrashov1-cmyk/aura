@@ -16,6 +16,7 @@ import {
   LIGHT_VARS,
   avatarIdleClass,
   buttonFxClass,
+  buttonIdleClass,
   iconFxClass,
   iconIdleClass,
 } from "@/lib/design";
@@ -457,8 +458,8 @@ function BlockRenderer({
           items={block.items}
           pageId={pageId}
           cardClass={d.card}
-          buttonFx={d.buttonFx}
-          buttonIdle={d.buttonIdle}
+          buttonFx={buttonFxClass(block.buttonFx) ?? d.buttonFx}
+          buttonIdle={buttonIdleClass(block.buttonIdle) ?? d.buttonIdle}
           buttonShape={d.buttonShape}
           buttonSize={d.buttonSize}
         />

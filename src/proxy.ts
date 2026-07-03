@@ -1,9 +1,18 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
-import { SESSION_COOKIE } from "@/lib/session";
+import { SignJWT, jwtVerify } from "jose";
+import { SESSION_COOKIE, MAX_AGE } from "@/lib/session";
+
+const secret = new TextEncoder().encode(
+  process.env.AUTH_SECRET ?? "dev-insecure-secret-change-me",
+);
+
+// Re-sign the session once a day so the cookie keeps rolling forward: as long
+// as you visit at least once every 90 days you stay logged in forever.
+const REFRESH_AFTER = 60 * 60 * 24; // seconds
 
 // Optimistic route guard (Next.js 16 renamed Middleware -> Proxy).
-export function proxy(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   // ─── CANONICAL HOST ────────────────────────────────────────────────────
@@ -19,8 +28,6 @@ export function proxy(request: NextRequest) {
 
   // ─── TEMPORARY SITE GATE ───────────────────────────────────────────────
   // Whole-site access code. Active only when the SITE_GATE_CODE env var is set.
-  // To turn it off after testing: delete SITE_GATE_CODE in Vercel (instant, no
-  // redeploy needed) — or delete this block + src/app/gate + src/app/api/gate.
   const gate = process.env.SITE_GATE_CODE;
   if (gate) {
     const open =
@@ -33,10 +40,42 @@ export function proxy(request: NextRequest) {
   }
   // ─── END SITE GATE ─────────────────────────────────────────────────────
 
+  const token = request.cookies.get(SESSION_COOKIE)?.value;
+  const isProtected = /^\/(dashboard|builder|admin)(\/|$)/.test(pathname);
+
   // Real auth check still happens server-side in the dashboard layout.
-  if (/^\/(dashboard|builder|admin)(\/|$)/.test(pathname)) {
-    if (!request.cookies.has(SESSION_COOKIE)) {
-      return NextResponse.redirect(new URL("/login", request.url));
+  if (isProtected && !token) {
+    return NextResponse.redirect(new URL("/login", request.url));
+  }
+
+  // ─── SLIDING SESSION REFRESH ───────────────────────────────────────────
+  if (token) {
+    try {
+      const { payload } = await jwtVerify(token, secret);
+      const age = Math.floor(Date.now() / 1000) - (payload.iat ?? 0);
+      if (age > REFRESH_AFTER && payload.user) {
+        const fresh = await new SignJWT({ user: payload.user })
+          .setProtectedHeader({ alg: "HS256" })
+          .setIssuedAt()
+          .setExpirationTime("90d")
+          .sign(secret);
+        const res = NextResponse.next();
+        res.cookies.set(SESSION_COOKIE, fresh, {
+          httpOnly: true,
+          sameSite: "lax",
+          secure: process.env.NODE_ENV === "production",
+          path: "/",
+          maxAge: MAX_AGE,
+        });
+        return res;
+      }
+    } catch {
+      // Expired/invalid token: clear it; guarded routes bounce to login.
+      if (isProtected) {
+        const res = NextResponse.redirect(new URL("/login", request.url));
+        res.cookies.delete(SESSION_COOKIE);
+        return res;
+      }
     }
   }
 }

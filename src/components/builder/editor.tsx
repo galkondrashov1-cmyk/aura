@@ -34,7 +34,7 @@ import type {
 import { DesignPanel } from "./design-panel";
 import { PlanLock } from "./plan-lock";
 import { SOCIAL_OPTIONS, SocialIcon } from "@/lib/socials";
-import { AVATAR_IDLE, ICON_FX, ICON_IDLE, BUTTON_FX } from "@/lib/design";
+import { AVATAR_IDLE, ICON_FX, ICON_IDLE, BUTTON_FX, BUTTON_IDLE } from "@/lib/design";
 import { SIZE_OPTS, ASPECT_OPTS, RADIUS_OPTS } from "@/lib/image";
 import type { ImageConfig } from "@/lib/image";
 import { RichTextInput } from "./rich-text-input";
@@ -403,11 +403,13 @@ function EditorSheet({
   children: React.ReactNode;
 }) {
   return (
-    <div className="fixed inset-0 z-50 flex" onClick={onClose}>
-      <div className="absolute inset-0 bg-black/50" />
+    // On desktop the sheet is a side panel that must NOT block the header
+    // (Save/Publish) or the canvas — no backdrop, clicks pass through.
+    <div className="fixed inset-0 z-50 flex lg:pointer-events-none" onClick={onClose}>
+      <div className="absolute inset-0 bg-black/50 lg:hidden" />
       <div
         onClick={(e) => e.stopPropagation()}
-        className="absolute inset-x-0 bottom-0 flex max-h-[86vh] flex-col rounded-t-3xl border-t border-border bg-bg lg:inset-y-0 lg:right-0 lg:left-auto lg:max-h-none lg:w-[420px] lg:rounded-none lg:border-t-0 lg:border-l"
+        className="pointer-events-auto absolute inset-x-0 bottom-0 flex max-h-[86vh] flex-col rounded-t-3xl border-t border-border bg-bg shadow-2xl lg:top-[54px] lg:right-0 lg:bottom-0 lg:left-auto lg:max-h-none lg:w-[420px] lg:rounded-none lg:border-t-0 lg:border-l"
       >
         <div className="flex shrink-0 items-center gap-2 border-b border-border px-4 py-3">
           {onBack && (
@@ -521,12 +523,7 @@ function BlockFields({
         </div>
       );
     case "links":
-      return (
-        <LinksEditor
-          items={block.items}
-          onChange={(items) => onPatch(block.id, { items })}
-        />
-      );
+      return <LinksEditor block={block} onPatch={onPatch} />;
     case "socials":
       return <SocialsEditor block={block} onPatch={onPatch} />;
     case "faq":
@@ -1012,17 +1009,50 @@ function AddItemBtn({ onClick }: { onClick: () => void }) {
 }
 
 function LinksEditor({
-  items,
-  onChange,
+  block,
+  onPatch,
 }: {
-  items: LinkItem[];
-  onChange: (items: LinkItem[]) => void;
+  block: Extract<Block, { type: "links" }>;
+  onPatch: (id: string, p: Record<string, unknown>) => void;
 }) {
   const c = useCaps();
+  const items = block.items;
+  const onChange = (next: LinkItem[]) => onPatch(block.id, { items: next });
   const update = (i: number, p: Partial<LinkItem>) =>
     onChange(items.map((it, j) => (j === i ? { ...it, ...p } : it)));
   return (
     <div className="space-y-2">
+      {/* Per-block animations — apply to every button in THIS block only */}
+      <PlanLock locked={!c.perElement}>
+        <div className="grid grid-cols-2 gap-2 rounded-xl border border-border bg-surface-2 p-2.5">
+          <label className="flex flex-col gap-1 text-[11px] text-text-muted">
+            Idle motion (this block)
+            <select
+              value={block.buttonIdle ?? ""}
+              onChange={(e) => onPatch(block.id, { buttonIdle: e.target.value || undefined })}
+              className="h-8 rounded-lg border border-border bg-bg px-2 text-xs text-text"
+            >
+              <option value="">Page default</option>
+              {BUTTON_IDLE.map((e) => (
+                <option key={e.id} value={e.id}>{e.name}</option>
+              ))}
+            </select>
+          </label>
+          <label className="flex flex-col gap-1 text-[11px] text-text-muted">
+            Hover effect (this block)
+            <select
+              value={block.buttonFx ?? ""}
+              onChange={(e) => onPatch(block.id, { buttonFx: e.target.value || undefined })}
+              className="h-8 rounded-lg border border-border bg-bg px-2 text-xs text-text"
+            >
+              <option value="">Page default</option>
+              {BUTTON_FX.map((e) => (
+                <option key={e.id} value={e.id}>{e.name}</option>
+              ))}
+            </select>
+          </label>
+        </div>
+      </PlanLock>
       {items.map((it, i) => (
         <div key={i} className="space-y-2 rounded-xl border border-border bg-surface-2 p-2.5">
           <div className="flex items-start gap-2">

@@ -60,7 +60,14 @@ export type Block =
       bannerHeight?: BannerHeight;
       banner?: ImageConfig;
     }
-  | { id: string; type: "links"; items: LinkItem[] }
+  | {
+      id: string;
+      type: "links";
+      items: LinkItem[];
+      /** Per-block animation overrides (win over the page-wide defaults). */
+      buttonIdle?: string;
+      buttonFx?: string;
+    }
   | {
       id: string;
       type: "text";
