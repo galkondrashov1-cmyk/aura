@@ -266,7 +266,6 @@ export const BUTTON_FX: Effect[] = [
   { id: "shrink", name: "Shrink", category: "Motion", className: "bh-shrink" },
   { id: "brighten", name: "Brighten", category: "Light", className: "bh-brighten" },
   { id: "saturate", name: "Saturate", category: "Light", className: "bh-saturate" },
-  { id: "contrast", name: "Contrast", category: "Light", className: "bh-contrast" },
   { id: "fade", name: "Fade", category: "Light", className: "bh-fade" },
   { id: "glow", name: "Glow", category: "Glow", className: "bh-glow" },
   { id: "shadow", name: "Shadow", category: "Glow", className: "bh-shadow" },
@@ -281,8 +280,6 @@ export const BUTTON_FX: Effect[] = [
   { id: "jelly", name: "Jelly", category: "Animated", className: "bh-jelly" },
   { id: "expand", name: "Expand", category: "Motion", className: "bh-expand" },
   { id: "magnetic", name: "Magnetic", category: "Motion", className: "bh-magnetic" },
-  { id: "gradient", name: "Gradient", category: "Glow", className: "bh-gradient" },
-  { id: "sheen", name: "Sheen", category: "Animated", className: "bh-sheen" },
   { id: "depth", name: "Depth", category: "Glow", className: "bh-depth" },
   { id: "glitch", name: "Glitch", category: "Creative", className: "bh-glitch" },
   { id: "rainbow", name: "Rainbow", category: "Creative", className: "bh-rainbow" },
@@ -299,7 +296,6 @@ export const BUTTON_IDLE: Effect[] = [
   { id: "sway", name: "Sway", category: "Idle", className: "bi-sway" },
   { id: "wobble", name: "Wobble", category: "Idle", className: "bi-wobble" },
   { id: "drift", name: "Drift", category: "Idle", className: "bi-drift" },
-  { id: "tilt", name: "Tilt", category: "Idle", className: "bi-tilt" },
 ];
 
 // ---------- Icon effects (16) ----------
@@ -540,27 +536,25 @@ export type ColorPreset = {
   background?: string; // BACKGROUND id
 };
 
+// 16 distinct colors; every preset ships a hue-matched background so the page
+// always reflects the chosen swatch (no accent-only presets).
 export const COLOR_PRESETS: ColorPreset[] = [
-  { id: "emerald", name: "Emerald", accent: "#00E5A0" },
-  { id: "ocean", name: "Ocean", accent: "#22D3EE", background: "ocean-4" },
-  { id: "aurora", name: "Aurora", accent: "#34D399", background: "aurora-2" },
-  { id: "cosmic", name: "Cosmic", accent: "#A78BFA", background: "cosmic-3" },
-  { id: "sunset", name: "Sunset", accent: "#FB923C", background: "sunset-6" },
+  { id: "emerald", name: "Emerald", accent: "#00E5A0", background: "aurora-1" },
+  { id: "teal", name: "Teal", accent: "#2DD4BF", background: "vapor-1" },
+  { id: "sky", name: "Sky", accent: "#38BDF8", background: "ocean-3" },
+  { id: "ocean", name: "Ocean", accent: "#22D3EE", background: "ocean-5" },
+  { id: "cobalt", name: "Cobalt", accent: "#3B82F6", background: "gradient-5" },
+  { id: "violet", name: "Violet", accent: "#A78BFA", background: "cosmic-3" },
+  { id: "grape", name: "Grape", accent: "#C084FC", background: "cosmic-6" },
+  { id: "magenta", name: "Magenta", accent: "#F472B6", background: "synthwave-2" },
   { id: "rose", name: "Rose", accent: "#FB7185", background: "neon-1" },
-  { id: "gold", name: "Gold", accent: "#FBBF24", background: "noir-5" },
-  { id: "grape", name: "Grape", accent: "#C084FC", background: "cosmic-5" },
-  { id: "sky", name: "Sky", accent: "#38BDF8", background: "ocean-1" },
-  { id: "daylight", name: "Daylight", accent: "#7C3AED", background: "light-3" },
-  { id: "synth", name: "Synth", accent: "#F472B6", background: "synthwave-3" },
-  { id: "ember", name: "Ember", accent: "#FB923C", background: "ember-4" },
-  { id: "forest", name: "Forest", accent: "#4ADE80", background: "forest-3" },
-  { id: "holo", name: "Holo", accent: "#22D3EE", background: "holographic-2" },
-  { id: "regal", name: "Regal", accent: "#FBBF24", background: "royal-4" },
-  { id: "candy", name: "Candy", accent: "#EC4899", background: "candy-2" },
-  { id: "mono", name: "Mono", accent: "#E5E7EB", background: "mono-3" },
-  { id: "vapor", name: "Vapor", accent: "#67E8F9", background: "vapor-2" },
-  { id: "lime", name: "Lime", accent: "#A3E635", background: "forest-5" },
   { id: "crimson", name: "Crimson", accent: "#F43F5E", background: "ember-2" },
+  { id: "tangerine", name: "Tangerine", accent: "#FB923C", background: "sunset-4" },
+  { id: "gold", name: "Gold", accent: "#FBBF24", background: "royal-3" },
+  { id: "lime", name: "Lime", accent: "#A3E635", background: "forest-5" },
+  { id: "forest", name: "Forest", accent: "#4ADE80", background: "forest-2" },
+  { id: "mono", name: "Mono", accent: "#E5E7EB", background: "mono-3" },
+  { id: "candy", name: "Candy", accent: "#EC4899", background: "candy-2" },
 ];
 
 /** Resolve a preset's background css for swatch display (falls back to default). */
@@ -570,32 +564,57 @@ export function presetSwatch(p: ColorPreset): string {
 }
 
 // ---------- One-click full themes ----------
-// Each applies a complete, hand-tuned look in a single tap: accent, background,
-// card style, font, hover effect, background effect, and button shape — chosen
-// so they never clash.
-export type FullTheme = { id: string; name: string; accent: string; design: Partial<PageDesign> };
+// 18 complete, hand-tuned profiles. Each sets the FULL look in one tap:
+// palette (accent + background + bg effect), button style/shape/size,
+// typography, idle motion and hover/icon effects — and every piece stays
+// individually editable afterwards. 12 Plus themes + 6 Pro exclusives.
+export type FullTheme = {
+  id: string;
+  name: string;
+  accent: string;
+  tier: "PLUS" | "PRO";
+  design: Partial<PageDesign>;
+};
 
 export const FULL_THEMES: FullTheme[] = [
-  { id: "emerald-night", name: "Emerald Night", accent: "#00E5A0",
-    design: { accent: "#00E5A0", background: "aurora-2", card: "glass-frost", font: "sora", buttonFx: "growglow", bgFx: "topglow", buttonShape: "pill" } },
-  { id: "sunset-pop", name: "Sunset Pop", accent: "#FB923C",
-    design: { accent: "#FB923C", background: "sunset-4", card: "grad-sunset", font: "outfit", buttonFx: "magnetic", bgFx: "grain", buttonShape: "rounded" } },
-  { id: "cyber-neon", name: "Cyber Neon", accent: "#22D3EE",
-    design: { accent: "#22D3EE", background: "neon-1", card: "neon-cyber", font: "grotesk", buttonFx: "glow", bgFx: "scanlines", buttonShape: "sharp" } },
-  { id: "royal-gold", name: "Royal Gold", accent: "#FBBF24",
-    design: { accent: "#FBBF24", background: "royal-3", card: "solid-deep", font: "fraunces", buttonFx: "sheen", bgFx: "vignette", buttonShape: "soft" } },
-  { id: "forest-calm", name: "Forest Calm", accent: "#4ADE80",
-    design: { accent: "#4ADE80", background: "forest-3", card: "glass-soft", font: "manrope", buttonFx: "lift", bgFx: "noisefine", buttonShape: "rounded" } },
-  { id: "cosmic-violet", name: "Cosmic Violet", accent: "#A78BFA",
-    design: { accent: "#A78BFA", background: "cosmic-3", card: "neon-magenta", font: "syne", buttonFx: "growglow", bgFx: "starfield", buttonShape: "pill" } },
-  { id: "mono-minimal", name: "Mono Minimal", accent: "#E5E7EB",
-    design: { accent: "#E5E7EB", background: "mono-3", card: "out-hair", font: "inter", buttonFx: "scale", bgFx: "none", buttonShape: "sharp" } },
-  { id: "candy-light", name: "Candy Light", accent: "#EC4899",
-    design: { accent: "#EC4899", background: "candy-2", card: "solid-surface", font: "poppins", buttonFx: "bounce", bgFx: "none", buttonShape: "rounded" } },
-  { id: "ocean-deep", name: "Ocean Deep", accent: "#38BDF8",
-    design: { accent: "#38BDF8", background: "ocean-2", card: "glass-smoke", font: "dmsans", buttonFx: "underglow", bgFx: "spotlight", buttonShape: "pill" } },
-  { id: "ember-glow", name: "Ember Glow", accent: "#F43F5E",
-    design: { accent: "#F43F5E", background: "ember-2", card: "neon-glow", font: "archivo", buttonFx: "depth", bgFx: "pulse", buttonShape: "soft" } },
+  // ── Plus themes (12) ──────────────────────────────────────────────
+  { id: "emerald-night", name: "Emerald Night", accent: "#00E5A0", tier: "PLUS",
+    design: { accent: "#00E5A0", background: "aurora-2", bgFx: "topglow", card: "glass-frost", font: "sora", buttonShape: "pill", buttonSize: "md", buttonIdle: "none", buttonFx: "growglow", iconFx: "i-glow", iconIdle: "none", spacing: "cozy" } },
+  { id: "cyber-neon", name: "Cyber Neon", accent: "#22D3EE", tier: "PLUS",
+    design: { accent: "#22D3EE", background: "neon-4", bgFx: "scanlines", card: "neon-cyber", font: "grotesk", buttonShape: "sharp", buttonSize: "md", buttonIdle: "none", buttonFx: "glitch", iconFx: "i-shake", iconIdle: "none", spacing: "cozy" } },
+  { id: "sunset-pop", name: "Sunset Pop", accent: "#FB923C", tier: "PLUS",
+    design: { accent: "#FB923C", background: "sunset-4", bgFx: "grain", card: "grad-sunset", font: "outfit", buttonShape: "rounded", buttonSize: "lg", buttonIdle: "none", buttonFx: "magnetic", iconFx: "i-bounce", iconIdle: "none", spacing: "cozy" } },
+  { id: "royal-gold", name: "Royal Gold", accent: "#FBBF24", tier: "PLUS",
+    design: { accent: "#FBBF24", background: "royal-3", bgFx: "vignette", card: "solid-deep", font: "fraunces", buttonShape: "soft", buttonSize: "md", buttonIdle: "none", buttonFx: "shine", iconFx: "i-color", iconIdle: "none", spacing: "cozy" } },
+  { id: "forest-calm", name: "Forest Calm", accent: "#4ADE80", tier: "PLUS",
+    design: { accent: "#4ADE80", background: "forest-3", bgFx: "noisefine", card: "glass-soft", font: "manrope", buttonShape: "rounded", buttonSize: "md", buttonIdle: "none", buttonFx: "lift", iconFx: "i-fade", iconIdle: "none", spacing: "roomy" } },
+  { id: "cosmic-violet", name: "Cosmic Violet", accent: "#A78BFA", tier: "PLUS",
+    design: { accent: "#A78BFA", background: "cosmic-3", bgFx: "starfield", card: "neon-magenta", font: "syne", buttonShape: "pill", buttonSize: "md", buttonIdle: "none", buttonFx: "growglow", iconFx: "i-glow", iconIdle: "breathe", spacing: "cozy" } },
+  { id: "mono-minimal", name: "Mono Minimal", accent: "#E5E7EB", tier: "PLUS",
+    design: { accent: "#E5E7EB", background: "mono-3", bgFx: "none", card: "out-hair", font: "inter", buttonShape: "sharp", buttonSize: "sm", buttonIdle: "none", buttonFx: "scale", iconFx: "i-fade", iconIdle: "none", spacing: "roomy", textScale: "compact" } },
+  { id: "candy-pop", name: "Candy Pop", accent: "#EC4899", tier: "PLUS",
+    design: { accent: "#EC4899", background: "candy-2", bgFx: "none", card: "solid-surface", font: "poppins", buttonShape: "rounded", buttonSize: "md", buttonIdle: "pulse", buttonFx: "bounce", iconFx: "i-wiggle", iconIdle: "none", spacing: "cozy" } },
+  { id: "ocean-deep", name: "Ocean Deep", accent: "#38BDF8", tier: "PLUS",
+    design: { accent: "#38BDF8", background: "ocean-2", bgFx: "spotlight", card: "glass-smoke", font: "dmsans", buttonShape: "pill", buttonSize: "md", buttonIdle: "none", buttonFx: "underglow", iconFx: "i-lift", iconIdle: "none", spacing: "cozy" } },
+  { id: "ember-glow", name: "Ember Glow", accent: "#F43F5E", tier: "PLUS",
+    design: { accent: "#F43F5E", background: "ember-2", bgFx: "pulse", card: "neon-glow", font: "archivo", buttonShape: "soft", buttonSize: "md", buttonIdle: "none", buttonFx: "depth", iconFx: "i-growcolor", iconIdle: "none", spacing: "cozy" } },
+  { id: "synth-retro", name: "Synth Retro", accent: "#F472B6", tier: "PLUS",
+    design: { accent: "#F472B6", background: "synthwave-3", bgFx: "gridpersp", card: "retro-double", font: "grotesk", buttonShape: "sharp", buttonSize: "md", buttonIdle: "none", buttonFx: "neonflicker", iconFx: "i-spin", iconIdle: "none", spacing: "cozy" } },
+  { id: "vapor-dream", name: "Vapor Dream", accent: "#67E8F9", tier: "PLUS",
+    design: { accent: "#67E8F9", background: "vapor-2", bgFx: "aurorawave", card: "glass-clear", font: "epilogue", buttonShape: "pill", buttonSize: "lg", buttonIdle: "float", buttonFx: "liquid", iconFx: "i-pulse", iconIdle: "float", spacing: "roomy" } },
+  // ── Pro exclusives (6) — built on the Pro-only backgrounds ───────
+  { id: "liquid-chrome", name: "Liquid Chrome", accent: "#22D3EE", tier: "PRO",
+    design: { accent: "#22D3EE", background: "liquid-4", bgFx: "meshmove", card: "glass-frost", font: "outfit", buttonShape: "pill", buttonSize: "lg", buttonIdle: "breathe", buttonFx: "liquid", iconFx: "i-glow", iconIdle: "none", spacing: "cozy" } },
+  { id: "molten-foil", name: "Molten Foil", accent: "#FBBF24", tier: "PRO",
+    design: { accent: "#FBBF24", background: "foil-2", bgFx: "shimmer", card: "brutal-accent", font: "syne", buttonShape: "sharp", buttonSize: "md", buttonIdle: "none", buttonFx: "glitch", iconFx: "i-shake", iconIdle: "none", spacing: "cozy" } },
+  { id: "nebula-night", name: "Nebula Night", accent: "#C084FC", tier: "PRO",
+    design: { accent: "#C084FC", background: "nebula-2", bgFx: "starfield", card: "neon-ring", font: "grotesk", buttonShape: "pill", buttonSize: "md", buttonIdle: "none", buttonFx: "rainbow", iconFx: "i-glow", iconIdle: "breathe", spacing: "cozy" } },
+  { id: "aurora-flow", name: "Aurora Flow", accent: "#4ADE80", tier: "PRO",
+    design: { accent: "#4ADE80", background: "liquid-3", bgFx: "aurorawave", card: "glass-soft", font: "manrope", buttonShape: "rounded", buttonSize: "md", buttonIdle: "none", buttonFx: "magnetic", iconFx: "i-lift", iconIdle: "none", spacing: "roomy" } },
+  { id: "foil-noir", name: "Foil Noir", accent: "#E5E7EB", tier: "PRO",
+    design: { accent: "#E5E7EB", background: "foil-5", bgFx: "vignette", card: "brutal-mono", font: "jetbrains", buttonShape: "sharp", buttonSize: "sm", buttonIdle: "none", buttonFx: "press", iconFx: "i-flip", iconIdle: "none", spacing: "compact" } },
+  { id: "rose-nebula", name: "Rose Nebula", accent: "#FB7185", tier: "PRO",
+    design: { accent: "#FB7185", background: "nebula-5", bgFx: "orbs", card: "elev-lift", font: "playfair", buttonShape: "soft", buttonSize: "md", buttonIdle: "none", buttonFx: "jelly", iconFx: "i-tilt", iconIdle: "none", spacing: "cozy" } },
 ];
 
 /** A swatch gradient for a full theme tile. */

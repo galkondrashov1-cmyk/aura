@@ -2,6 +2,7 @@ import Link from "next/link";
 import { AuraMark } from "@/components/aura-logo";
 import { ViewBeacon } from "@/components/view-beacon";
 import { GalleryView } from "./gallery-view";
+import { CountdownView } from "./countdown-view";
 import { cn } from "@/lib/utils";
 import type {
   Block,
@@ -397,6 +398,81 @@ function FaqBlock({ items }: { items: { question: RichValue; answer: RichValue }
   );
 }
 
+const EMBED_H: Record<"sm" | "md" | "lg", string> = {
+  sm: "h-60",
+  md: "h-80",
+  lg: "h-[480px]",
+};
+
+function EmbedBlock({ url, height = "md" }: { url: string; height?: "sm" | "md" | "lg" }) {
+  if (!/^https:\/\//i.test(url)) {
+    return <p className="text-center text-sm text-text-muted">Add an https:// URL to embed…</p>;
+  }
+  return (
+    <div className="overflow-hidden rounded-2xl border border-border">
+      <iframe
+        src={url}
+        title="Embedded content"
+        loading="lazy"
+        sandbox="allow-scripts allow-same-origin allow-popups allow-presentation allow-forms"
+        className={cn("w-full", EMBED_H[height])}
+      />
+    </div>
+  );
+}
+
+/** Turn a share URL from Spotify / SoundCloud / Apple Music into its embed player. */
+function musicEmbed(url: string): { src: string; height: number } | null {
+  try {
+    const u = new URL(url);
+    if (u.hostname === "open.spotify.com") {
+      const m = u.pathname.match(/^\/(track|album|playlist|artist|episode|show)\/([A-Za-z0-9]+)/);
+      if (m) {
+        return {
+          src: `https://open.spotify.com/embed/${m[1]}/${m[2]}`,
+          height: m[1] === "track" || m[1] === "episode" ? 152 : 352,
+        };
+      }
+    }
+    if (u.hostname.endsWith("soundcloud.com")) {
+      return {
+        src: `https://w.soundcloud.com/player/?url=${encodeURIComponent(url)}&color=%2300e5a0&inverse=true`,
+        height: 166,
+      };
+    }
+    if (u.hostname === "music.apple.com") {
+      return { src: `https://embed.music.apple.com${u.pathname}`, height: 175 };
+    }
+  } catch {
+    /* fall through */
+  }
+  return null;
+}
+
+function MusicBlock({ url }: { url: string }) {
+  const embed = musicEmbed(url);
+  if (!embed) {
+    return (
+      <p className="text-center text-sm text-text-muted">
+        Paste a Spotify, SoundCloud or Apple Music link…
+      </p>
+    );
+  }
+  return (
+    <div className="overflow-hidden rounded-2xl">
+      <iframe
+        src={embed.src}
+        title="Music player"
+        loading="lazy"
+        allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+        sandbox="allow-scripts allow-same-origin allow-popups"
+        style={{ height: embed.height }}
+        className="w-full"
+      />
+    </div>
+  );
+}
+
 function DividerBlock({
   color,
   style = "line",
@@ -497,6 +573,12 @@ function BlockRenderer({
       return <FaqBlock items={block.items} />;
     case "divider":
       return <DividerBlock color={block.color} style={block.style} />;
+    case "embed":
+      return <EmbedBlock url={block.url} height={block.height} />;
+    case "music":
+      return <MusicBlock url={block.url} />;
+    case "countdown":
+      return <CountdownView target={block.target} label={block.label} />;
     default:
       return null;
   }
@@ -520,7 +602,13 @@ export function PageRenderer({
   if (content.design?.accent) style["--primary"] = content.design.accent;
   if (r.bg?.light) Object.assign(style, LIGHT_VARS);
   // Global text color override (per-letter colors still win via inline runs).
-  if (content.design?.textColor) style["--text"] = content.design.textColor;
+  // Sets inherited color (headings/plain text), --text (elements using the
+  // token) AND a translucent --text-muted so secondary text follows too.
+  if (content.design?.textColor) {
+    style.color = content.design.textColor;
+    style["--text"] = content.design.textColor;
+    style["--text-muted"] = `${content.design.textColor}b3`;
+  }
   // Chosen page font applies to both body text and headings.
   const fam = fontFamilyVar(content.design?.font);
   if (fam) {

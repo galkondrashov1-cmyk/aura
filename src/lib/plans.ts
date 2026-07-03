@@ -21,7 +21,8 @@ export type Caps = {
   gallerySlideshow: boolean;
   removeBadge: boolean; // hide "Made with AURA"
   proAssets: boolean; // Pro-exclusive backgrounds/effects/theme packs
-  advancedBlocks: boolean; // video / embed / music / countdown
+  advancedBlocks: boolean; // embed / music / countdown
+  customSeo: boolean; // per-page SEO title + description
 };
 
 export function caps(plan: Plan): Caps {
@@ -38,6 +39,7 @@ export function caps(plan: Plan): Caps {
     removeBadge: pro,
     proAssets: pro,
     advancedBlocks: pro,
+    customSeo: pro,
   };
 }
 
@@ -63,9 +65,9 @@ export const PLANS: PlanInfo[] = [
     accent: "#9aa3af",
     features: [
       "1 page",
-      "Core blocks (hero, links, text, socials, FAQ)",
+      "All core blocks",
       "Essential backgrounds & fonts",
-      "Basic hover effects",
+      "Basic hover & idle animations",
       "Built-in analytics",
     ],
   },
@@ -78,7 +80,7 @@ export const PLANS: PlanInfo[] = [
     popular: true,
     features: [
       "Up to 5 pages",
-      "All backgrounds + one-click themes",
+      "All standard backgrounds + 12 one-click themes",
       "Creative effects (glitch, rainbow, liquid, neon…)",
       "Per-element colors & effects",
       "Gallery slideshow + lightbox",
@@ -94,10 +96,10 @@ export const PLANS: PlanInfo[] = [
     features: [
       "Unlimited pages",
       "Everything in Plus",
-      "Exclusive Pro themes, backgrounds & effects",
-      "Advanced blocks (video, embed, music, countdown)",
+      "6 Pro themes + Liquid, Foil & Nebula backgrounds",
+      "Advanced blocks: embed, music, countdown",
+      "Custom SEO title & description",
       "Remove the AURA badge",
-      "Priority support",
     ],
   },
 ];

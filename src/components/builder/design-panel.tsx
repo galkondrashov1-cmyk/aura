@@ -1,16 +1,14 @@
 "use client";
 
 import { useState } from "react";
-import { X, ChevronRight, Star, Wand2, Shuffle } from "lucide-react";
+import { X, ChevronRight, Wand2, Shuffle } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { PageDesign } from "@/lib/blocks";
 import {
   BACKGROUNDS,
   CARD_STYLES,
-  BUTTON_IDLE,
-  ICON_IDLE,
-  ICON_FX,
   BG_FX,
+  type FullTheme,
   COLOR_PRESETS,
   FULL_THEMES,
   fullThemeSwatch,
@@ -31,9 +29,6 @@ type Picker =
   | "background"
   | "bgFx"
   | "card"
-  | "buttonIdle"
-  | "iconIdle"
-  | "iconFx"
   | "font"
   | "buttonShape"
   | "buttonSize"
@@ -57,9 +52,6 @@ export function DesignPanel({
     background: BACKGROUNDS.find((b) => b.id === design.background)?.name ?? "Default",
     bgFx: BG_FX.find((e) => e.id === design.bgFx)?.name ?? "None",
     card: CARD_STYLES.find((c) => c.id === design.card)?.name ?? "Default",
-    buttonIdle: BUTTON_IDLE.find((e) => e.id === design.buttonIdle)?.name ?? "None",
-    iconIdle: ICON_IDLE.find((e) => e.id === design.iconIdle)?.name ?? "None",
-    iconFx: ICON_FX.find((e) => e.id === design.iconFx)?.name ?? "Default",
     font: FONTS.find((f) => f.id === design.font)?.name ?? "Default",
     buttonShape: BUTTON_SHAPES.find((s) => s.id === design.buttonShape)?.name ?? "Pill",
     buttonSize: BUTTON_SIZES.find((s) => s.id === design.buttonSize)?.name ?? "Medium",
@@ -82,7 +74,8 @@ export function DesignPanel({
     <div className="rounded-2xl border border-border bg-surface p-3.5">
       <p className="mb-2.5 text-sm font-medium">Design</p>
 
-      {/* One-click full themes */}
+      {/* One-click full themes — complete profiles (palette + buttons +
+          typography + animations), every piece editable afterwards. */}
       <div className="mb-3">
         <div className="mb-1.5 flex items-center justify-between">
           <p className="flex items-center gap-1.5 text-xs text-text-muted">
@@ -92,7 +85,8 @@ export function DesignPanel({
             <button
               type="button"
               onClick={() => {
-                const t = FULL_THEMES[Math.floor(Math.random() * FULL_THEMES.length)];
+                const pool = FULL_THEMES.filter((t) => t.tier === "PLUS" || c.proAssets);
+                const t = pool[Math.floor(Math.random() * pool.length)];
                 onChange(t.design);
               }}
               className="flex items-center gap-1 rounded-lg border border-border bg-surface-2 px-2 py-1 text-[11px] text-text-muted transition-colors hover:border-primary/50 hover:text-text"
@@ -102,34 +96,21 @@ export function DesignPanel({
           )}
         </div>
         <PlanLock locked={!c.premiumThemes}>
-        <div className="flex flex-wrap gap-2">
-          {FULL_THEMES.map((t) => {
-            const active = design.accent === t.accent && design.background === t.design.background;
-            return (
-              <button
-                key={t.id}
-                type="button"
-                onClick={() => onChange(t.design)}
-                className="group shrink-0 text-center"
-                title={`${t.name} — sets background, color, buttons, font & effects`}
-              >
-                <span
-                  className={cn(
-                    "block h-12 w-12 overflow-hidden rounded-xl border",
-                    active ? "border-primary" : "border-border",
-                  )}
-                  style={{ background: fullThemeSwatch(t) }}
-                >
-                  <span
-                    className="block h-full w-full"
-                    style={{ boxShadow: `inset 0 -16px 16px -10px ${t.accent}` }}
-                  />
-                </span>
-                <span className="mt-1 block w-12 truncate text-[10px] text-text-muted">{t.name}</span>
-              </button>
-            );
-          })}
-        </div>
+          <ThemeGrid
+            themes={FULL_THEMES.filter((t) => t.tier === "PLUS")}
+            design={design}
+            onChange={onChange}
+          />
+        </PlanLock>
+        <p className="mt-2.5 mb-1.5 flex items-center gap-1.5 text-xs text-text-muted">
+          Pro themes {!c.proAssets && <PlanPill tier="Pro" />}
+        </p>
+        <PlanLock locked={!c.proAssets} tier="Pro">
+          <ThemeGrid
+            themes={FULL_THEMES.filter((t) => t.tier === "PRO")}
+            design={design}
+            onChange={onChange}
+          />
         </PlanLock>
       </div>
 
@@ -156,10 +137,12 @@ export function DesignPanel({
         </div>
       </div>
 
-      {/* Accent color + match */}
+      {/* Accent color — the highlight color for buttons, icons & glows */}
       <div className="mb-3">
         <div className="mb-1.5 flex items-center justify-between">
-          <p className="text-xs text-text-muted">Accent color</p>
+          <p className="text-xs text-text-muted">
+            Accent color <span className="text-text-muted/60">· buttons, icons &amp; glows</span>
+          </p>
           {design.accent && (
             <button
               onClick={() => onChange({ accent: undefined })}
@@ -175,20 +158,28 @@ export function DesignPanel({
             value={design.accent || "#00E5A0"}
             onChange={(e) => onChange({ accent: e.target.value })}
             className="h-9 w-11 shrink-0 cursor-pointer rounded-lg border border-border bg-surface-2"
-            aria-label="Accent color"
+            aria-label="Pick accent color"
+          />
+          <input
+            type="text"
+            value={design.accent ?? ""}
+            placeholder="#00E5A0"
+            onChange={(e) => {
+              const v = e.target.value.trim();
+              if (/^#[0-9a-fA-F]{6}$/.test(v)) onChange({ accent: v });
+            }}
+            className="h-9 w-24 rounded-lg border border-border bg-surface-2 px-2.5 font-mono text-xs text-text placeholder:text-text-muted focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:outline-none"
+            aria-label="Accent hex code"
           />
           <button
             type="button"
             onClick={matchAccent}
             disabled={!design.background}
-            title={design.background ? "Match accent to background" : "Pick a background first"}
-            className="flex h-9 items-center gap-1.5 rounded-lg border border-border bg-surface-2 px-3 text-xs text-text-muted transition-colors hover:border-primary/50 hover:text-text disabled:opacity-40"
+            title={design.background ? "Pick a color that fits your background" : "Pick a background first"}
+            className="ml-auto flex h-9 items-center gap-1.5 rounded-lg border border-border bg-surface-2 px-3 text-xs text-text-muted transition-colors hover:border-primary/50 hover:text-text disabled:opacity-40"
           >
-            <Wand2 className="h-3.5 w-3.5" /> Match
+            <Wand2 className="h-3.5 w-3.5" /> Match background
           </button>
-          <span className="ml-auto truncate text-xs text-text-muted">
-            {design.accent ?? "Default"}
-          </span>
         </div>
       </div>
 
@@ -238,15 +229,36 @@ export function DesignPanel({
         <MiniRow label="Style" value={names.card} onClick={() => setOpen("card")} />
         <MiniRow label="Shape" value={names.buttonShape} onClick={() => setOpen("buttonShape")} />
         <MiniRow label="Size" value={names.buttonSize} onClick={() => setOpen("buttonSize")} />
-        <MiniRow label="Idle motion" value={names.buttonIdle} onClick={() => setOpen("buttonIdle")} />
       </div>
+      <p className="mt-2 rounded-lg bg-surface-2/60 px-3 py-2 text-[11px] leading-relaxed text-text-muted">
+        Animations &amp; hover effects now live on each block — open a block from
+        the <span className="text-text">Blocks</span> tab to set its motion.
+      </p>
 
-      {/* Icons */}
-      <p className="mt-3 mb-1.5 text-xs text-text-muted">Icons</p>
-      <div className="grid grid-cols-2 gap-2">
-        <MiniRow label="Idle motion" value={names.iconIdle} onClick={() => setOpen("iconIdle")} />
-        <MiniRow label="Hover effect" value={names.iconFx} onClick={() => setOpen("iconFx")} />
-      </div>
+      {/* Custom SEO (Pro) */}
+      <p className="mt-3 mb-1.5 flex items-center gap-1.5 text-xs text-text-muted">
+        SEO {!c.customSeo && <PlanPill tier="Pro" />}
+      </p>
+      <PlanLock locked={!c.customSeo} tier="Pro">
+        <div className="space-y-2">
+          <input
+            type="text"
+            value={design.seoTitle ?? ""}
+            onChange={(e) => onChange({ seoTitle: e.target.value || undefined })}
+            placeholder="Search title (shows in Google & tabs)"
+            className="h-10 w-full rounded-xl border border-border bg-surface-2 px-3 text-sm text-text placeholder:text-text-muted focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:outline-none"
+            aria-label="SEO title"
+          />
+          <textarea
+            value={design.seoDescription ?? ""}
+            onChange={(e) => onChange({ seoDescription: e.target.value || undefined })}
+            placeholder="Search description (1–2 sentences)"
+            rows={2}
+            className="w-full resize-none rounded-xl border border-border bg-surface-2 px-3 py-2 text-sm text-text placeholder:text-text-muted focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:outline-none"
+            aria-label="SEO description"
+          />
+        </div>
+      </PlanLock>
 
       {open === "font" && (
         <Modal title="Fonts" onClose={() => setOpen(null)}>
@@ -343,36 +355,6 @@ export function DesignPanel({
           onClose={() => setOpen(null)}
         />
       )}
-      {open === "buttonIdle" && (
-        <PillModal
-          title="Button idle animations"
-          options={BUTTON_IDLE}
-          selected={design.buttonIdle}
-          onPick={(id) => pick({ buttonIdle: id })}
-          onDefault={() => pick({ buttonIdle: undefined })}
-          onClose={() => setOpen(null)}
-        />
-      )}
-      {open === "iconIdle" && (
-        <IconModal
-          title="Icon idle animations"
-          options={ICON_IDLE}
-          selected={design.iconIdle}
-          onPick={(id) => pick({ iconIdle: id })}
-          onDefault={() => pick({ iconIdle: undefined })}
-          onClose={() => setOpen(null)}
-        />
-      )}
-      {open === "iconFx" && (
-        <IconModal
-          title="Icon hover effects"
-          options={ICON_FX}
-          selected={design.iconFx}
-          onPick={(id) => pick({ iconFx: id })}
-          onDefault={() => pick({ iconFx: undefined })}
-          onClose={() => setOpen(null)}
-        />
-      )}
 
       {open === "buttonShape" && (
         <ChoiceModal
@@ -419,6 +401,50 @@ export function DesignPanel({
           onClose={() => setOpen(null)}
         />
       )}
+    </div>
+  );
+}
+
+function ThemeGrid({
+  themes,
+  design,
+  onChange,
+}: {
+  themes: FullTheme[];
+  design: PageDesign;
+  onChange: (patch: Partial<PageDesign>) => void;
+}) {
+  return (
+    <div className="flex flex-wrap gap-2">
+      {themes.map((t) => {
+        const active =
+          design.accent === t.accent && design.background === t.design.background;
+        return (
+          <button
+            key={t.id}
+            type="button"
+            onClick={() => onChange(t.design)}
+            className="group shrink-0 text-center"
+            title={`${t.name} — full profile: palette, buttons, font, animations & effects`}
+          >
+            <span
+              className={cn(
+                "block h-12 w-12 overflow-hidden rounded-xl border",
+                active ? "border-primary" : "border-border",
+              )}
+              style={{ background: fullThemeSwatch(t) }}
+            >
+              <span
+                className="block h-full w-full"
+                style={{ boxShadow: `inset 0 -16px 16px -10px ${t.accent}` }}
+              />
+            </span>
+            <span className="mt-1 block w-12 truncate text-[10px] text-text-muted">
+              {t.name}
+            </span>
+          </button>
+        );
+      })}
     </div>
   );
 }
@@ -492,45 +518,6 @@ function PillModal({
               >
                 {o.name}
               </span>
-            </button>
-          ))}
-        </Section>
-      ))}
-    </Modal>
-  );
-}
-
-function IconModal({
-  title,
-  options,
-  selected,
-  onPick,
-  onDefault,
-  onClose,
-}: {
-  title: string;
-  options: Opt[];
-  selected?: string;
-  onPick: (id: string) => void;
-  onDefault: () => void;
-  onClose: () => void;
-}) {
-  return (
-    <Modal title={title} onClose={onClose}>
-      <DefaultTile selected={!selected} onClick={onDefault} />
-      {groupByCategory(options).map(([cat, items]) => (
-        <Section key={cat} title={cat} cols={4}>
-          {items.map((o) => (
-            <button
-              key={o.id}
-              onClick={() => onPick(o.id)}
-              className={cn(
-                "flex flex-col items-center gap-1 rounded-xl border p-3 text-xs text-text-muted",
-                selected === o.id ? "border-primary" : "border-border",
-              )}
-            >
-              <Star className={cn("h-5 w-5 text-primary", o.className)} />
-              {o.name}
             </button>
           ))}
         </Section>

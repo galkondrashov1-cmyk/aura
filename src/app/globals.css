@@ -184,8 +184,8 @@ textarea,
 @keyframes auraIdleHop { 0%, 12%, 70%, 100% { transform: translateY(0); } 40% { transform: translateY(-6px); } }
 @keyframes auraIdleBreathe { 0%, 100% { opacity: 0.8; } 50% { opacity: 1; } }
 @keyframes auraIdleSway { 0%, 100% { transform: rotate(-2deg); } 50% { transform: rotate(2deg); } }
-@keyframes auraIdleRock { 0%, 100% { transform: rotate(0); } 25% { transform: rotate(-2.5deg); } 75% { transform: rotate(2.5deg); } }
-@keyframes auraIdleDrift { 0%, 100% { transform: translateX(0); } 50% { transform: translateX(4px); } }
+@keyframes auraIdleRock { 0%, 55%, 100% { transform: rotate(0); } 62% { transform: rotate(-5deg); } 70% { transform: rotate(5deg); } 78% { transform: rotate(-3deg); } 85% { transform: rotate(0); } }
+@keyframes auraIdleDrift { 0%, 100% { transform: translateX(-6px); } 50% { transform: translateX(6px); } }
 @keyframes auraIdleTilt { 0%, 100% { transform: rotate(0); } 50% { transform: rotate(3deg); } }
 @keyframes auraIdleSpin { to { transform: rotate(360deg); } }
 
@@ -195,7 +195,7 @@ textarea,
 .bi-bounce, .ii-bounce { animation: auraIdleHop 1.8s ease-in-out infinite; }
 .bi-breathe, .ii-breathe { animation: auraIdleBreathe 3s ease-in-out infinite; }
 .bi-sway, .ii-sway { animation: auraIdleSway 3.5s ease-in-out infinite; }
-.bi-wobble, .ii-wobble { animation: auraIdleRock 2.4s ease-in-out infinite; }
+.bi-wobble, .ii-wobble { animation: auraIdleRock 3s ease-in-out infinite; }
 .bi-drift, .ii-drift { animation: auraIdleDrift 3.2s ease-in-out infinite; }
 .bi-tilt { animation: auraIdleTilt 3s ease-in-out infinite; }
 .ii-spin { display: inline-flex; animation: auraIdleSpin 8s linear infinite; }
@@ -229,15 +229,14 @@ textarea,
 /* Button hover effects */
 .bh-scale { transition: transform 0.2s; } .bh-scale:hover { transform: scale(1.03); }
 .bh-lift { transition: transform 0.2s; } .bh-lift:hover { transform: translateY(-2px); }
-.bh-press { transition: transform 0.15s; } .bh-press:active { transform: scale(0.95); }
+.bh-press { transition: transform 0.15s; } .bh-press:hover { transform: scale(0.97); } .bh-press:active { transform: scale(0.93); }
 .bh-slide { transition: transform 0.2s; } .bh-slide:hover { transform: translateX(4px); }
 .bh-tilt { transition: transform 0.2s; } .bh-tilt:hover { transform: rotate(-1.5deg); }
 .bh-skew { transition: transform 0.2s; } .bh-skew:hover { transform: skewX(-4deg); }
 .bh-popup { transition: transform 0.2s; } .bh-popup:hover { transform: translateY(-4px) scale(1.02); }
 .bh-shrink { transition: transform 0.2s; } .bh-shrink:hover { transform: scale(0.98); }
 .bh-brighten { transition: filter 0.2s; } .bh-brighten:hover { filter: brightness(1.12); }
-.bh-saturate { transition: filter 0.2s; } .bh-saturate:hover { filter: saturate(1.5); }
-.bh-contrast { transition: filter 0.2s; } .bh-contrast:hover { filter: contrast(1.25); }
+.bh-saturate { transition: filter 0.2s; } .bh-saturate:hover { filter: saturate(2) brightness(1.12); }
 .bh-fade { transition: opacity 0.2s; } .bh-fade:hover { opacity: 0.8; }
 .bh-glow { transition: box-shadow 0.2s; } .bh-glow:hover { box-shadow: 0 0 24px color-mix(in oklab, var(--primary) 45%, transparent); }
 .bh-shadow { transition: box-shadow 0.2s; } .bh-shadow:hover { box-shadow: 0 12px 32px rgba(0, 0, 0, 0.45); }
@@ -287,11 +286,6 @@ textarea,
 .bh-expand { transition: transform 0.25s, letter-spacing 0.25s; } .bh-expand:hover { transform: scale(1.02); letter-spacing: 0.04em; }
 .bh-magnetic { transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1); } .bh-magnetic:hover { transform: translateY(-3px) scale(1.04); }
 .bh-depth { transition: transform 0.2s, box-shadow 0.2s; } .bh-depth:hover { transform: translateY(-2px); box-shadow: 0 10px 0 -2px color-mix(in oklab, var(--primary) 40%, transparent), 0 18px 30px rgba(0,0,0,0.4); }
-.bh-gradient { background-size: 160% 160%; transition: background-position 0.5s ease; } .bh-gradient:hover { background-position: 100% 100%; }
-.bh-sheen { position: relative; overflow: hidden; }
-.bh-sheen::after { content: ""; position: absolute; inset: 0; background: linear-gradient(110deg, transparent 40%, rgba(255,255,255,0.35) 50%, transparent 60%); transform: translateX(-120%); }
-.bh-sheen:hover::after { animation: auraSheen 0.8s ease; }
-@keyframes auraSheen { to { transform: translateX(120%); } }
 
 /* ===== Extra background effects ===== */
 .bgfx-starfield {
@@ -320,7 +314,7 @@ textarea,
   background: conic-gradient(from 0deg at 50% 35%, color-mix(in oklab, var(--primary) 16%, transparent), transparent 30%, color-mix(in oklab, var(--accent) 16%, transparent) 60%, transparent 90%);
   animation: auraRotate 24s linear infinite;
 }
-@keyframes auraRotate { to { transform: rotate(360deg); } }
+@keyframes auraRotate { from { transform: rotate(0deg) scale(1.6); } to { transform: rotate(360deg) scale(1.6); } }
 
 /* ===== Creative button hover effects ===== */
 .bh-glitch { position: relative; transition: transform 0.1s; }
@@ -378,7 +372,7 @@ textarea,
 @media (prefers-reduced-motion: reduce) {
   .bi-float, .bi-pulse, .bi-bounce, .bi-breathe, .bi-sway, .bi-wobble, .bi-drift, .bi-tilt,
   .ii-float, .ii-pulse, .ii-bounce, .ii-breathe, .ii-sway, .ii-wobble, .ii-drift, .ii-spin,
-  .bh-pulse:hover, .bh-wobble:hover, .bh-bounce:hover, .bh-jelly:hover, .bh-sheen:hover::after,
+  .bh-pulse:hover, .bh-wobble:hover, .bh-bounce:hover, .bh-jelly:hover,
   .bh-glitch:hover, .bh-rainbow:hover::before, .bh-neonflicker:hover,
   .ih-wiggle:hover, .ih-bounce:hover, .ih-pulse:hover, .ih-shake:hover,
   .bgfx-aurora, .bgfx-shimmer, .bgfx-pulse, .bgfx-meshmove, .bgfx-rotate,

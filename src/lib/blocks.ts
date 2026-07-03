@@ -96,7 +96,11 @@ export type Block =
     }
   | { id: string; type: "video"; url: string; title?: RichValue }
   | { id: string; type: "divider"; color?: string; style?: "line" | "dashed" | "dotted" | "glow" }
-  | { id: string; type: "faq"; items: { question: RichValue; answer: RichValue }[] };
+  | { id: string; type: "faq"; items: { question: RichValue; answer: RichValue }[] }
+  // ── Advanced blocks (Pro) ──
+  | { id: string; type: "embed"; url: string; height?: "sm" | "md" | "lg" }
+  | { id: string; type: "music"; url: string }
+  | { id: string; type: "countdown"; target: string; label?: string };
 
 export type BlockType = Block["type"];
 
@@ -118,6 +122,9 @@ export type PageDesign = {
   contentWidth?: string;
   spacing?: string;
   textScale?: string;
+  // Custom SEO (Pro) — override the public page's <title> / description.
+  seoTitle?: string;
+  seoDescription?: string;
 };
 
 export type PageContent = {
@@ -154,6 +161,8 @@ export function asPageContent(value: unknown): PageContent {
             contentWidth: str(v.design.contentWidth),
             spacing: str(v.design.spacing),
             textScale: str(v.design.textScale),
+            seoTitle: str(v.design.seoTitle),
+            seoDescription: str(v.design.seoDescription),
           }
         : undefined;
     return {

@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { PageRenderer } from "@/components/renderer/page-renderer";
 import { asPageContent } from "@/lib/blocks";
 import { asPlan, caps } from "@/lib/plans";
+import { toPlain } from "@/lib/richtext";
 
 type Params = { params: Promise<{ username: string }> };
 
@@ -28,13 +29,15 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
 
   const content = asPageContent(data.page.publishedContent);
   const hero = content.blocks.find((b) => b.type === "hero");
+  // Custom SEO (Pro) set in the design studio wins, then legacy columns.
   const name =
+    content.design?.seoTitle ??
     data.page.seoTitle ??
-    (hero && hero.type === "hero" ? hero.name : data.user.username);
+    (hero && hero.type === "hero" ? toPlain(hero.name) : data.user.username);
 
   return {
     title: `${name} · AURA`,
-    description: data.page.seoDescription ?? undefined,
+    description: content.design?.seoDescription ?? data.page.seoDescription ?? undefined,
   };
 }
 

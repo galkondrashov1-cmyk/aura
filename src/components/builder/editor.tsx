@@ -32,7 +32,7 @@ import type {
   SocialPlatform,
 } from "@/lib/blocks";
 import { DesignPanel } from "./design-panel";
-import { PlanLock } from "./plan-lock";
+import { PlanLock, PlanPill } from "./plan-lock";
 import { SOCIAL_OPTIONS, SocialIcon } from "@/lib/socials";
 import { AVATAR_IDLE, ICON_FX, ICON_IDLE, BUTTON_FX, BUTTON_IDLE } from "@/lib/design";
 import { SIZE_OPTS, ASPECT_OPTS, RADIUS_OPTS } from "@/lib/image";
@@ -54,6 +54,9 @@ const BLOCK_LABELS: Record<BlockType, string> = {
   video: "Video",
   faq: "FAQ",
   divider: "Divider",
+  embed: "Embed",
+  music: "Music",
+  countdown: "Countdown",
 };
 
 // Hero is a fixed, single block (every page has exactly one) — not addable.
@@ -67,6 +70,9 @@ const ADDABLE: BlockType[] = [
   "faq",
   "divider",
 ];
+
+// Advanced blocks — Pro plan.
+const ADVANCED: BlockType[] = ["embed", "music", "countdown"];
 
 function newBlock(type: BlockType): Block {
   const id = crypto.randomUUID();
@@ -89,6 +95,12 @@ function newBlock(type: BlockType): Block {
       return { id, type, items: [{ question: "Question?", answer: "Answer." }] };
     case "divider":
       return { id, type };
+    case "embed":
+      return { id, type, url: "" };
+    case "music":
+      return { id, type, url: "" };
+    case "countdown":
+      return { id, type, target: "", label: "" };
   }
 }
 
@@ -266,21 +278,57 @@ export function Editor({
           )}
 
           {sheet === "add" && (
-            <div className="grid grid-cols-2 gap-2">
-              {ADDABLE.map((t) => (
-                <button
-                  key={t}
-                  onClick={() => {
-                    const b = newBlock(t);
-                    setBlocks((bs) => [...bs, b]);
-                    setSheet({ block: b.id });
-                  }}
-                  className="flex items-center gap-2 rounded-xl border border-border bg-surface-2 p-3 text-sm text-text transition-colors hover:border-primary/50"
-                >
-                  <Plus className="h-4 w-4 shrink-0 text-primary" />
-                  {BLOCK_LABELS[t]}
-                </button>
-              ))}
+            <div className="space-y-4">
+              <div className="grid grid-cols-2 gap-2">
+                {ADDABLE.map((t) => (
+                  <button
+                    key={t}
+                    onClick={() => {
+                      const b = newBlock(t);
+                      setBlocks((bs) => [...bs, b]);
+                      setSheet({ block: b.id });
+                    }}
+                    className="flex items-center gap-2 rounded-xl border border-border bg-surface-2 p-3 text-sm text-text transition-colors hover:border-primary/50"
+                  >
+                    <Plus className="h-4 w-4 shrink-0 text-primary" />
+                    {BLOCK_LABELS[t]}
+                  </button>
+                ))}
+              </div>
+              <div>
+                <p className="mb-2 flex items-center gap-2 text-xs font-medium tracking-wide text-text-muted uppercase">
+                  Advanced {!c.advancedBlocks && <PlanPill tier="Pro" />}
+                </p>
+                <div className="grid grid-cols-2 gap-2">
+                  {ADVANCED.map((t) => (
+                    <button
+                      key={t}
+                      onClick={() => {
+                        if (!c.advancedBlocks) {
+                          window.location.href = "/dashboard/upgrade";
+                          return;
+                        }
+                        const b = newBlock(t);
+                        setBlocks((bs) => [...bs, b]);
+                        setSheet({ block: b.id });
+                      }}
+                      className={cn(
+                        "flex items-center gap-2 rounded-xl border border-border bg-surface-2 p-3 text-sm transition-colors",
+                        c.advancedBlocks
+                          ? "text-text hover:border-primary/50"
+                          : "text-text-muted opacity-60",
+                      )}
+                    >
+                      {c.advancedBlocks ? (
+                        <Plus className="h-4 w-4 shrink-0 text-primary" />
+                      ) : (
+                        <Lock className="h-4 w-4 shrink-0 text-primary" />
+                      )}
+                      {BLOCK_LABELS[t]}
+                    </button>
+                  ))}
+                </div>
+              </div>
             </div>
           )}
 
@@ -535,6 +583,68 @@ function BlockFields({
       );
     case "divider":
       return <DividerEditor block={block} onPatch={onPatch} />;
+    case "embed":
+      return (
+        <div className="space-y-2">
+          <Input
+            value={block.url}
+            onChange={(e) => onPatch(block.id, { url: e.target.value })}
+            placeholder="https:// URL to embed"
+            className="bg-surface-2"
+          />
+          <div className="flex overflow-hidden rounded-lg border border-border">
+            {(["sm", "md", "lg"] as const).map((h) => (
+              <button
+                key={h}
+                onClick={() => onPatch(block.id, { height: h })}
+                className={cn(
+                  "flex-1 px-3 py-1.5 text-xs uppercase",
+                  (block.height ?? "md") === h
+                    ? "bg-surface-2 text-text"
+                    : "text-text-muted hover:text-text",
+                )}
+              >
+                {h}
+              </button>
+            ))}
+          </div>
+          <p className="text-xs text-text-muted">
+            Embeds any https page — forms, maps, calendars, widgets.
+          </p>
+        </div>
+      );
+    case "music":
+      return (
+        <div className="space-y-2">
+          <Input
+            value={block.url}
+            onChange={(e) => onPatch(block.id, { url: e.target.value })}
+            placeholder="Spotify / SoundCloud / Apple Music link"
+            className="bg-surface-2"
+          />
+          <p className="text-xs text-text-muted">
+            Paste a share link — it becomes a playable mini-player.
+          </p>
+        </div>
+      );
+    case "countdown":
+      return (
+        <div className="space-y-2">
+          <Input
+            value={block.label ?? ""}
+            onChange={(e) => onPatch(block.id, { label: e.target.value })}
+            placeholder="Label (e.g. Launching in…)"
+            className="bg-surface-2"
+          />
+          <input
+            type="datetime-local"
+            value={block.target}
+            onChange={(e) => onPatch(block.id, { target: e.target.value })}
+            className="h-11 w-full rounded-xl border border-border bg-surface-2 px-4 text-sm text-text focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:outline-none"
+            aria-label="Countdown target"
+          />
+        </div>
+      );
   }
 }
 
@@ -1022,37 +1132,42 @@ function LinksEditor({
     onChange(items.map((it, j) => (j === i ? { ...it, ...p } : it)));
   return (
     <div className="space-y-2">
-      {/* Per-block animations — apply to every button in THIS block only */}
-      <PlanLock locked={!c.perElement}>
-        <div className="grid grid-cols-2 gap-2 rounded-xl border border-border bg-surface-2 p-2.5">
-          <label className="flex flex-col gap-1 text-[11px] text-text-muted">
-            Idle motion (this block)
-            <select
-              value={block.buttonIdle ?? ""}
-              onChange={(e) => onPatch(block.id, { buttonIdle: e.target.value || undefined })}
-              className="h-8 rounded-lg border border-border bg-bg px-2 text-xs text-text"
-            >
-              <option value="">Page default</option>
-              {BUTTON_IDLE.map((e) => (
-                <option key={e.id} value={e.id}>{e.name}</option>
-              ))}
-            </select>
-          </label>
-          <label className="flex flex-col gap-1 text-[11px] text-text-muted">
-            Hover effect (this block)
-            <select
-              value={block.buttonFx ?? ""}
-              onChange={(e) => onPatch(block.id, { buttonFx: e.target.value || undefined })}
-              className="h-8 rounded-lg border border-border bg-bg px-2 text-xs text-text"
-            >
-              <option value="">Page default</option>
-              {BUTTON_FX.map((e) => (
-                <option key={e.id} value={e.id}>{e.name}</option>
-              ))}
-            </select>
-          </label>
-        </div>
-      </PlanLock>
+      {/* Animations for THIS block's buttons. Basic sets are free; the
+          Creative hover effects are Plus. */}
+      <div className="grid grid-cols-2 gap-2 rounded-xl border border-border bg-surface-2 p-2.5">
+        <label className="flex flex-col gap-1 text-[11px] text-text-muted">
+          Idle motion
+          <select
+            value={block.buttonIdle ?? ""}
+            onChange={(e) => onPatch(block.id, { buttonIdle: e.target.value || undefined })}
+            className="h-8 rounded-lg border border-border bg-bg px-2 text-xs text-text"
+          >
+            <option value="">None (default)</option>
+            {BUTTON_IDLE.map((e) => (
+              <option key={e.id} value={e.id}>{e.name}</option>
+            ))}
+          </select>
+        </label>
+        <label className="flex flex-col gap-1 text-[11px] text-text-muted">
+          Hover effect
+          <select
+            value={block.buttonFx ?? ""}
+            onChange={(e) => onPatch(block.id, { buttonFx: e.target.value || undefined })}
+            className="h-8 rounded-lg border border-border bg-bg px-2 text-xs text-text"
+          >
+            <option value="">Page default</option>
+            {BUTTON_FX.map((e) => {
+              const locked = e.category === "Creative" && !c.creativeEffects;
+              return (
+                <option key={e.id} value={e.id} disabled={locked}>
+                  {e.name}
+                  {locked ? " · Plus" : ""}
+                </option>
+              );
+            })}
+          </select>
+        </label>
+      </div>
       {items.map((it, i) => (
         <div key={i} className="space-y-2 rounded-xl border border-border bg-surface-2 p-2.5">
           <div className="flex items-start gap-2">
@@ -1135,27 +1250,29 @@ function SocialsEditor({
     onChange(items.map((it, j) => (j === i ? { ...it, ...p } : it)));
   return (
     <div className="space-y-3">
-      {/* Centralized icon styling for this Socials block */}
-      <PlanLock locked={!c.perElement}>
+      {/* Centralized icon styling for this Socials block. Animations are
+          free; the custom icon color is a Plus per-element override. */}
       <div className="space-y-2 rounded-xl border border-border bg-surface-2 p-2.5">
-        <div className="flex items-center gap-2">
-          <input
-            type="color"
-            value={block.iconColor || "#9aa3af"}
-            onChange={(e) => onPatch(block.id, { iconColor: e.target.value })}
-            className="h-8 w-10 shrink-0 cursor-pointer rounded-lg border border-border bg-bg"
-            aria-label="Icon color"
-          />
-          <span className="text-xs text-text-muted">Icon color</span>
-          {block.iconColor && (
-            <button
-              onClick={() => onPatch(block.id, { iconColor: undefined })}
-              className="ml-auto text-xs text-text-muted hover:text-text"
-            >
-              Reset
-            </button>
-          )}
-        </div>
+        <PlanLock locked={!c.perElement}>
+          <div className="flex items-center gap-2">
+            <input
+              type="color"
+              value={block.iconColor || "#9aa3af"}
+              onChange={(e) => onPatch(block.id, { iconColor: e.target.value })}
+              className="h-8 w-10 shrink-0 cursor-pointer rounded-lg border border-border bg-bg"
+              aria-label="Icon color"
+            />
+            <span className="text-xs text-text-muted">Icon color</span>
+            {block.iconColor && (
+              <button
+                onClick={() => onPatch(block.id, { iconColor: undefined })}
+                className="ml-auto text-xs text-text-muted hover:text-text"
+              >
+                Reset
+              </button>
+            )}
+          </div>
+        </PlanLock>
         <div className="grid grid-cols-2 gap-2">
           <label className="flex flex-col gap-1 text-[11px] text-text-muted">
             Hover effect
@@ -1185,7 +1302,6 @@ function SocialsEditor({
           </label>
         </div>
       </div>
-      </PlanLock>
       {items.map((it, i) => (
         <div key={i} className="flex items-center gap-2">
           <span className="grid h-9 w-9 shrink-0 place-items-center rounded-lg border border-border bg-surface-2 text-text">
