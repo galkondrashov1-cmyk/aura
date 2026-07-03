@@ -10,12 +10,12 @@ import {
   Check,
   ChevronUp,
   ChevronDown,
-  GripVertical,
   Star,
   Layers,
   Palette,
   Eye,
   Lock,
+  X,
 } from "lucide-react";
 import { AuraLogo } from "@/components/aura-logo";
 import { PageRenderer } from "@/components/renderer/page-renderer";
@@ -112,14 +112,21 @@ export function Editor({
   const [design, setDesign] = useState<PageDesign>(initialContent.design ?? {});
   const [published, setPublished] = useState(initialPublished);
   const [saved, setSaved] = useState(false);
-  const [dragId, setDragId] = useState<string | null>(null);
   const [pending, start] = useTransition();
-  const [tab, setTab] = useState<"content" | "design" | "preview">("content");
+  // Canvas-first editing: one bottom sheet open at a time over the live canvas.
+  type Sheet = null | "design" | "add" | "blocks" | { block: string };
+  const [sheet, setSheet] = useState<Sheet>(null);
 
   const content: PageContent = useMemo(
     () => ({ blocks, design }),
     [blocks, design],
   );
+
+  // The block being edited when the sheet targets a specific block.
+  const active =
+    typeof sheet === "object" && sheet
+      ? blocks.find((b) => b.id === sheet.block)
+      : undefined;
 
   const patch = (id: string, p: Record<string, unknown>) =>
     setBlocks((bs) => bs.map((b) => (b.id === id ? ({ ...b, ...p } as Block) : b)));
@@ -134,19 +141,6 @@ export function Editor({
       [c[i], c[j]] = [c[j], c[i]];
       return c;
     });
-  const addBlock = (type: BlockType) =>
-    setBlocks((bs) => [...bs, newBlock(type)]);
-  const dropBefore = (srcId: string, targetId: string) =>
-    setBlocks((bs) => {
-      if (srcId === targetId) return bs;
-      const src = bs.find((b) => b.id === srcId);
-      if (!src) return bs;
-      const without = bs.filter((b) => b.id !== srcId);
-      const ti = without.findIndex((b) => b.id === targetId);
-      if (ti < 0) return bs;
-      return [...without.slice(0, ti), src, ...without.slice(ti)];
-    });
-
   const onSave = () =>
     start(async () => {
       await savePage(pageId, content);
@@ -161,8 +155,8 @@ export function Editor({
 
   return (
     <CapsContext.Provider value={c}>
-    <div data-mode="muted" className="min-h-screen bg-bg text-text">
-      <header className="sticky top-0 z-10 flex items-center justify-between gap-2 border-b border-border bg-bg/90 px-4 py-3 backdrop-blur sm:gap-4">
+    <div data-mode="muted" className="flex h-[100dvh] flex-col bg-bg text-text">
+      <header className="flex shrink-0 items-center justify-between gap-2 border-b border-border px-3 py-2.5">
         <div className="flex items-center gap-3">
           <Link href="/dashboard" className="text-text-muted transition-colors hover:text-text">
             <ArrowLeft className="h-5 w-5" />
@@ -217,210 +211,217 @@ export function Editor({
         </div>
       </header>
 
-      {/* Tab bar — switch the editing panel; Preview tab shows on mobile only */}
-      <div className="sticky top-[57px] z-10 border-b border-border bg-bg/85 backdrop-blur">
-        <div className="mx-auto flex max-w-6xl gap-1 px-4 py-2">
-          <TabButton active={tab === "content"} onClick={() => setTab("content")} icon={Layers}>
-            Content
-          </TabButton>
-          <TabButton active={tab === "design"} onClick={() => setTab("design")} icon={Palette}>
-            Design
-          </TabButton>
-          <TabButton
-            active={tab === "preview"}
-            onClick={() => setTab("preview")}
-            icon={Eye}
-            mobileOnly
+      {/* Canvas — the live page fills the screen and is the source of truth */}
+      <div className="min-h-0 flex-1 overflow-y-auto">
+        <div className="mx-auto flex min-h-full max-w-sm items-start justify-center p-3 sm:p-5">
+          <div
+            className="w-full cursor-pointer overflow-hidden rounded-[34px] border-[6px] border-surface-2 shadow-2xl ring-1 ring-border"
+            onClickCapture={(e) => {
+              // In the editor, tapping the page opens editing instead of
+              // following links.
+              e.preventDefault();
+              e.stopPropagation();
+              setSheet("blocks");
+            }}
           >
-            Preview
-          </TabButton>
+            <PageRenderer content={content} embedded hideBadge={c.removeBadge} />
+          </div>
         </div>
       </div>
 
-      <div className="mx-auto grid max-w-6xl gap-6 px-4 py-6 lg:grid-cols-[minmax(0,1fr)_390px]">
-        {/* Editing panel: Content (blocks) or Design */}
-        <div className={cn("min-w-0 space-y-3", tab === "preview" ? "hidden lg:block" : "block")}>
-          {tab === "design" ? (
+      {/* Bottom toolbar — always present, app-style */}
+      <nav
+        className="flex shrink-0 items-stretch justify-around gap-1 border-t border-border bg-bg px-2 pt-1.5"
+        style={{ paddingBottom: "max(0.375rem, env(safe-area-inset-bottom))" }}
+      >
+        <ToolBtn icon={Plus} label="Add" onClick={() => setSheet("add")} active={sheet === "add"} />
+        <ToolBtn icon={Layers} label="Blocks" onClick={() => setSheet("blocks")} active={sheet === "blocks"} />
+        <ToolBtn icon={Palette} label="Design" onClick={() => setSheet("design")} active={sheet === "design"} />
+        <ToolBtn icon={Eye} label="Preview" href={`/d/${draftToken}`} />
+      </nav>
+
+      {/* One bottom sheet at a time, over the canvas */}
+      {sheet && (
+        <EditorSheet
+          title={
+            sheet === "design"
+              ? "Design"
+              : sheet === "add"
+                ? "Add a block"
+                : sheet === "blocks"
+                  ? "Your blocks"
+                  : active
+                    ? BLOCK_LABELS[active.type]
+                    : "Edit"
+          }
+          onBack={typeof sheet === "object" ? () => setSheet("blocks") : undefined}
+          onClose={() => setSheet(null)}
+        >
+          {sheet === "design" && (
             <DesignPanel
               design={design}
               plan={plan}
               onChange={(patch) => setDesign((d) => ({ ...d, ...patch }))}
             />
-          ) : (
-            <>
-              {blocks.map((block, i) => (
-                <BlockCard
-                  key={block.id}
-                  block={block}
-                  index={i}
-                  total={blocks.length}
-                  dragId={dragId}
-                  setDragId={setDragId}
-                  onPatch={patch}
-                  onRemove={removeBlock}
-                  onMove={moveBlock}
-                  onDropBlock={dropBefore}
-                />
-              ))}
+          )}
 
+          {sheet === "add" && (
+            <div className="grid grid-cols-2 gap-2">
+              {ADDABLE.map((t) => (
+                <button
+                  key={t}
+                  onClick={() => {
+                    const b = newBlock(t);
+                    setBlocks((bs) => [...bs, b]);
+                    setSheet({ block: b.id });
+                  }}
+                  className="flex items-center gap-2 rounded-xl border border-border bg-surface-2 p-3 text-sm text-text transition-colors hover:border-primary/50"
+                >
+                  <Plus className="h-4 w-4 shrink-0 text-primary" />
+                  {BLOCK_LABELS[t]}
+                </button>
+              ))}
+            </div>
+          )}
+
+          {sheet === "blocks" && (
+            <div className="space-y-2">
+              {blocks.map((b, i) => (
+                <div
+                  key={b.id}
+                  className="flex items-center gap-1 rounded-xl border border-border bg-surface-2 px-2 py-1.5"
+                >
+                  <button
+                    onClick={() => setSheet({ block: b.id })}
+                    className="flex-1 px-1 py-1 text-left text-sm text-text"
+                  >
+                    {BLOCK_LABELS[b.type]}
+                  </button>
+                  <button
+                    onClick={() => moveBlock(b.id, -1)}
+                    disabled={i === 0}
+                    className="grid h-8 w-8 place-items-center rounded-lg text-text-muted hover:text-text disabled:opacity-30"
+                    aria-label="Move up"
+                  >
+                    <ChevronUp className="h-4 w-4" />
+                  </button>
+                  <button
+                    onClick={() => moveBlock(b.id, 1)}
+                    disabled={i === blocks.length - 1}
+                    className="grid h-8 w-8 place-items-center rounded-lg text-text-muted hover:text-text disabled:opacity-30"
+                    aria-label="Move down"
+                  >
+                    <ChevronDown className="h-4 w-4" />
+                  </button>
+                  <button
+                    onClick={() => removeBlock(b.id)}
+                    className="grid h-8 w-8 place-items-center rounded-lg text-text-muted hover:text-red-400"
+                    aria-label="Delete block"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </button>
+                </div>
+              ))}
               {blocks.length === 0 && (
-                <p className="rounded-2xl border border-dashed border-border p-6 text-center text-sm text-text-muted">
-                  No blocks yet. Add one below.
+                <p className="rounded-xl border border-dashed border-border p-6 text-center text-sm text-text-muted">
+                  No blocks yet.
                 </p>
               )}
-
-              <div className="rounded-2xl border border-border bg-surface p-4">
-                <p className="mb-3 text-sm font-medium">Add block</p>
-                <div className="flex flex-wrap gap-2">
-                  {ADDABLE.map((t) => (
-                    <button
-                      key={t}
-                      onClick={() => addBlock(t)}
-                      className="flex items-center gap-1.5 rounded-lg border border-border px-3 py-1.5 text-sm text-text-muted transition-colors hover:border-primary/50 hover:text-text"
-                    >
-                      <Plus className="h-3.5 w-3.5" />
-                      {BLOCK_LABELS[t]}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            </>
+              <button
+                onClick={() => setSheet("add")}
+                className="flex w-full items-center justify-center gap-1.5 rounded-xl border border-border py-2.5 text-sm text-text-muted transition-colors hover:border-primary/50 hover:text-text"
+              >
+                <Plus className="h-4 w-4" /> Add a block
+              </button>
+            </div>
           )}
-        </div>
 
-        {/* Live preview: always docked on desktop; on mobile only when Preview tab active */}
-        <div
-          className={cn(
-            "min-w-0 lg:sticky lg:top-28 lg:block lg:self-start",
-            tab === "preview" ? "block" : "hidden",
+          {active && (
+            <div className="space-y-4">
+              <BlockFields block={active} onPatch={patch} />
+              <button
+                onClick={() => {
+                  removeBlock(active.id);
+                  setSheet("blocks");
+                }}
+                className="flex items-center gap-1.5 text-xs text-red-400 hover:text-red-300"
+              >
+                <Trash2 className="h-3.5 w-3.5" /> Delete this block
+              </button>
+            </div>
           )}
-        >
-          <p className="mb-3 truncate text-center text-xs text-text-muted lg:text-left">
-            Live preview · useaura.me/{username}
-          </p>
-          <div className="mx-auto max-w-sm overflow-hidden rounded-[34px] border-[6px] border-surface-2 shadow-2xl ring-1 ring-border">
-            <PageRenderer content={content} embedded hideBadge={c.removeBadge} />
-          </div>
-        </div>
-      </div>
+        </EditorSheet>
+      )}
     </div>
     </CapsContext.Provider>
   );
 }
 
-function TabButton({
-  active,
-  onClick,
+function ToolBtn({
   icon: Icon,
-  mobileOnly,
-  children,
+  label,
+  onClick,
+  href,
+  active,
 }: {
-  active: boolean;
-  onClick: () => void;
   icon: React.ComponentType<{ className?: string }>;
-  mobileOnly?: boolean;
-  children: React.ReactNode;
+  label: string;
+  onClick?: () => void;
+  href?: string;
+  active?: boolean;
 }) {
-  return (
-    <button
-      onClick={onClick}
-      className={cn(
-        "flex flex-1 items-center justify-center gap-2 rounded-xl px-4 py-2 text-sm font-medium transition-colors sm:flex-none",
-        mobileOnly && "lg:hidden",
-        active
-          ? "bg-surface-2 text-text"
-          : "text-text-muted hover:bg-surface hover:text-text",
-      )}
-    >
-      <Icon className="h-4 w-4" />
-      {children}
+  const cls = cn(
+    "flex flex-1 flex-col items-center gap-0.5 rounded-xl py-1.5 text-[11px] transition-colors",
+    active ? "bg-surface-2 text-text" : "text-text-muted hover:bg-surface hover:text-text",
+  );
+  const inner = (
+    <>
+      <Icon className="h-5 w-5" />
+      {label}
+    </>
+  );
+  return href ? (
+    <a href={href} target="_blank" rel="noopener noreferrer" className={cls}>
+      {inner}
+    </a>
+  ) : (
+    <button onClick={onClick} className={cls}>
+      {inner}
     </button>
   );
 }
 
-function BlockCard({
-  block,
-  index,
-  total,
-  dragId,
-  setDragId,
-  onPatch,
-  onRemove,
-  onMove,
-  onDropBlock,
+function EditorSheet({
+  title,
+  onBack,
+  onClose,
+  children,
 }: {
-  block: Block;
-  index: number;
-  total: number;
-  dragId: string | null;
-  setDragId: (id: string | null) => void;
-  onPatch: (id: string, patch: Record<string, unknown>) => void;
-  onRemove: (id: string) => void;
-  onMove: (id: string, dir: -1 | 1) => void;
-  onDropBlock: (srcId: string, targetId: string) => void;
+  title: string;
+  onBack?: () => void;
+  onClose: () => void;
+  children: React.ReactNode;
 }) {
   return (
-    <div
-      onDragOver={(e) => {
-        if (dragId) {
-          e.preventDefault();
-          e.dataTransfer.dropEffect = "move";
-        }
-      }}
-      onDrop={(e) => {
-        e.preventDefault();
-        const src = e.dataTransfer.getData("text/plain");
-        if (src) onDropBlock(src, block.id);
-      }}
-      className={cn(
-        "rounded-2xl border bg-surface p-4 transition-colors",
-        dragId === block.id ? "border-primary opacity-60" : "border-border",
-      )}
-    >
-      <div className="mb-3 flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <span
-            draggable
-            onDragStart={(e) => {
-              e.dataTransfer.setData("text/plain", block.id);
-              e.dataTransfer.effectAllowed = "move";
-              setDragId(block.id);
-            }}
-            onDragEnd={() => setDragId(null)}
-            className="cursor-grab text-text-muted active:cursor-grabbing"
-            aria-label="Drag to reorder"
-          >
-            <GripVertical className="h-4 w-4" />
-          </span>
-          <span className="text-sm font-medium">{BLOCK_LABELS[block.type]}</span>
-        </div>
-        <div className="flex items-center gap-1 text-text-muted">
-          <button
-            onClick={() => onMove(block.id, -1)}
-            disabled={index === 0}
-            aria-label="Move up"
-            className="p-1 transition-colors hover:text-text disabled:opacity-30"
-          >
-            <ChevronUp className="h-4 w-4" />
-          </button>
-          <button
-            onClick={() => onMove(block.id, 1)}
-            disabled={index === total - 1}
-            aria-label="Move down"
-            className="p-1 transition-colors hover:text-text disabled:opacity-30"
-          >
-            <ChevronDown className="h-4 w-4" />
-          </button>
-          <button
-            onClick={() => onRemove(block.id)}
-            aria-label="Delete block"
-            className="p-1 transition-colors hover:text-red-400"
-          >
-            <Trash2 className="h-4 w-4" />
+    <div className="fixed inset-0 z-50 flex" onClick={onClose}>
+      <div className="absolute inset-0 bg-black/50" />
+      <div
+        onClick={(e) => e.stopPropagation()}
+        className="absolute inset-x-0 bottom-0 flex max-h-[86vh] flex-col rounded-t-3xl border-t border-border bg-bg lg:inset-y-0 lg:right-0 lg:left-auto lg:max-h-none lg:w-[420px] lg:rounded-none lg:border-t-0 lg:border-l"
+      >
+        <div className="flex shrink-0 items-center gap-2 border-b border-border px-4 py-3">
+          {onBack && (
+            <button onClick={onBack} aria-label="Back" className="text-text-muted hover:text-text">
+              <ArrowLeft className="h-5 w-5" />
+            </button>
+          )}
+          <p className="flex-1 font-display text-base font-medium">{title}</p>
+          <button onClick={onClose} aria-label="Close" className="text-text-muted hover:text-text">
+            <X className="h-5 w-5" />
           </button>
         </div>
+        <div className="min-h-0 flex-1 overflow-y-auto p-4">{children}</div>
       </div>
-      <BlockFields block={block} onPatch={onPatch} />
     </div>
   );
 }
