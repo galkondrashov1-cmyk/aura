@@ -83,7 +83,7 @@ export const PLANS: PlanInfo[] = [
       "All standard backgrounds + 12 one-click themes",
       "Creative effects, special shapes & motion speed",
       "Per-element colors & effects",
-      "Gallery slideshow + lightbox",
+      "Gallery slideshow mode",
       "All premium fonts",
     ],
   },

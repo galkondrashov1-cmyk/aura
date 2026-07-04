@@ -104,3 +104,16 @@ export async function verifyWebhook(
     event: JSON.parse(rawBody),
   };
 }
+
+/** Cancel a subscription at PayPal (access continues until paid-through). */
+export async function cancelSubscription(id: string, reason: string): Promise<void> {
+  const token = await accessToken();
+  const res = await fetch(`${PAYPAL_BASE}/v1/billing/subscriptions/${id}/cancel`, {
+    method: "POST",
+    headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+    body: JSON.stringify({ reason }),
+    cache: "no-store",
+  });
+  // 204 = cancelled; 422 usually means it is already cancelled — both fine.
+  if (!res.ok && res.status !== 422) throw new Error(`paypal cancel ${res.status}`);
+}

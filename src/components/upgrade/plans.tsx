@@ -5,6 +5,7 @@ import { Check, Sparkles } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { PLANS, monthlyPrice, type Plan } from "@/lib/plans";
 import { upgradeAction } from "@/lib/actions/plan";
+import { cancelSubscriptionAction } from "@/lib/actions/subscription";
 import { PayPalSubscribe } from "./paypal-button";
 
 export type PaypalPublicConfig = {
@@ -15,9 +16,13 @@ export type PaypalPublicConfig = {
 export function UpgradePlans({
   current,
   paypal,
+  hasSubscription = false,
+  accessUntil,
 }: {
   current: Plan;
   paypal?: PaypalPublicConfig;
+  hasSubscription?: boolean;
+  accessUntil?: string | null;
 }) {
   const [billing, setBilling] = useState<"yearly" | "monthly">("yearly");
 
@@ -36,7 +41,7 @@ export function UpgradePlans({
           >
             {b}
             {b === "yearly" && (
-              <span className="ml-1.5 text-xs text-primary">save 20%</span>
+              <span className="ml-1.5 text-xs text-primary">save 17%</span>
             )}
           </button>
         ))}
@@ -72,6 +77,18 @@ export function UpgradePlans({
               <div className="mt-5">
                 {p.yearlyPerMonth === 0 ? (
                   <p className="font-display text-2xl font-medium">Free</p>
+                ) : paypal ? (
+                  <p className="text-sm text-text-muted">
+                    <span className="font-display text-2xl font-medium text-text">
+                      ${perMonth.toFixed(2)}
+                    </span>
+                    /mo
+                    <span className="ml-1.5 text-xs">
+                      {billing === "yearly"
+                        ? `billed yearly ($${(p.yearlyPerMonth * 12).toFixed(2)}/yr)`
+                        : "billed monthly"}
+                    </span>
+                  </p>
                 ) : (
                   <>
                     <p className="text-xs font-medium tracking-wide text-primary uppercase">
@@ -102,11 +119,44 @@ export function UpgradePlans({
 
               <div className="mt-6">
                 {isCurrent ? (
+                  <div className="text-center">
+                    <button
+                      disabled
+                      className="w-full rounded-full border border-border py-2.5 text-sm text-text-muted"
+                    >
+                      Current plan
+                    </button>
+                    {accessUntil && p.id !== "FREE" && (
+                      <p className="mt-2 text-xs text-text-muted">
+                        Cancelled — access until {new Date(accessUntil).toLocaleDateString()}
+                      </p>
+                    )}
+                  </div>
+                ) : p.id === "FREE" && paypal && hasSubscription && !accessUntil ? (
+                  <form
+                    action={cancelSubscriptionAction}
+                    onSubmit={(e) => {
+                      if (
+                        !confirm(
+                          "Cancel your subscription? You keep access until the end of the period you already paid for, and will never be charged again.",
+                        )
+                      )
+                        e.preventDefault();
+                    }}
+                  >
+                    <button
+                      type="submit"
+                      className="w-full rounded-full border border-border py-2.5 text-sm text-text-muted transition-colors hover:text-red-400"
+                    >
+                      Cancel subscription
+                    </button>
+                  </form>
+                ) : paypal && p.id === "FREE" ? (
                   <button
                     disabled
-                    className="w-full rounded-full border border-border py-2.5 text-sm text-text-muted"
+                    className="w-full rounded-full border border-border py-2.5 text-sm text-text-muted opacity-60"
                   >
-                    Current plan
+                    {accessUntil ? "Starts when your plan ends" : "\u2014"}
                   </button>
                 ) : paypal && p.id !== "FREE" ? (
                   <PayPalSubscribe

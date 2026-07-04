@@ -1,4 +1,5 @@
 import { getSession } from "@/lib/session";
+import { prisma } from "@/lib/prisma";
 import { getEffectivePlan } from "@/lib/plan-source";
 import { paypalConfigured } from "@/lib/paypal";
 import { UpgradePlans, type PaypalPublicConfig } from "@/components/upgrade/plans";
@@ -6,11 +7,20 @@ import { UpgradePlans, type PaypalPublicConfig } from "@/components/upgrade/plan
 export default async function UpgradePage({
   searchParams,
 }: {
-  searchParams: Promise<{ changed?: string }>;
+  searchParams: Promise<{ changed?: string; cancelled?: string }>;
 }) {
   const user = await getSession();
   const current = user ? await getEffectivePlan(user.id) : "FREE";
-  const changed = (await searchParams)?.changed === "1";
+  const sp = await searchParams;
+  const changed = sp?.changed === "1";
+  const cancelled = sp?.cancelled === "1";
+  const subRows = user
+    ? await prisma.$queryRaw<{ paypalSubId: string | null; planExpiresAt: string | null }[]>`
+        SELECT "paypalSubId", "planExpiresAt" FROM "User" WHERE id = ${user.id} LIMIT 1
+      `
+    : [];
+  const hasSubscription = Boolean(subRows[0]?.paypalSubId);
+  const accessUntil = subRows[0]?.planExpiresAt ?? null;
   const paypal: PaypalPublicConfig | undefined =
     paypalConfigured() && process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID
       ? {
@@ -43,8 +53,19 @@ export default async function UpgradePage({
           Plan updated. Your new features are unlocked.
         </p>
       )}
+      {cancelled && (
+        <p className="mt-4 inline-block rounded-xl border border-border bg-surface px-4 py-2 text-sm text-text-muted">
+          Subscription cancelled. You keep access until the end of your paid period —
+          you will not be charged again.
+        </p>
+      )}
       <div className="mt-8">
-        <UpgradePlans current={current} paypal={paypal} />
+        <UpgradePlans
+          current={current}
+          paypal={paypal}
+          hasSubscription={hasSubscription}
+          accessUntil={accessUntil}
+        />
       </div>
     </div>
   );
