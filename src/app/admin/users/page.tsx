@@ -39,18 +39,77 @@ export default async function AdminUsers({ searchParams }: SP) {
           <h1 className="font-display text-2xl font-medium tracking-tight">Users</h1>
           <p className="mt-1 text-sm text-text-muted">{users.length} shown</p>
         </div>
-        <form className="relative">
+        <form className="relative w-full sm:w-auto">
           <Search className="pointer-events-none absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-text-muted" />
           <input
             name="q"
             defaultValue={query}
             placeholder="Search users…"
-            className="h-10 w-64 rounded-xl border border-border bg-surface-2 pr-4 pl-9 text-sm text-text placeholder:text-text-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50"
+            className="h-10 w-full rounded-xl border border-border bg-surface-2 pr-4 pl-9 text-sm text-text placeholder:text-text-muted focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:outline-none sm:w-64"
           />
         </form>
       </div>
 
-      <div className="mt-6 overflow-x-auto rounded-2xl border border-border">
+      {/* Mobile: stacked cards — every action reachable without side-scrolling */}
+      <div className="mt-5 space-y-3 md:hidden">
+        {users.map((u) => {
+          const suspended = u.status === "SUSPENDED";
+          return (
+            <div key={u.id} className="rounded-2xl border border-border bg-surface p-4">
+              <div className="flex items-start justify-between gap-2">
+                <div className="min-w-0">
+                  <p className="flex items-center gap-2 text-sm font-medium">
+                    <span className="truncate">@{u.username}</span>
+                    {u.role === "ADMIN" && (
+                      <span className="shrink-0 rounded-full bg-primary/15 px-2 py-0.5 text-[10px] text-primary">
+                        admin
+                      </span>
+                    )}
+                  </p>
+                  <p className="truncate text-xs text-text-muted">{u.email}</p>
+                </div>
+                <span
+                  className={cn(
+                    "shrink-0 rounded-full px-2.5 py-1 text-xs font-medium",
+                    suspended ? "bg-red-500/15 text-red-400" : "bg-primary/15 text-primary",
+                  )}
+                >
+                  {suspended ? "Suspended" : "Active"}
+                </span>
+              </div>
+              <div className="mt-3 flex items-center gap-2 text-xs text-text-muted">
+                <span>{u._count.pages} pages</span>
+                <span>·</span>
+                <span>joined {new Date(u.createdAt).toLocaleDateString()}</span>
+              </div>
+              <div className="mt-3 flex items-center gap-2">
+                <PlanSelect userId={u.id} plan={planById.get(u.id) ?? "FREE"} />
+                <form
+                  className="flex-1"
+                  action={suspended ? activateUser.bind(null, u.id) : suspendUser.bind(null, u.id)}
+                >
+                  <button className="w-full rounded-lg border border-border py-2 text-xs text-text-muted transition-colors hover:text-text">
+                    {suspended ? "Activate" : "Suspend"}
+                  </button>
+                </form>
+                <form className="flex-1" action={deleteUser.bind(null, u.id)}>
+                  <button className="w-full rounded-lg border border-border py-2 text-xs text-text-muted transition-colors hover:text-red-400">
+                    Delete
+                  </button>
+                </form>
+              </div>
+            </div>
+          );
+        })}
+        {users.length === 0 && (
+          <p className="rounded-2xl border border-dashed border-border p-8 text-center text-sm text-text-muted">
+            No users found.
+          </p>
+        )}
+      </div>
+
+      {/* Desktop: table */}
+      <div className="mt-6 hidden overflow-x-auto rounded-2xl border border-border md:block">
         <table className="w-full text-sm">
           <thead>
             <tr className="border-b border-border text-left text-xs text-text-muted">
