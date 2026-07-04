@@ -1,8 +1,13 @@
 import Link from "next/link";
+import { redirect } from "next/navigation";
+import { getSession } from "@/lib/session";
 import { AuraLogo } from "@/components/aura-logo";
 import { SignupForm } from "@/components/auth/signup-form";
 
-export default function SignupPage() {
+export default async function SignupPage() {
+  // Already signed in? Never ask again — straight to the dashboard.
+  if (await getSession()) redirect("/dashboard");
+
   return (
     <div className="aura-backdrop flex min-h-screen flex-col items-center justify-center px-6 py-12">
       <Link href="/" className="mb-8">

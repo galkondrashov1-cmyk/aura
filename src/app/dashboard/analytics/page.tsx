@@ -78,7 +78,7 @@ export default async function AnalyticsPage() {
 
   // Chart geometry
   const W = 600;
-  const H = 150;
+  const H = 170;
   const slot = W / DAYS;
   const barW = slot * 0.55;
 
@@ -99,15 +99,15 @@ export default async function AnalyticsPage() {
         </div>
       ) : (
         <>
-          <div className="mt-6 grid grid-cols-3 gap-3">
+          <div className="mt-6 grid grid-cols-3 gap-2 sm:gap-3">
             <Metric label="Views" value={totalViews.toLocaleString()} />
             <Metric label="Clicks" value={totalClicks.toLocaleString()} />
             <Metric label="CTR" value={`${ctr}%`} />
           </div>
 
-          <div className="mt-5 rounded-2xl border border-border bg-surface p-5">
+          <div className="mt-5 rounded-2xl border border-border bg-surface p-4 sm:p-5">
             <p className="mb-4 text-sm font-medium">Views per day</p>
-            <svg viewBox={`0 0 ${W} ${H + 22}`} className="w-full" role="img" aria-label="Views per day">
+            <svg viewBox={`0 0 ${W} ${H + 28}`} className="w-full" role="img" aria-label="Views per day">
               {series.map((v, i) => {
                 const h = (v / maxView) * H;
                 const x = i * slot + (slot - barW) / 2;
@@ -124,9 +124,9 @@ export default async function AnalyticsPage() {
                     {i % 2 === 0 && (
                       <text
                         x={x + barW / 2}
-                        y={H + 16}
+                        y={H + 20}
                         textAnchor="middle"
-                        fontSize="11"
+                        fontSize="16"
                         fill="var(--text-muted)"
                       >
                         {days[i].getDate()}
@@ -139,7 +139,7 @@ export default async function AnalyticsPage() {
           </div>
 
           <div className="mt-5 grid gap-5 lg:grid-cols-2">
-            <div className="rounded-2xl border border-border bg-surface p-5">
+            <div className="rounded-2xl border border-border bg-surface p-4 sm:p-5">
               <p className="mb-4 text-sm font-medium">Devices</p>
               <div className="space-y-3">
                 {devices.map((d) => (
@@ -159,7 +159,7 @@ export default async function AnalyticsPage() {
               </div>
             </div>
 
-            <div className="rounded-2xl border border-border bg-surface p-5">
+            <div className="rounded-2xl border border-border bg-surface p-4 sm:p-5">
               <p className="mb-4 text-sm font-medium">Top links</p>
               {topLinks.length === 0 ? (
                 <p className="text-sm text-text-muted">No clicks yet.</p>
@@ -191,9 +191,9 @@ export default async function AnalyticsPage() {
 
 function Metric({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-2xl bg-surface p-5">
+    <div className="rounded-2xl border border-border bg-surface p-3 sm:p-5">
       <p className="text-xs text-text-muted">{label}</p>
-      <p className="mt-1 font-display text-2xl font-medium">{value}</p>
+      <p className="mt-1 font-display text-lg font-medium sm:text-2xl">{value}</p>
     </div>
   );
 }

@@ -2,10 +2,9 @@ import { cookies } from "next/headers";
 import { SignJWT, jwtVerify } from "jose";
 
 export const SESSION_COOKIE = "aura_session";
-// "Remember me" (default) → 90 days. Unchecked → still persisted for a day,
-// so closing the browser never silently logs you out mid-day.
+// "Remember me" (default) → 90 days. Unchecked → still persisted for a week.
 export const MAX_AGE = 60 * 60 * 24 * 90;
-const SHORT_AGE = 60 * 60 * 24;
+const SHORT_AGE = 60 * 60 * 24 * 7;
 
 const secret = new TextEncoder().encode(
   process.env.AUTH_SECRET ?? "dev-insecure-secret-change-me",

@@ -6,6 +6,7 @@ import { cn } from "@/lib/utils";
 import { getSession } from "@/lib/session";
 import { prisma } from "@/lib/prisma";
 import { createPage } from "@/lib/actions/pages";
+import { CopyLinkButton } from "@/components/copy-link-button";
 
 export default async function DashboardHome() {
   const session = await getSession();
@@ -81,7 +82,7 @@ export default async function DashboardHome() {
                   useaura.me/{session?.username}
                 </p>
 
-                <div className="mt-5 flex items-center gap-2">
+                <div className="mt-5 flex flex-wrap items-center gap-2">
                   <Link
                     href={`/builder/${page.id}`}
                     className={buttonClasses("secondary", "sm", "flex-1")}
@@ -89,6 +90,7 @@ export default async function DashboardHome() {
                     <Pencil className="h-4 w-4" />
                     Edit
                   </Link>
+                  <CopyLinkButton url={`https://useaura.me/${session?.username}`} />
                   {published && (
                     <Link
                       href={`/${session?.username}`}
