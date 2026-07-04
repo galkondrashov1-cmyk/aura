@@ -425,6 +425,22 @@ textarea,
 }
 @keyframes auraStarDrift { to { background-position: 260px 520px; } }
 
+/* ===== Interactive (pointer-following) background effects ===== */
+.bgfx-cursorglow {
+  background: radial-gradient(
+    320px circle at var(--mx, 50%) var(--my, 30%),
+    color-mix(in oklab, var(--primary) 26%, transparent),
+    transparent 70%
+  );
+}
+.bgfx-cursorgrid {
+  background:
+    linear-gradient(color-mix(in oklab, var(--primary) 50%, transparent) 1px, transparent 1px) 0 0 / 44px 44px,
+    linear-gradient(90deg, color-mix(in oklab, var(--primary) 50%, transparent) 1px, transparent 1px) 0 0 / 44px 44px;
+  -webkit-mask-image: radial-gradient(240px circle at var(--mx, 50%) var(--my, 30%), #000 0%, rgba(0,0,0,0.4) 55%, transparent 78%);
+  mask-image: radial-gradient(240px circle at var(--mx, 50%) var(--my, 30%), #000 0%, rgba(0,0,0,0.4) 55%, transparent 78%);
+}
+
 /* ===== Creative background effects ===== */
 .bgfx-gridpersp {
   background-image:

@@ -3,6 +3,7 @@ import { AuraMark } from "@/components/aura-logo";
 import { ViewBeacon } from "@/components/view-beacon";
 import { GalleryView } from "./gallery-view";
 import { CountdownView } from "./countdown-view";
+import { CursorFx } from "./cursor-fx";
 import { cn } from "@/lib/utils";
 import type {
   Block,
@@ -636,8 +637,12 @@ export function PageRenderer({
         embedded ? "min-h-full" : "min-h-screen",
       )}
     >
-      {r.bgFx && (
-        <div className={cn("pointer-events-none absolute inset-0", r.bgFx)} aria-hidden />
+      {(content.design?.bgFx === "cursorglow" || content.design?.bgFx === "cursorgrid") ? (
+        <CursorFx variant={content.design.bgFx} />
+      ) : (
+        r.bgFx && (
+          <div className={cn("pointer-events-none absolute inset-0", r.bgFx)} aria-hidden />
+        )
       )}
       <div
         className={cn(

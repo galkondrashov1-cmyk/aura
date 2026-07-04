@@ -367,6 +367,8 @@ export const BG_FX: Effect[] = [
   { id: "rays", name: "Light rays", category: "Creative", className: "bgfx-rays" },
   { id: "blobs", name: "Lava blobs", category: "Creative", className: "bgfx-blobs" },
   { id: "sparkle", name: "Sparkle", category: "Creative", className: "bgfx-sparkle" },
+  { id: "cursorglow", name: "Cursor glow", category: "Creative", className: "bgfx-cursorglow" },
+  { id: "cursorgrid", name: "Cursor grid", category: "Creative", className: "bgfx-cursorgrid" },
 ];
 
 export const LIGHT_VARS: Record<string, string> = {
