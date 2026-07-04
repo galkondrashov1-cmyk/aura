@@ -6,6 +6,25 @@ import { asPlan, type Plan } from "@/lib/plans";
  * A plan with a past `planExpiresAt` (set when a subscription is cancelled,
  * suspended or payment fails) counts as FREE — and is lazily downgraded.
  */
+/**
+ * Expiry-aware plan computed from already-loaded user columns — no extra
+ * query and no lazy-downgrade write, so it is safe on public render paths.
+ */
+export function effectivePlanFrom(row: {
+  plan?: string | null;
+  planExpiresAt?: string | Date | null;
+}): Plan {
+  const plan = asPlan(row.plan);
+  if (plan !== "FREE" && row.planExpiresAt) {
+    const exp =
+      typeof row.planExpiresAt === "string"
+        ? Date.parse(row.planExpiresAt)
+        : row.planExpiresAt.getTime();
+    if (!Number.isNaN(exp) && exp < Date.now()) return "FREE";
+  }
+  return plan;
+}
+
 export async function getEffectivePlan(userId: string): Promise<Plan> {
   const rows = await prisma.$queryRaw<
     { plan: string | null; planExpiresAt: string | null }[]

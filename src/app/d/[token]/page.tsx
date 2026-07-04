@@ -3,7 +3,8 @@ import type { Metadata } from "next";
 import { prisma } from "@/lib/prisma";
 import { verifyDraft } from "@/lib/draft-token";
 import { asPageContent } from "@/lib/blocks";
-import { asPlan, caps } from "@/lib/plans";
+import { caps } from "@/lib/plans";
+import { effectivePlanFrom } from "@/lib/plan-source";
 import { PageRenderer } from "@/components/renderer/page-renderer";
 
 type Params = { params: Promise<{ token: string }> };
@@ -26,7 +27,7 @@ export default async function DraftPreview({ params }: Params) {
   if (!page) notFound();
 
   const content = asPageContent(page.draftContent ?? page.publishedContent);
-  const ownerPlan = asPlan((page.user as { plan?: string }).plan);
+  const ownerPlan = effectivePlanFrom(page.user as { plan?: string; planExpiresAt?: string | null });
 
   return (
     <div className="relative">

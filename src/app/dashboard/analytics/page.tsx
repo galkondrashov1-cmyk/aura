@@ -139,7 +139,7 @@ export default async function AnalyticsPage() {
           </div>
 
           <div className="mt-5 grid gap-5 lg:grid-cols-2">
-            <div className="rounded-2xl border border-border bg-surface p-4 sm:p-5">
+            <div className="min-w-0 rounded-2xl border border-border bg-surface p-4 sm:p-5">
               <p className="mb-4 text-sm font-medium">Devices</p>
               <div className="space-y-3">
                 {devices.map((d) => (
@@ -159,7 +159,7 @@ export default async function AnalyticsPage() {
               </div>
             </div>
 
-            <div className="rounded-2xl border border-border bg-surface p-4 sm:p-5">
+            <div className="min-w-0 rounded-2xl border border-border bg-surface p-4 sm:p-5">
               <p className="mb-4 text-sm font-medium">Top links</p>
               {topLinks.length === 0 ? (
                 <p className="text-sm text-text-muted">No clicks yet.</p>

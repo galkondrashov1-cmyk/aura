@@ -3,7 +3,8 @@ import type { Metadata } from "next";
 import { prisma } from "@/lib/prisma";
 import { PageRenderer } from "@/components/renderer/page-renderer";
 import { asPageContent } from "@/lib/blocks";
-import { asPlan, caps } from "@/lib/plans";
+import { caps } from "@/lib/plans";
+import { effectivePlanFrom } from "@/lib/plan-source";
 import { toPlain } from "@/lib/richtext";
 
 type Params = { params: Promise<{ username: string }> };
@@ -29,15 +30,16 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
 
   const content = asPageContent(data.page.publishedContent);
   const hero = content.blocks.find((b) => b.type === "hero");
-  // Custom SEO (Pro) set in the design studio wins, then legacy columns.
+  // Custom SEO is a Pro capability — only honored while the owner is Pro.
+  const seo = caps(effectivePlanFrom(data.user as { plan?: string; planExpiresAt?: string | null })).customSeo;
   const name =
-    content.design?.seoTitle ??
+    (seo ? content.design?.seoTitle : undefined) ??
     data.page.seoTitle ??
     (hero && hero.type === "hero" ? toPlain(hero.name) : data.user.username);
 
   return {
     title: `${name} · AURA`,
-    description: content.design?.seoDescription ?? data.page.seoDescription ?? undefined,
+    description: (seo ? content.design?.seoDescription : undefined) ?? data.page.seoDescription ?? undefined,
   };
 }
 
@@ -47,7 +49,7 @@ export default async function UserPage({ params }: Params) {
   if (!data) notFound();
 
   const content = asPageContent(data.page.publishedContent);
-  const ownerPlan = asPlan((data.user as { plan?: string }).plan);
+  const ownerPlan = effectivePlanFrom(data.user as { plan?: string; planExpiresAt?: string | null });
   return (
     <PageRenderer
       content={content}
