@@ -9,7 +9,7 @@ import { cn } from "@/lib/utils";
  * page root) so links/buttons keep working. Position is lerped in rAF for a
  * smooth, slightly-trailing feel; touch works too.
  */
-export function CursorFx({ variant }: { variant: "cursorglow" | "cursorgrid" }) {
+export function CursorFx({ variant }: { variant: "cursorglow" | "cursorgrid" | "cursorspot" }) {
   const el = useRef<HTMLDivElement>(null);
 
   useEffect(() => {

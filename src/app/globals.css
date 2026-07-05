@@ -20,6 +20,19 @@
   --border: #232734;
   --glow: 0 0 44px -8px rgba(0, 229, 160, 0.5);
   --radius: 14px;
+  /* Adaptive bg-effect palette. --fx-ink draws textures (lines/dots/stars),
+     --fx-lift is the luminance direction for glows. Dark pages: white ink,
+     glows lifted toward white. LIGHT_VARS flips both to black inline. */
+  --fx-ink: #fff;
+  --fx-lift: #fff;
+}
+
+/* Computed on each effect overlay (not :root) so var(--primary) resolves to
+   the page accent set inline on the page wrapper, not the site default. */
+[class^="bgfx-"],
+[class*=" bgfx-"] {
+  --fx-glow: color-mix(in oklab, var(--primary) 80%, var(--fx-lift));
+  --fx-glow2: color-mix(in oklab, var(--fx-c2, var(--accent)) 80%, var(--fx-lift));
 }
 
 [data-mode="muted"] {
@@ -146,37 +159,37 @@ textarea,
 .fx-shine:hover::before { transform: translateX(150%); }
 
 .bgfx-vignette { background: radial-gradient(120% 90% at 50% 0%, transparent 50%, rgba(0, 0, 0, 0.55) 100%); }
-.bgfx-topglow { background: radial-gradient(60% 40% at 50% 0%, color-mix(in oklab, var(--primary) 22%, transparent), transparent 70%); }
-.bgfx-spotlight { background: radial-gradient(40% 30% at 50% 18%, color-mix(in oklab, var(--primary) 20%, transparent), transparent 60%); }
-.bgfx-edges { box-shadow: inset 0 0 140px 30px color-mix(in oklab, var(--primary) 18%, transparent); }
+.bgfx-topglow { background: radial-gradient(60% 40% at 50% 0%, color-mix(in oklab, var(--fx-glow) 36%, transparent), transparent 70%); }
+.bgfx-spotlight { background: radial-gradient(46% 34% at 50% 16%, color-mix(in oklab, var(--fx-glow) 38%, transparent), transparent 62%); }
+.bgfx-edges { box-shadow: inset 0 0 120px 26px color-mix(in oklab, var(--fx-glow) 32%, transparent); }
 .bgfx-grain {
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-  opacity: 0.1;
+  opacity: 0.14;
 }
-.bgfx-scanlines { background: repeating-linear-gradient(transparent 0 2px, rgba(0, 0, 0, 0.18) 2px 3px); }
+.bgfx-scanlines { background: repeating-linear-gradient(transparent 0 2px, color-mix(in srgb, var(--fx-ink) 15%, transparent) 2px 3px); }
 .bgfx-grid {
   background:
-    linear-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px) 0 0 / 40px 40px,
-    linear-gradient(90deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px) 0 0 / 40px 40px;
+    linear-gradient(color-mix(in srgb, var(--fx-ink) 11%, transparent) 1px, transparent 1px) 0 0 / 40px 40px,
+    linear-gradient(90deg, color-mix(in srgb, var(--fx-ink) 11%, transparent) 1px, transparent 1px) 0 0 / 40px 40px;
 }
-.bgfx-dots { background: radial-gradient(rgba(255, 255, 255, 0.08) 1px, transparent 1.5px) 0 0 / 24px 24px; }
+.bgfx-dots { background: radial-gradient(color-mix(in srgb, var(--fx-ink) 24%, transparent) 1.5px, transparent 2.1px) 0 0 / 22px 22px; }
 .bgfx-aurora {
-  background: linear-gradient(120deg, color-mix(in oklab, var(--primary) 20%, transparent), transparent 45%, color-mix(in oklab, var(--accent) 20%, transparent));
+  background: linear-gradient(120deg, color-mix(in oklab, var(--fx-glow) 32%, transparent), transparent 45%, color-mix(in oklab, var(--fx-glow2) 32%, transparent));
   background-size: 200% 200%;
-  animation: auraDrift calc(12s * var(--spd, 1)) ease-in-out infinite;
+  animation: auraDrift calc(8s * var(--spd, 1)) ease-in-out infinite;
 }
 @keyframes auraDrift { 0%, 100% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } }
 .bgfx-shimmer {
-  background: linear-gradient(110deg, transparent 35%, rgba(255, 255, 255, 0.06) 50%, transparent 65%);
+  background: linear-gradient(110deg, transparent 35%, color-mix(in srgb, var(--fx-ink) 13%, transparent) 50%, transparent 65%);
   background-size: 200% 100%;
-  animation: auraShimmer calc(7s * var(--spd, 1)) linear infinite;
+  animation: auraShimmer calc(5s * var(--spd, 1)) linear infinite;
 }
 @keyframes auraShimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
 .bgfx-pulse {
-  background: radial-gradient(50% 40% at 50% 0%, color-mix(in oklab, var(--primary) 20%, transparent), transparent 70%);
-  animation: auraGlowPulse calc(4s * var(--spd, 1)) ease-in-out infinite;
+  background: radial-gradient(55% 42% at 50% 0%, color-mix(in oklab, var(--fx-glow) 36%, transparent), transparent 70%);
+  animation: auraGlowPulse calc(3s * var(--spd, 1)) ease-in-out infinite;
 }
-@keyframes auraGlowPulse { 0%, 100% { opacity: 0.4; } 50% { opacity: 0.9; } }
+@keyframes auraGlowPulse { 0%, 100% { opacity: 0.25; } 50% { opacity: 1; } }
 
 /* Idle keyframes (continuous) */
 @keyframes auraIdleFloat { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-4px); } }
@@ -341,24 +354,28 @@ textarea,
 /* ===== Extra background effects ===== */
 .bgfx-starfield {
   background-image:
-    radial-gradient(1px 1px at 20% 30%, rgba(255,255,255,0.8), transparent),
-    radial-gradient(1px 1px at 70% 65%, rgba(255,255,255,0.6), transparent),
-    radial-gradient(1.5px 1.5px at 40% 80%, rgba(255,255,255,0.5), transparent),
-    radial-gradient(1px 1px at 85% 20%, rgba(255,255,255,0.7), transparent),
-    radial-gradient(1px 1px at 55% 45%, rgba(255,255,255,0.5), transparent);
-  background-size: 240px 240px;
+    radial-gradient(2.5px 2.5px at 20% 30%, var(--fx-ink), transparent),
+    radial-gradient(2.5px 2.5px at 70% 65%, color-mix(in srgb, var(--fx-ink) 80%, transparent), transparent),
+    radial-gradient(3px 3px at 40% 80%, color-mix(in srgb, var(--fx-ink) 70%, transparent), transparent),
+    radial-gradient(2.5px 2.5px at 85% 20%, color-mix(in srgb, var(--fx-ink) 90%, transparent), transparent),
+    radial-gradient(2px 2px at 55% 45%, color-mix(in srgb, var(--fx-ink) 70%, transparent), transparent),
+    radial-gradient(2px 2px at 8% 85%, color-mix(in srgb, var(--fx-ink) 80%, transparent), transparent),
+    radial-gradient(3.5px 3.5px at 12% 62%, var(--fx-glow), transparent),
+    radial-gradient(3px 3px at 92% 88%, var(--fx-glow2), transparent);
+  background-size: 130px 130px;
 }
-.bgfx-noisefine {
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='90' height='90'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='1.1' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-  opacity: 0.06;
+.bgfx-halftone {
+  background: radial-gradient(color-mix(in srgb, var(--fx-ink) 50%, transparent) 1.6px, transparent 2.2px) 0 0 / 15px 15px;
+  -webkit-mask-image: linear-gradient(180deg, #000, rgba(0, 0, 0, 0.25) 55%, transparent 85%);
+  mask-image: linear-gradient(180deg, #000, rgba(0, 0, 0, 0.25) 55%, transparent 85%);
 }
-.bgfx-beam { background: linear-gradient(115deg, transparent 42%, color-mix(in oklab, var(--primary) 16%, transparent) 50%, transparent 58%); }
+.bgfx-beam { background: linear-gradient(115deg, transparent 38%, color-mix(in oklab, var(--fx-glow) 30%, transparent) 50%, transparent 62%); }
 .bgfx-meshmove {
   background:
-    radial-gradient(40% 40% at 20% 20%, color-mix(in oklab, var(--primary) 22%, transparent), transparent 60%),
-    radial-gradient(40% 40% at 80% 70%, color-mix(in oklab, var(--accent) 22%, transparent), transparent 60%);
+    radial-gradient(40% 40% at 20% 20%, color-mix(in oklab, var(--fx-glow) 34%, transparent), transparent 60%),
+    radial-gradient(40% 40% at 80% 70%, color-mix(in oklab, var(--fx-glow2) 34%, transparent), transparent 60%);
   background-size: 180% 180%;
-  animation: auraMeshMove calc(16s * var(--spd, 1)) ease-in-out infinite;
+  animation: auraMeshMove calc(10s * var(--spd, 1)) ease-in-out infinite;
 }
 @keyframes auraMeshMove { 0%, 100% { background-position: 0% 0%; } 50% { background-position: 100% 100%; } }
 .bgfx-rotate { overflow: hidden; }
@@ -370,8 +387,8 @@ textarea,
   width: 220vmax;
   height: 220vmax;
   margin: -110vmax 0 0 -110vmax;
-  background: conic-gradient(from 0deg, color-mix(in oklab, var(--primary) 16%, transparent), transparent 30%, color-mix(in oklab, var(--accent) 16%, transparent) 60%, transparent 90%);
-  animation: auraRotate calc(24s * var(--spd, 1)) linear infinite;
+  background: conic-gradient(from 0deg, color-mix(in oklab, var(--fx-glow) 28%, transparent), transparent 30%, color-mix(in oklab, var(--fx-glow2) 28%, transparent) 60%, transparent 90%);
+  animation: auraRotate calc(14s * var(--spd, 1)) linear infinite;
 }
 @keyframes auraRotate { to { transform: rotate(360deg); } }
 
@@ -402,67 +419,77 @@ textarea,
 @keyframes auraNeon { 0%,18%,22%,100% { opacity: 1; } 20% { opacity: 0.7; } }
 
 /* ===== Extra overlay / glow / animated background effects ===== */
-.bgfx-topfade { background: linear-gradient(180deg, rgba(0,0,0,0.55), transparent 40%); }
+.bgfx-topfade { background: linear-gradient(180deg, rgba(0,0,0,0.6), transparent 42%); }
 .bgfx-bottomfade { background: linear-gradient(0deg, rgba(0,0,0,0.6), transparent 45%); }
-.bgfx-frame { box-shadow: inset 0 0 0 10px rgba(0,0,0,0.35), inset 0 0 0 11px color-mix(in oklab, var(--primary) 45%, transparent); }
-.bgfx-haze { background: radial-gradient(80% 60% at 50% 40%, rgba(255,255,255,0.07), transparent 70%); }
+.bgfx-frame { box-shadow: inset 0 0 0 10px rgba(0,0,0,0.35), inset 0 0 0 11.5px color-mix(in oklab, var(--fx-glow) 85%, transparent); }
+.bgfx-haze { background: radial-gradient(80% 60% at 50% 40%, color-mix(in srgb, var(--fx-ink) 13%, transparent), transparent 70%); }
 .bgfx-sideglow {
   background:
-    radial-gradient(30% 55% at 0% 50%, color-mix(in oklab, var(--primary) 22%, transparent), transparent 70%),
-    radial-gradient(30% 55% at 100% 50%, color-mix(in oklab, var(--accent) 22%, transparent), transparent 70%);
+    radial-gradient(32% 58% at 0% 50%, color-mix(in oklab, var(--fx-glow) 34%, transparent), transparent 70%),
+    radial-gradient(32% 58% at 100% 50%, color-mix(in oklab, var(--fx-glow2) 34%, transparent), transparent 70%);
 }
-.bgfx-underglow { background: radial-gradient(60% 40% at 50% 100%, color-mix(in oklab, var(--primary) 26%, transparent), transparent 70%); }
+.bgfx-underglow { background: radial-gradient(60% 42% at 50% 100%, color-mix(in oklab, var(--fx-glow) 38%, transparent), transparent 70%); }
 .bgfx-stardrift {
   background-image:
-    radial-gradient(1px 1px at 20% 30%, rgba(255,255,255,0.8), transparent),
-    radial-gradient(1px 1px at 70% 65%, rgba(255,255,255,0.6), transparent),
-    radial-gradient(1.5px 1.5px at 40% 80%, rgba(255,255,255,0.5), transparent),
-    radial-gradient(1px 1px at 85% 20%, rgba(255,255,255,0.7), transparent);
-  background-size: 260px 260px;
-  animation: auraStarDrift calc(60s * var(--spd, 1)) linear infinite;
+    radial-gradient(3px 3px at 20% 30%, var(--fx-ink), transparent),
+    radial-gradient(3px 3px at 70% 65%, color-mix(in srgb, var(--fx-ink) 85%, transparent), transparent),
+    radial-gradient(3.5px 3.5px at 40% 80%, color-mix(in srgb, var(--fx-ink) 75%, transparent), transparent),
+    radial-gradient(3px 3px at 85% 20%, color-mix(in srgb, var(--fx-ink) 90%, transparent), transparent),
+    radial-gradient(2.5px 2.5px at 55% 48%, color-mix(in srgb, var(--fx-ink) 75%, transparent), transparent),
+    radial-gradient(2.5px 2.5px at 10% 78%, color-mix(in srgb, var(--fx-ink) 80%, transparent), transparent),
+    radial-gradient(3px 3px at 33% 10%, color-mix(in srgb, var(--fx-ink) 85%, transparent), transparent),
+    radial-gradient(3.5px 3.5px at 90% 42%, var(--fx-glow), transparent);
+  background-size: 130px 130px;
+  animation: auraStarDrift calc(18s * var(--spd, 1)) linear infinite;
 }
-@keyframes auraStarDrift { to { background-position: 260px 520px; } }
+@keyframes auraStarDrift { to { background-position: 130px 260px; } }
 
 /* ===== Interactive (pointer-following) background effects ===== */
 .bgfx-cursorglow {
   background: radial-gradient(
     320px circle at var(--mx, 50%) var(--my, 30%),
-    color-mix(in oklab, var(--primary) 26%, transparent),
+    color-mix(in oklab, var(--fx-glow) 40%, transparent),
     transparent 70%
   );
 }
 .bgfx-cursorgrid {
   background:
-    linear-gradient(color-mix(in oklab, var(--primary) 50%, transparent) 1px, transparent 1px) 0 0 / 44px 44px,
-    linear-gradient(90deg, color-mix(in oklab, var(--primary) 50%, transparent) 1px, transparent 1px) 0 0 / 44px 44px;
-  -webkit-mask-image: radial-gradient(240px circle at var(--mx, 50%) var(--my, 30%), #000 0%, rgba(0,0,0,0.4) 55%, transparent 78%);
-  mask-image: radial-gradient(240px circle at var(--mx, 50%) var(--my, 30%), #000 0%, rgba(0,0,0,0.4) 55%, transparent 78%);
+    linear-gradient(color-mix(in oklab, var(--fx-glow) 70%, transparent) 1px, transparent 1px) 0 0 / 44px 44px,
+    linear-gradient(90deg, color-mix(in oklab, var(--fx-glow) 70%, transparent) 1px, transparent 1px) 0 0 / 44px 44px;
+  -webkit-mask-image: radial-gradient(260px circle at var(--mx, 50%) var(--my, 30%), #000 0%, rgba(0,0,0,0.45) 55%, transparent 80%);
+  mask-image: radial-gradient(260px circle at var(--mx, 50%) var(--my, 30%), #000 0%, rgba(0,0,0,0.45) 55%, transparent 80%);
+}
+.bgfx-cursorspot {
+  background: rgba(0, 0, 0, 0.5);
+  -webkit-mask-image: radial-gradient(280px circle at var(--mx, 50%) var(--my, 30%), transparent 0%, transparent 35%, #000 78%);
+  mask-image: radial-gradient(280px circle at var(--mx, 50%) var(--my, 30%), transparent 0%, transparent 35%, #000 78%);
 }
 
 /* ===== Creative background effects ===== */
 .bgfx-gridpersp {
   background-image:
-    linear-gradient(color-mix(in oklab, var(--primary) 30%, transparent) 1px, transparent 1px),
-    linear-gradient(90deg, color-mix(in oklab, var(--primary) 30%, transparent) 1px, transparent 1px);
+    linear-gradient(color-mix(in oklab, var(--fx-glow) 60%, transparent) 1px, transparent 1px),
+    linear-gradient(90deg, color-mix(in oklab, var(--fx-glow) 60%, transparent) 1px, transparent 1px);
   background-size: 44px 44px;
   background-position: center bottom;
   transform: perspective(340px) rotateX(58deg) scale(1.6);
   transform-origin: center bottom;
-  opacity: 0.5;
+  opacity: 0.65;
+  -webkit-mask-image: linear-gradient(to top, #000 5%, transparent 70%);
   mask-image: linear-gradient(to top, #000 5%, transparent 70%);
 }
 .bgfx-orbs::before, .bgfx-orbs::after {
-  content: ""; position: absolute; border-radius: 50%; filter: blur(48px); opacity: 0.5;
+  content: ""; position: absolute; border-radius: 50%; filter: blur(48px); opacity: 0.6;
 }
-.bgfx-orbs::before { width: 240px; height: 240px; left: -40px; top: 8%; background: color-mix(in oklab, var(--primary) 55%, transparent); animation: auraOrbA 14s ease-in-out infinite; }
-.bgfx-orbs::after { width: 200px; height: 200px; right: -30px; bottom: 6%; background: color-mix(in oklab, var(--accent) 55%, transparent); animation: auraOrbB 18s ease-in-out infinite; }
-@keyframes auraOrbA { 0%,100% { transform: translate(0,0); } 50% { transform: translate(40px,30px); } }
-@keyframes auraOrbB { 0%,100% { transform: translate(0,0); } 50% { transform: translate(-36px,-24px); } }
+.bgfx-orbs::before { width: 260px; height: 260px; left: -40px; top: 8%; background: color-mix(in oklab, var(--fx-glow) 80%, transparent); animation: auraOrbA calc(9s * var(--spd, 1)) ease-in-out infinite; }
+.bgfx-orbs::after { width: 220px; height: 220px; right: -30px; bottom: 6%; background: color-mix(in oklab, var(--fx-glow2) 80%, transparent); animation: auraOrbB calc(12s * var(--spd, 1)) ease-in-out infinite; }
+@keyframes auraOrbA { 0%,100% { transform: translate(0,0); } 50% { transform: translate(56px,44px); } }
+@keyframes auraOrbB { 0%,100% { transform: translate(0,0); } 50% { transform: translate(-52px,-36px); } }
 .bgfx-aurorawave {
-  background: linear-gradient(120deg, color-mix(in oklab, var(--primary) 26%, transparent), transparent 35%, color-mix(in oklab, var(--accent) 26%, transparent) 65%, transparent);
+  background: linear-gradient(120deg, color-mix(in oklab, var(--fx-glow) 36%, transparent), transparent 35%, color-mix(in oklab, var(--fx-glow2) 36%, transparent) 65%, transparent);
   background-size: 220% 220%;
   filter: blur(6px);
-  animation: auraWave calc(10s * var(--spd, 1)) ease-in-out infinite;
+  animation: auraWave calc(7s * var(--spd, 1)) ease-in-out infinite;
 }
 @keyframes auraWave { 0%,100% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } }
 .bgfx-rays {
@@ -477,10 +504,10 @@ textarea,
   transform-origin: 50% 0;
   background: repeating-conic-gradient(
     from -14deg at 50% 0%,
-    color-mix(in oklab, var(--primary) 16%, transparent) 0deg 5deg,
+    color-mix(in oklab, var(--fx-glow) 26%, transparent) 0deg 5deg,
     transparent 5deg 16deg
   );
-  animation: auraRays calc(26s * var(--spd, 1)) ease-in-out infinite alternate;
+  animation: auraRays calc(12s * var(--spd, 1)) ease-in-out infinite alternate;
 }
 @keyframes auraRays {
   from { transform: translateX(-50%) rotate(-5deg); }
@@ -491,13 +518,13 @@ textarea,
 }
 .bgfx-blobs::before {
   width: 320px; height: 320px; left: -60px; top: 12%;
-  background: color-mix(in oklab, var(--primary) 60%, transparent);
-  animation: auraBlobA calc(18s * var(--spd, 1)) ease-in-out infinite;
+  background: color-mix(in oklab, var(--fx-glow) 80%, transparent);
+  animation: auraBlobA calc(10s * var(--spd, 1)) ease-in-out infinite;
 }
 .bgfx-blobs::after {
   width: 280px; height: 280px; right: -50px; bottom: 8%;
-  background: color-mix(in oklab, var(--accent) 60%, transparent);
-  animation: auraBlobB calc(22s * var(--spd, 1)) ease-in-out infinite;
+  background: color-mix(in oklab, var(--fx-glow2) 80%, transparent);
+  animation: auraBlobB calc(13s * var(--spd, 1)) ease-in-out infinite;
 }
 @keyframes auraBlobA {
   0%, 100% { transform: translate(0, 0) scale(1); border-radius: 50%; }
@@ -510,16 +537,17 @@ textarea,
 }
 .bgfx-sparkle {
   background-image:
-    radial-gradient(2px 2px at 18% 22%, #fff, transparent),
-    radial-gradient(1.5px 1.5px at 65% 38%, color-mix(in oklab, var(--primary) 85%, #fff), transparent),
-    radial-gradient(2px 2px at 82% 70%, #fff, transparent),
-    radial-gradient(1.5px 1.5px at 35% 78%, color-mix(in oklab, var(--accent) 85%, #fff), transparent),
-    radial-gradient(1px 1px at 50% 12%, #fff, transparent),
-    radial-gradient(1px 1px at 10% 60%, #fff, transparent);
-  background-size: 220px 220px;
-  animation: auraSparkle calc(3.2s * var(--spd, 1)) ease-in-out infinite;
+    radial-gradient(3px 3px at 18% 22%, var(--fx-ink), transparent),
+    radial-gradient(2.5px 2.5px at 65% 38%, var(--fx-glow), transparent),
+    radial-gradient(3px 3px at 82% 70%, var(--fx-ink), transparent),
+    radial-gradient(2.5px 2.5px at 35% 78%, var(--fx-glow2), transparent),
+    radial-gradient(2px 2px at 50% 12%, var(--fx-ink), transparent),
+    radial-gradient(2px 2px at 10% 60%, var(--fx-ink), transparent),
+    radial-gradient(2px 2px at 90% 45%, var(--fx-glow), transparent);
+  background-size: 120px 120px;
+  animation: auraSparkle calc(2.6s * var(--spd, 1)) ease-in-out infinite;
 }
-@keyframes auraSparkle { 0%, 100% { opacity: 0.25; } 50% { opacity: 0.9; } }
+@keyframes auraSparkle { 0%, 100% { opacity: 0.2; } 50% { opacity: 1; } }
 
 @media (prefers-reduced-motion: reduce) {
   .bi-float, .bi-pulse, .bi-bounce, .bi-breathe, .bi-sway, .bi-wobble, .bi-drift,

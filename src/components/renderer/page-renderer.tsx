@@ -16,6 +16,8 @@ import {
   resolveDesign,
   resolveLayout,
   LIGHT_VARS,
+  INTERACTIVE_BG_FX,
+  secondaryAccent,
   avatarIdleClass,
   buttonFxClass,
   buttonIdleClass,
@@ -600,7 +602,13 @@ export function PageRenderer({
   const layout = resolveLayout(content.design);
   const style: Record<string, string> = {};
   if (r.bg) style.background = r.bg.css;
-  if (content.design?.accent) style["--primary"] = content.design.accent;
+  if (content.design?.accent) {
+    style["--primary"] = content.design.accent;
+    // Companion hue for two-tone effects (orbs, mesh, waves…), so they follow
+    // the page palette instead of the fixed site accent.
+    const c2 = secondaryAccent(content.design.accent);
+    if (c2) style["--fx-c2"] = c2;
+  }
   if (r.bg?.light) Object.assign(style, LIGHT_VARS);
   // Global text color override (per-letter colors still win via inline runs).
   // Sets inherited color (headings/plain text), --text (elements using the
@@ -637,8 +645,8 @@ export function PageRenderer({
         embedded ? "min-h-full" : "min-h-screen",
       )}
     >
-      {(content.design?.bgFx === "cursorglow" || content.design?.bgFx === "cursorgrid") ? (
-        <CursorFx variant={content.design.bgFx} />
+      {content.design?.bgFx && INTERACTIVE_BG_FX.has(content.design.bgFx) ? (
+        <CursorFx variant={content.design.bgFx as "cursorglow" | "cursorgrid" | "cursorspot"} />
       ) : (
         r.bgFx && (
           <div className={cn("pointer-events-none absolute inset-0", r.bgFx)} aria-hidden />

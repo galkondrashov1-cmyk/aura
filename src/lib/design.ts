@@ -356,7 +356,7 @@ export const BG_FX: Effect[] = [
   { id: "shimmer", name: "Shimmer", category: "Animated", className: "bgfx-shimmer" },
   { id: "pulse", name: "Pulse glow", category: "Animated", className: "bgfx-pulse" },
   { id: "starfield", name: "Starfield", category: "Texture", className: "bgfx-starfield" },
-  { id: "noisefine", name: "Fine grain", category: "Texture", className: "bgfx-noisefine" },
+  { id: "halftone", name: "Halftone", category: "Texture", className: "bgfx-halftone" },
   { id: "beam", name: "Light beam", category: "Glow", className: "bgfx-beam" },
   { id: "meshmove", name: "Mesh drift", category: "Animated", className: "bgfx-meshmove" },
   { id: "rotate", name: "Rotate glow", category: "Animated", className: "bgfx-rotate" },
@@ -367,9 +367,13 @@ export const BG_FX: Effect[] = [
   { id: "rays", name: "Light rays", category: "Creative", className: "bgfx-rays" },
   { id: "blobs", name: "Lava blobs", category: "Creative", className: "bgfx-blobs" },
   { id: "sparkle", name: "Sparkle", category: "Creative", className: "bgfx-sparkle" },
-  { id: "cursorglow", name: "Cursor glow", category: "Creative", className: "bgfx-cursorglow" },
-  { id: "cursorgrid", name: "Cursor grid", category: "Creative", className: "bgfx-cursorgrid" },
+  { id: "cursorglow", name: "Cursor glow", category: "Interactive", className: "bgfx-cursorglow" },
+  { id: "cursorgrid", name: "Cursor grid", category: "Interactive", className: "bgfx-cursorgrid" },
+  { id: "cursorspot", name: "Cursor spotlight", category: "Interactive", className: "bgfx-cursorspot" },
 ];
+
+/** Effects that follow the pointer — rendered through <CursorFx>. */
+export const INTERACTIVE_BG_FX = new Set(["cursorglow", "cursorgrid", "cursorspot"]);
 
 export const LIGHT_VARS: Record<string, string> = {
   "--text": "#1c1a17",
@@ -377,6 +381,10 @@ export const LIGHT_VARS: Record<string, string> = {
   "--surface": "#ffffff",
   "--surface-2": "#f3f1ec",
   "--border": "rgba(0,0,0,0.12)",
+  // Adaptive effect palette: on light backgrounds, textures draw in dark ink
+  // and glows are darkened (mixed toward black) instead of lifted toward white.
+  "--fx-ink": "#000",
+  "--fx-lift": "#000",
 };
 
 // ---------- Layout & shape dimensions (max-customization) ----------
@@ -410,9 +418,9 @@ export function cardCategoryTier(category: string): Plan {
   return category === "Special" ? "PRO" : "FREE";
 }
 
-/** Creative background effects are Plus. */
+/** Creative and pointer-interactive background effects are Plus. */
 export function bgFxCategoryTier(category: string): Plan {
-  return category === "Creative" ? "PLUS" : "FREE";
+  return category === "Creative" || category === "Interactive" ? "PLUS" : "FREE";
 }
 
 /** Height/padding of link buttons. Default (undefined) = medium. */
@@ -568,6 +576,31 @@ function hslToHex(h: number, s: number, l: number): string {
   return `#${toHex(f(0))}${toHex(f(8))}${toHex(f(4))}`;
 }
 
+/**
+ * A companion color for two-tone effects (orbs, mesh, waves…), derived from
+ * the page accent by rotating the hue — so effects match the page palette
+ * instead of injecting the fixed site accent.
+ */
+export function secondaryAccent(hex?: string): string | null {
+  if (!hex || !/^#[0-9a-fA-F]{6}$/.test(hex)) return null;
+  const r = parseInt(hex.slice(1, 3), 16) / 255;
+  const g = parseInt(hex.slice(3, 5), 16) / 255;
+  const b = parseInt(hex.slice(5, 7), 16) / 255;
+  const max = Math.max(r, g, b);
+  const min = Math.min(r, g, b);
+  let h = 0;
+  if (max !== min) {
+    const d = max - min;
+    h =
+      max === r ? ((g - b) / d + (g < b ? 6 : 0)) :
+      max === g ? (b - r) / d + 2 :
+      (r - g) / d + 4;
+    h *= 60;
+  }
+  const l = (max + min) / 2;
+  return hslToHex((h + 55) % 360, 75, l < 0.35 ? 45 : l > 0.75 ? 70 : Math.round(l * 100));
+}
+
 /** A vivid accent that matches the dominant hue of the chosen background. */
 export function accentFromBackground(bgId?: string): string | null {
   const bg = bgId ? BACKGROUNDS.find((b) => b.id === bgId) : undefined;
@@ -637,7 +670,7 @@ export const FULL_THEMES: FullTheme[] = [
   { id: "royal-gold", name: "Royal Gold", accent: "#FBBF24", tier: "PLUS",
     design: { accent: "#FBBF24", background: "royal-3", bgFx: "vignette", card: "solid-deep", font: "fraunces", buttonShape: "soft", buttonSize: "md", buttonIdle: "none", buttonFx: "shine", iconFx: "i-color", iconIdle: "none", spacing: "cozy" } },
   { id: "forest-calm", name: "Forest Calm", accent: "#4ADE80", tier: "PLUS",
-    design: { accent: "#4ADE80", background: "forest-3", bgFx: "noisefine", card: "glass-soft", font: "manrope", buttonShape: "rounded", buttonSize: "md", buttonIdle: "none", buttonFx: "lift", iconFx: "i-fade", iconIdle: "none", spacing: "roomy" } },
+    design: { accent: "#4ADE80", background: "forest-3", bgFx: "grain", card: "glass-soft", font: "manrope", buttonShape: "rounded", buttonSize: "md", buttonIdle: "none", buttonFx: "lift", iconFx: "i-fade", iconIdle: "none", spacing: "roomy" } },
   { id: "cosmic-violet", name: "Cosmic Violet", accent: "#A78BFA", tier: "PLUS",
     design: { accent: "#A78BFA", background: "cosmic-3", bgFx: "starfield", card: "neon-magenta", font: "syne", buttonShape: "pill", buttonSize: "md", buttonIdle: "none", buttonFx: "growglow", iconFx: "i-glow", iconIdle: "breathe", spacing: "cozy" } },
   { id: "mono-minimal", name: "Mono Minimal", accent: "#E5E7EB", tier: "PLUS",
