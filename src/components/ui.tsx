@@ -101,8 +101,9 @@ export function Badge({
   );
 }
 
-/** The הילה logo — a glowing ring + wordmark. */
+/** The הילה logo — the wordmark itself wears the halo (over the ה). */
 export function HilaLogo({ size = 28, withWord = true }: { size?: number; withWord?: boolean }) {
+  const word = size * 0.68;
   return (
     <span className="inline-flex items-center gap-2 select-none">
       <span className="relative inline-block" style={{ width: size, height: size }}>
@@ -112,6 +113,7 @@ export function HilaLogo({ size = 28, withWord = true }: { size?: number; withWo
             background: "conic-gradient(from 200deg, #f0b429, #ffd166, #8b7cf6, #f0b429)",
             WebkitMask: "radial-gradient(farthest-side, transparent 58%, #000 62%)",
             mask: "radial-gradient(farthest-side, transparent 58%, #000 62%)",
+            filter: "drop-shadow(0 0 6px rgba(240,180,41,0.55))",
           }}
         />
         <span
@@ -119,7 +121,26 @@ export function HilaLogo({ size = 28, withWord = true }: { size?: number; withWo
           style={{ background: "radial-gradient(circle, rgba(240,180,41,0.55), transparent 70%)" }}
         />
       </span>
-      {withWord && <span className="text-lg font-extrabold tracking-tight text-ink">הילה</span>}
+      {withWord && (
+        <span
+          className="font-extrabold tracking-tight text-ink"
+          style={{ fontSize: word, lineHeight: 1 }}
+        >
+          <span className="relative inline-block">
+            ה
+            <span
+              aria-hidden
+              className="absolute -top-[0.34em] left-1/2 h-[0.24em] w-[0.85em] -translate-x-1/2 rounded-[50%]"
+              style={{
+                border: "1.5px solid #f0b429",
+                transform: "translateX(-50%) rotate(-8deg)",
+                boxShadow: "0 0 6px rgba(240,180,41,0.8)",
+              }}
+            />
+          </span>
+          ילה
+        </span>
+      )}
     </span>
   );
 }

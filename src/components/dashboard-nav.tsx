@@ -2,29 +2,28 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import {
-  LayoutDashboard,
-  Paintbrush,
-  CalendarDays,
-  Scissors,
-  Clock,
-  Settings,
-  Gem,
-  ExternalLink,
-  LogOut,
-} from "lucide-react";
+import { ExternalLink, LogOut } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { HilaLogo } from "@/components/ui";
 import { logoutAction } from "@/lib/actions/auth";
+import {
+  HaloBrush,
+  HaloCalendar,
+  HaloClock,
+  HaloGear,
+  HaloShekel,
+  HaloSpark,
+  HaloStore,
+} from "@/components/halo-icons";
 
 const ITEMS = [
-  { href: "/dashboard", label: "סקירה", icon: LayoutDashboard, exact: true },
-  { href: "/dashboard/editor", label: "עיצוב העמוד", icon: Paintbrush },
-  { href: "/dashboard/appointments", label: "יומן תורים", icon: CalendarDays },
-  { href: "/dashboard/services", label: "שירותים", icon: Scissors },
-  { href: "/dashboard/hours", label: "שעות פעילות", icon: Clock },
-  { href: "/dashboard/plan", label: "החבילה שלי", icon: Gem },
-  { href: "/dashboard/settings", label: "הגדרות", icon: Settings },
+  { href: "/dashboard", label: "סקירה", icon: HaloSpark, exact: true },
+  { href: "/dashboard/editor", label: "עיצוב העמוד", icon: HaloBrush },
+  { href: "/dashboard/appointments", label: "יומן תורים", icon: HaloCalendar },
+  { href: "/dashboard/services", label: "שירותים", icon: HaloStore },
+  { href: "/dashboard/hours", label: "שעות פעילות", icon: HaloClock },
+  { href: "/dashboard/plan", label: "החבילה שלי", icon: HaloShekel },
+  { href: "/dashboard/settings", label: "הגדרות", icon: HaloGear },
 ];
 
 export function DashboardNav({ slug, businessName }: { slug: string; businessName: string }) {
