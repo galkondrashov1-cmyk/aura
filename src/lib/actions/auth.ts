@@ -1,136 +1,107 @@
 "use server";
 
 import { redirect } from "next/navigation";
-import bcrypt from "bcryptjs";
 import { z } from "zod";
+import bcrypt from "bcryptjs";
 import { prisma } from "@/lib/prisma";
 import { createSession, destroySession } from "@/lib/session";
-import { asPlan } from "@/lib/plans";
+import { DEFAULT_CONTENT } from "@/lib/content";
+import { DEFAULT_DESIGN } from "@/lib/design";
 
-export type AuthState = { error?: string } | undefined;
+import { RESERVED_SLUGS } from "@/lib/reserved";
 
-const RESERVED = new Set([
-  "login",
-  "signup",
-  "dashboard",
-  "admin",
-  "api",
-  "examples",
-  "settings",
-  "about",
-  "terms",
-  "privacy",
-]);
+export type AuthState = { error?: string } | null;
+
+const slugSchema = z
+  .string()
+  .min(2, "כתובת קצרה מדי (לפחות 2 תווים)")
+  .max(30, "כתובת ארוכה מדי (עד 30 תווים)")
+  .regex(/^[a-z0-9][a-z0-9-]*[a-z0-9]$/, "אותיות באנגלית (קטנות), מספרים ומקפים בלבד")
+  .refine((s) => !RESERVED_SLUGS.includes(s), "הכתובת הזו שמורה למערכת");
 
 const signupSchema = z.object({
-  username: z
-    .string()
-    .trim()
-    .toLowerCase()
-    .min(3, "Username must be at least 3 characters")
-    .max(20, "Username must be 20 characters or fewer")
-    .regex(/^[a-z0-9_]+$/, "Use only lowercase letters, numbers, and underscores"),
-  email: z.string().trim().toLowerCase().email("Enter a valid email"),
-  password: z.string().min(8, "Password must be at least 8 characters"),
+  ownerName: z.string().min(2, "איך קוראים לך?").max(60),
+  businessName: z.string().min(2, "מה שם העסק?").max(60),
+  slug: slugSchema,
+  email: z.string().email("כתובת אימייל לא תקינה"),
+  password: z.string().min(8, "סיסמה של לפחות 8 תווים"),
 });
 
-const loginSchema = z.object({
-  email: z.string().trim().toLowerCase().email("Enter a valid email"),
-  password: z.string().min(1, "Enter your password"),
-});
-
-// One-time bootstrap: the email in ADMIN_BOOTSTRAP_EMAIL is auto-promoted to
-// ADMIN on its next login/signup. Lets the owner self-promote without DB access.
-async function maybePromote(user: {
-  id: string;
-  email: string;
-  role: string;
-}): Promise<string> {
-  const boot = process.env.ADMIN_BOOTSTRAP_EMAIL?.trim().toLowerCase();
-  if (boot && user.email.toLowerCase() === boot && user.role !== "ADMIN") {
-    await prisma.user.update({ where: { id: user.id }, data: { role: "ADMIN" } });
-    return "ADMIN";
-  }
-  return user.role;
-}
-
-export async function signupAction(
-  _prev: AuthState,
-  formData: FormData,
-): Promise<AuthState> {
+export async function signupAction(_prev: AuthState, formData: FormData): Promise<AuthState> {
   const parsed = signupSchema.safeParse({
-    username: formData.get("username"),
-    email: formData.get("email"),
+    ownerName: formData.get("ownerName"),
+    businessName: formData.get("businessName"),
+    slug: String(formData.get("slug") ?? "").toLowerCase().trim(),
+    email: String(formData.get("email") ?? "").toLowerCase().trim(),
     password: formData.get("password"),
   });
   if (!parsed.success) {
-    return { error: parsed.error.issues[0]?.message ?? "Invalid input" };
+    return { error: parsed.error.issues[0]?.message ?? "פרטים לא תקינים" };
   }
-  const { username, email, password } = parsed.data;
+  const { ownerName, businessName, slug, email, password } = parsed.data;
 
-  if (RESERVED.has(username)) {
-    return { error: "That username is reserved" };
-  }
-
-  const existing = await prisma.user.findFirst({
-    where: { OR: [{ email }, { username }] },
-    select: { email: true, username: true },
-  });
-  if (existing?.email === email) return { error: "That email is already in use" };
-  if (existing?.username === username) return { error: "That username is taken" };
+  const emailTaken = await prisma.business.findUnique({ where: { email } });
+  if (emailTaken) return { error: "כבר קיים חשבון עם האימייל הזה" };
+  const slugTaken = await prisma.business.findUnique({ where: { slug } });
+  if (slugTaken) return { error: "הכתובת הזו כבר תפוסה — נסו אחרת" };
 
   const passwordHash = await bcrypt.hash(password, 10);
-  const user = await prisma.user.create({
-    data: { email, username, passwordHash },
+  const biz = await prisma.business.create({
+    data: {
+      email,
+      passwordHash,
+      ownerName,
+      name: businessName,
+      slug,
+      site: {
+        create: {
+          content: { ...DEFAULT_CONTENT, tagline: "ברוכים הבאים! כאן כותבים משפט קצר על העסק." },
+          design: DEFAULT_DESIGN,
+        },
+      },
+      // Sunday–Thursday 09:00–17:00 starter hours so booking works out of the box.
+      hours: {
+        create: [0, 1, 2, 3, 4].map((day) => ({ day, startMin: 540, endMin: 1020 })),
+      },
+    },
   });
 
-  const role = await maybePromote(user);
   await createSession({
-    id: user.id,
-    email: user.email,
-    username: user.username,
-    name: user.name,
-    role,
-    plan: asPlan((user as { plan?: string }).plan),
+    id: biz.id,
+    email: biz.email,
+    slug: biz.slug,
+    name: biz.name,
+    ownerName: biz.ownerName,
+    plan: biz.plan,
   });
-
   redirect("/dashboard");
 }
 
-export async function loginAction(
-  _prev: AuthState,
-  formData: FormData,
-): Promise<AuthState> {
+const loginSchema = z.object({
+  email: z.string().email("כתובת אימייל לא תקינה"),
+  password: z.string().min(1, "נא להזין סיסמה"),
+});
+
+export async function loginAction(_prev: AuthState, formData: FormData): Promise<AuthState> {
   const parsed = loginSchema.safeParse({
-    email: formData.get("email"),
+    email: String(formData.get("email") ?? "").toLowerCase().trim(),
     password: formData.get("password"),
   });
   if (!parsed.success) {
-    return { error: parsed.error.issues[0]?.message ?? "Invalid input" };
+    return { error: parsed.error.issues[0]?.message ?? "פרטים לא תקינים" };
   }
-  const { email, password } = parsed.data;
-
-  const user = await prisma.user.findUnique({ where: { email } });
-  if (!user?.passwordHash || !(await bcrypt.compare(password, user.passwordHash))) {
-    return { error: "Incorrect email or password" };
+  const biz = await prisma.business.findUnique({ where: { email: parsed.data.email } });
+  if (!biz || !(await bcrypt.compare(parsed.data.password, biz.passwordHash))) {
+    return { error: "אימייל או סיסמה שגויים" };
   }
-  if (user.status === "SUSPENDED") {
-    return { error: "This account has been suspended" };
-  }
-
-  const role = await maybePromote(user);
-  await createSession(
-    {
-      id: user.id,
-      email: user.email,
-      username: user.username,
-      name: user.name,
-      role,
-      plan: asPlan((user as { plan?: string }).plan),
-    },
-    formData.get("remember") !== null,
-  );
-
+  await createSession({
+    id: biz.id,
+    email: biz.email,
+    slug: biz.slug,
+    name: biz.name,
+    ownerName: biz.ownerName,
+    plan: biz.plan,
+  });
   redirect("/dashboard");
 }
 

@@ -1,52 +1,49 @@
 import { cookies } from "next/headers";
 import { SignJWT, jwtVerify } from "jose";
 
-export const SESSION_COOKIE = "aura_session";
-// "Remember me" (default) → 90 days. Unchecked → still persisted for a week.
-export const MAX_AGE = 60 * 60 * 24 * 90;
-const SHORT_AGE = 60 * 60 * 24 * 7;
+export const SESSION_COOKIE = "hila_session";
+export const MAX_AGE = 60 * 60 * 24 * 90; // 90 days
 
 const secret = new TextEncoder().encode(
   process.env.AUTH_SECRET ?? "dev-insecure-secret-change-me",
 );
 
-export type SessionUser = {
+export type SessionBusiness = {
   id: string;
   email: string;
-  username: string;
-  name: string | null;
-  role: string;
-  plan?: string;
+  slug: string;
+  name: string;
+  ownerName: string;
+  plan: string;
 };
 
-/** Sign a session JWT. Shared by createSession and the proxy's sliding refresh. */
-export async function signSession(user: SessionUser): Promise<string> {
-  return new SignJWT({ user })
+export async function signSession(biz: SessionBusiness): Promise<string> {
+  return new SignJWT({ biz })
     .setProtectedHeader({ alg: "HS256" })
     .setIssuedAt()
     .setExpirationTime("90d")
     .sign(secret);
 }
 
-export async function createSession(user: SessionUser, remember = true) {
-  const token = await signSession(user);
+export async function createSession(biz: SessionBusiness) {
+  const token = await signSession(biz);
   const jar = await cookies();
   jar.set(SESSION_COOKIE, token, {
     httpOnly: true,
     sameSite: "lax",
     secure: process.env.NODE_ENV === "production",
     path: "/",
-    maxAge: remember ? MAX_AGE : SHORT_AGE,
+    maxAge: MAX_AGE,
   });
 }
 
-export async function getSession(): Promise<SessionUser | null> {
+export async function getSession(): Promise<SessionBusiness | null> {
   const jar = await cookies();
   const token = jar.get(SESSION_COOKIE)?.value;
   if (!token) return null;
   try {
     const { payload } = await jwtVerify(token, secret);
-    return (payload.user as SessionUser) ?? null;
+    return (payload.biz as SessionBusiness) ?? null;
   } catch {
     return null;
   }

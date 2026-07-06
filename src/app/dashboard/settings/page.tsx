@@ -1,22 +1,33 @@
 import { redirect } from "next/navigation";
+import type { Metadata } from "next";
+import { prisma } from "@/lib/prisma";
 import { getSession } from "@/lib/session";
-import { SettingsForm } from "@/components/account/settings-form";
+import { SettingsForms } from "@/components/settings-forms";
+
+export const metadata: Metadata = { title: "הגדרות" };
 
 export default async function SettingsPage() {
-  const user = await getSession();
-  if (!user) redirect("/login");
+  const session = await getSession();
+  if (!session) redirect("/login");
+
+  const biz = await prisma.business.findUnique({ where: { id: session.id } });
+  if (!biz) redirect("/login");
 
   return (
-    <div className="mx-auto max-w-xl">
-      <h1 className="font-display text-2xl font-medium tracking-tight">Settings</h1>
-      <p className="mt-1 text-sm text-text-muted">Manage your account.</p>
-      <div className="mt-6">
-        <SettingsForm
-          name={user.name ?? ""}
-          username={user.username}
-          email={user.email}
-        />
-      </div>
+    <div className="mx-auto flex max-w-2xl flex-col gap-5">
+      <h1 className="text-2xl font-extrabold">הגדרות</h1>
+      <SettingsForms
+        business={{
+          name: biz.name,
+          ownerName: biz.ownerName,
+          slug: biz.slug,
+          phone: biz.phone ?? "",
+          email: biz.email,
+          autoConfirm: biz.autoConfirm,
+          slotStepMin: biz.slotStepMin,
+          bufferMin: biz.bufferMin,
+        }}
+      />
     </div>
   );
 }

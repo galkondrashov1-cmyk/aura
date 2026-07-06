@@ -1,56 +1,43 @@
-// Subscription plans. Free for now; prices shown as "soon". Yearly price is the
-// headline; monthly billing is +20%. No payment is taken yet — upgrading just
-// flips User.plan.
+// הילה — subscription plans.
+// FREE      — עמוד נחיתה עם עיצוב בסיסי.
+// DESIGN    — ₪9.90/חודש: כל אפשרויות העיצוב.
+// BUSINESS  — ₪49.99/חודש: הכל + עמוד זימון תורים ופגישות.
+// Payments are demo for now — "upgrading" flips Business.plan.
 
-export type Plan = "FREE" | "PLUS" | "PRO";
+export type Plan = "FREE" | "DESIGN" | "BUSINESS";
 
-export const PLAN_RANK: Record<Plan, number> = { FREE: 0, PLUS: 1, PRO: 2 };
+export const PLAN_RANK: Record<Plan, number> = { FREE: 0, DESIGN: 1, BUSINESS: 2 };
 
 export function asPlan(v?: string | null): Plan {
-  return v === "PRO" ? "PRO" : v === "PLUS" ? "PLUS" : "FREE";
+  return v === "BUSINESS" ? "BUSINESS" : v === "DESIGN" ? "DESIGN" : "FREE";
 }
 
-/** What each plan unlocks. Balanced split: generous free base, premium polish paid. */
 export type Caps = {
-  maxPages: number;
-  allBackgrounds: boolean;
-  allFonts: boolean;
-  premiumThemes: boolean; // one-click full themes
-  creativeEffects: boolean; // glitch/rainbow/liquid/neon + creative bg effects
-  perElement: boolean; // per-block color + effect overrides
-  gallerySlideshow: boolean;
-  removeBadge: boolean; // hide "Made with AURA"
-  proAssets: boolean; // Pro-exclusive backgrounds/effects/theme packs
-  advancedBlocks: boolean; // embed / music / countdown
-  customSeo: boolean; // per-page SEO title + description
+  allThemes: boolean; // all theme presets (free: first 3)
+  allBackgrounds: boolean; // gradients, patterns, animated (free: basics)
+  allFonts: boolean; // full Hebrew font library (free: 2)
+  allButtons: boolean; // all button shapes + fills
+  effects: boolean; // entrance animations, halo glow effects
+  booking: boolean; // public booking page + appointment management
 };
 
 export function caps(plan: Plan): Caps {
-  const pro = plan === "PRO";
   const paid = plan !== "FREE";
   return {
-    maxPages: pro ? Infinity : paid ? 5 : 1,
+    allThemes: paid,
     allBackgrounds: paid,
     allFonts: paid,
-    premiumThemes: paid,
-    creativeEffects: paid,
-    perElement: paid,
-    gallerySlideshow: paid,
-    removeBadge: pro,
-    proAssets: pro,
-    advancedBlocks: pro,
-    customSeo: pro,
+    allButtons: paid,
+    effects: paid,
+    booking: plan === "BUSINESS",
   };
 }
-
-/** Monthly billing is 20% more than the yearly-billed monthly rate. */
-export const MONTHLY_MULTIPLIER = 1.2;
 
 export type PlanInfo = {
   id: Plan;
   name: string;
   tagline: string;
-  yearlyPerMonth: number; // headline price (billed yearly)
+  monthly: number; // ₪ per month
   accent: string;
   popular?: boolean;
   features: string[];
@@ -59,57 +46,57 @@ export type PlanInfo = {
 export const PLANS: PlanInfo[] = [
   {
     id: "FREE",
-    name: "Free",
-    tagline: "Everything you need to launch.",
-    yearlyPerMonth: 0,
+    name: "חינם",
+    tagline: "עמוד נחיתה מעוצב לעסק — בחינם, לתמיד.",
+    monthly: 0,
     accent: "#9aa3af",
     features: [
-      "1 page",
-      "All core blocks",
-      "Essential backgrounds & fonts",
-      "Basic hover & idle animations",
-      "Built-in analytics",
+      "עמוד נחיתה אחד",
+      "כתובת אישית לעסק",
+      "3 ערכות עיצוב",
+      "רקעים ופונטים בסיסיים",
+      "פרטי קשר, וואטסאפ ושעות פעילות",
+      "סטטיסטיקת צפיות",
     ],
   },
   {
-    id: "PLUS",
-    name: "Plus",
-    tagline: "Unlock the full design studio.",
-    yearlyPerMonth: 4.99,
-    accent: "#00e5a0",
+    id: "DESIGN",
+    name: "עיצוב",
+    tagline: "כל סטודיו העיצוב פתוח.",
+    monthly: 9.9,
+    accent: "#f0b429",
     popular: true,
     features: [
-      "Up to 5 pages",
-      "All standard backgrounds + 12 one-click themes",
-      "Creative effects, special shapes & motion speed",
-      "Per-element colors & effects",
-      "Gallery slideshow mode",
-      "All premium fonts",
+      "כל מה שבחינם",
+      "כל ערכות העיצוב",
+      "רקעים חיים: גרדיאנטים, תבניות והילות",
+      "כל ספריית הפונטים העבריים",
+      "כל סגנונות הכפתורים",
+      "אנימציות ואפקטים",
     ],
   },
   {
-    id: "PRO",
-    name: "Pro",
-    tagline: "Stand out with exclusive Pro looks.",
-    yearlyPerMonth: 7.99,
-    accent: "#a855f7",
+    id: "BUSINESS",
+    name: "עסקים",
+    tagline: "האתר עובד בשבילך — תורים ופגישות 24/7.",
+    monthly: 49.99,
+    accent: "#8b7cf6",
     features: [
-      "Unlimited pages",
-      "Everything in Plus",
-      "6 Pro themes, special button styles & Pro backgrounds",
-      "Advanced blocks: embed, music, countdown",
-      "Custom SEO title & description",
-      "Remove the AURA badge",
+      "כל מה שבעיצוב",
+      "עמוד זימון תורים ופגישות",
+      "אימות לקוח ב־SMS (דמו)",
+      "ניהול שירותים, מחירים ושעות פעילות",
+      "יומן תורים עם אישור אוטומטי או ידני",
+      "ביטול תור בקליק ללקוח",
     ],
   },
 ];
 
-export function monthlyPrice(yearlyPerMonth: number): number {
-  return Math.round(yearlyPerMonth * MONTHLY_MULTIPLIER * 100) / 100;
+export function planInfo(plan: Plan): PlanInfo {
+  return PLANS.find((p) => p.id === plan) ?? PLANS[0];
 }
 
-/** Headline price label, e.g. "FREE FOR NOW · soon from $4.99/mo". */
 export function priceLabel(p: PlanInfo): string {
-  if (p.yearlyPerMonth === 0) return "Free forever";
-  return `FREE FOR NOW · soon from $${p.yearlyPerMonth.toFixed(2)}/mo`;
+  if (p.monthly === 0) return "חינם לתמיד";
+  return `₪${p.monthly.toFixed(2)} / חודש`;
 }

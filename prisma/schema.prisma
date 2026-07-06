@@ -1,7 +1,7 @@
-// AURA database schema.
-// Local dev uses SQLite for zero-setup; switch `provider` to "postgresql"
-// (and DATABASE_URL) for production. Enum-like fields are stored as String
-// for SQLite portability — values are validated in the app layer.
+// הילה (Hila) — database schema.
+// Business owners are the only registered users. End customers book
+// appointments anonymously (name + phone, OTP-verified — demo for now).
+// Enum-like fields are stored as String and validated in the app layer.
 
 generator client {
   provider = "prisma-client-js"
@@ -13,92 +13,104 @@ datasource db {
   directUrl = env("DIRECT_URL")
 }
 
-model User {
+model Business {
   id           String   @id @default(cuid())
   email        String   @unique
-  username     String   @unique
-  name         String?
-  passwordHash String?
-  image        String?
-  role         String   @default("USER") // USER | ADMIN
-  status       String   @default("ACTIVE") // ACTIVE | SUSPENDED
-  plan          String    @default("FREE") // FREE | PLUS | PRO
-  paypalSubId   String?   // active PayPal subscription id
-  planExpiresAt String?   // ISO date — paid-through date once a sub is cancelled/suspended
+  passwordHash String
+  ownerName    String
+  name         String // business display name
+  slug         String   @unique // public URL: /{slug}
+  phone        String?
+  plan         String   @default("FREE") // FREE | DESIGN | BUSINESS
+  autoConfirm  Boolean  @default(true) // booking: auto-confirm vs owner approval
+  slotStepMin  Int      @default(15) // slot grid granularity (minutes)
+  bufferMin    Int      @default(0) // gap enforced between appointments
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 
-  pages Page[]
-  media MediaAsset[]
+  site         Site?
+  services     Service[]
+  hours        WorkingHour[]
+  appointments Appointment[]
+  visits       Visit[]
 }
 
-model Page {
-  id               String    @id @default(cuid())
-  userId           String
-  user             User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  slug             String
-  title            String    @default("Untitled")
-  status           String    @default("DRAFT") // DRAFT | PUBLISHED
-  theme            String    @default("vivid")
-  draftContent     Json?
-  publishedContent Json?
-  seoTitle         String?
-  seoDescription   String?
-  ogImage          String?
-  isPrimary        Boolean   @default(false)
-  publishedAt      DateTime?
-  createdAt        DateTime  @default(now())
-  updatedAt        DateTime  @updatedAt
-
-  views       PageView[]
-  clicks      LinkClick[]
-  submissions FormSubmission[]
-
-  @@unique([userId, slug])
+model Site {
+  id         String    @id @default(cuid())
+  businessId String    @unique
+  business   Business  @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  content    Json? // SiteContent (src/lib/content.ts)
+  design     Json? // SiteDesign (src/lib/design.ts)
+  published  Boolean   @default(false)
+  publishedAt DateTime?
+  updatedAt  DateTime  @updatedAt
 }
 
-model PageView {
+model Service {
+  id          String   @id @default(cuid())
+  businessId  String
+  business    Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  name        String
+  description String?
+  durationMin Int      @default(30)
+  price       Int? // ₪, null = don't show a price
+  order       Int      @default(0)
+  active      Boolean  @default(true)
+  createdAt   DateTime @default(now())
+
+  appointments Appointment[]
+
+  @@index([businessId, order])
+}
+
+// Weekly opening hours: one row per enabled weekday (0 = Sunday … 6 = Saturday).
+model WorkingHour {
+  id         String   @id @default(cuid())
+  businessId String
+  business   Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  day        Int // 0-6
+  startMin   Int // minutes since midnight, e.g. 540 = 09:00
+  endMin     Int
+
+  @@unique([businessId, day])
+}
+
+model Appointment {
+  id            String   @id @default(cuid())
+  businessId    String
+  business      Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  serviceId     String?
+  service       Service? @relation(fields: [serviceId], references: [id], onDelete: SetNull)
+  customerName  String
+  customerPhone String
+  note          String?
+  startsAt      DateTime
+  endsAt        DateTime
+  status        String   @default("CONFIRMED") // PENDING | CONFIRMED | CANCELLED
+  cancelToken   String   @unique @default(cuid()) // customer self-cancel link
+  createdAt     DateTime @default(now())
+
+  @@index([businessId, startsAt])
+}
+
+// OTP codes for customer phone verification (demo: code is shown on screen).
+model OtpCode {
   id        String   @id @default(cuid())
-  pageId    String
-  page      Page     @relation(fields: [pageId], references: [id], onDelete: Cascade)
-  referrer  String?
-  device    String? // desktop | mobile | tablet
-  country   String?
+  phone     String
+  code      String
+  expiresAt DateTime
   createdAt DateTime @default(now())
 
-  @@index([pageId, createdAt])
+  @@index([phone, createdAt])
 }
 
-model LinkClick {
-  id        String   @id @default(cuid())
-  pageId    String
-  page      Page     @relation(fields: [pageId], references: [id], onDelete: Cascade)
-  label     String?
-  url       String
-  device    String?
-  createdAt DateTime @default(now())
+// Lightweight page-view analytics for the business dashboard.
+model Visit {
+  id         String   @id @default(cuid())
+  businessId String
+  business   Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  device     String? // desktop | mobile
+  createdAt  DateTime @default(now())
 
-  @@index([pageId, createdAt])
-}
-
-model MediaAsset {
-  id        String   @id @default(cuid())
-  userId    String
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  url       String
-  type      String   @default("IMAGE") // IMAGE | VIDEO | GIF | FILE
-  sizeBytes Int      @default(0)
-  createdAt DateTime @default(now())
-
-  @@index([userId, createdAt])
-}
-
-model FormSubmission {
-  id        String   @id @default(cuid())
-  pageId    String
-  page      Page     @relation(fields: [pageId], references: [id], onDelete: Cascade)
-  data      Json
-  createdAt DateTime @default(now())
-
-  @@index([pageId, createdAt])
+  @@index([businessId, createdAt])
 }

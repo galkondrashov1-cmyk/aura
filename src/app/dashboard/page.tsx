@@ -1,112 +1,187 @@
 import Link from "next/link";
-import { Plus, ExternalLink, Pencil } from "lucide-react";
-import { AuraMark } from "@/components/aura-logo";
-import { buttonClasses } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
-import { getSession } from "@/lib/session";
+import { redirect } from "next/navigation";
+import { Eye, CalendarCheck, Hourglass, Rocket, Paintbrush, ArrowLeft } from "lucide-react";
 import { prisma } from "@/lib/prisma";
-import { createPage } from "@/lib/actions/pages";
-import { CopyLinkButton } from "@/components/copy-link-button";
+import { getSession } from "@/lib/session";
+import { asPlan, caps, planInfo } from "@/lib/plans";
+import { Badge, Card } from "@/components/ui";
+import { nowMs } from "@/lib/utils";
+import { CopyLinkButton, PublishToggle } from "@/components/dashboard-bits";
+import { AppointmentRow } from "@/components/appointment-row";
+import { todayStr, jerusalemToUtc } from "@/lib/slots";
 
-export default async function DashboardHome() {
+export default async function DashboardPage() {
   const session = await getSession();
-  const pages = session
-    ? await prisma.page.findMany({
-        where: { userId: session.id },
-        orderBy: { updatedAt: "desc" },
-      })
-    : [];
+  if (!session) redirect("/login");
+
+  const biz = await prisma.business.findUnique({
+    where: { id: session.id },
+    include: { site: true },
+  });
+  if (!biz) redirect("/login");
+
+  const plan = asPlan(biz.plan);
+  const c = caps(plan);
+  const today = todayStr();
+  const dayStart = jerusalemToUtc(today, 0);
+  const dayEnd = jerusalemToUtc(today, 24 * 60);
+  const monthAgo = new Date(nowMs() - 30 * 24 * 60 * 60 * 1000);
+
+  const [visits30, apptsToday, pending, upcoming] = await Promise.all([
+    prisma.visit.count({ where: { businessId: biz.id, createdAt: { gte: monthAgo } } }),
+    prisma.appointment.count({
+      where: {
+        businessId: biz.id,
+        status: { in: ["PENDING", "CONFIRMED"] },
+        startsAt: { gte: dayStart, lt: dayEnd },
+      },
+    }),
+    prisma.appointment.findMany({
+      where: { businessId: biz.id, status: "PENDING", startsAt: { gte: new Date() } },
+      include: { service: true },
+      orderBy: { startsAt: "asc" },
+      take: 5,
+    }),
+    prisma.appointment.findMany({
+      where: { businessId: biz.id, status: "CONFIRMED", startsAt: { gte: new Date() } },
+      include: { service: true },
+      orderBy: { startsAt: "asc" },
+      take: 5,
+    }),
+  ]);
+
+  const published = biz.site?.published ?? false;
+  const info = planInfo(plan);
 
   return (
-    <div>
-      <div className="flex items-center justify-between gap-4">
+    <div className="mx-auto flex max-w-4xl flex-col gap-6">
+      <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h1 className="font-display text-2xl font-medium tracking-tight">My pages</h1>
-          <p className="mt-1 text-sm text-text-muted">
-            Create and manage your AURA pages.
+          <h1 className="text-2xl font-extrabold">שלום, {biz.ownerName} 👋</h1>
+          <p className="mt-1 text-sm text-ink-2">
+            {biz.name} · <Badge tone={plan === "FREE" ? "gray" : plan === "DESIGN" ? "gold" : "violet"}>חבילת {info.name}</Badge>
           </p>
         </div>
-        <form action={createPage}>
-          <button type="submit" className={buttonClasses("primary", "md")}>
-            <Plus className="h-4 w-4" />
-            New page
-          </button>
-        </form>
+        <PublishToggle published={published} />
       </div>
 
-      {pages.length === 0 ? (
-        <div className="mt-10 grid place-items-center rounded-3xl border border-dashed border-border bg-surface/50 px-6 py-20 text-center">
-          <div className="mb-5 grid h-16 w-16 place-items-center rounded-2xl bg-surface-2 text-primary">
-            <AuraMark className="h-8 w-8" />
-          </div>
-          <h2 className="font-display text-xl font-medium">Create your first AURA</h2>
-          <p className="mt-2 max-w-sm text-sm text-text-muted">
-            Build your page from scratch and make it yours with the design studio.
-          </p>
-          <div className="mt-7 flex flex-col gap-3 sm:flex-row">
-            <form action={createPage}>
-              <button type="submit" className={buttonClasses("primary", "md")}>
-                <Plus className="h-4 w-4" />
-                Create a page
-              </button>
-            </form>
-          </div>
+      {/* page link */}
+      <Card className="flex flex-wrap items-center justify-between gap-3">
+        <div>
+          <p className="text-sm text-ink-2">הכתובת של העמוד שלך</p>
+          <p className="mt-0.5 font-mono text-sm text-halo" dir="ltr">/{biz.slug}</p>
+          {!published && (
+            <p className="mt-1 text-xs text-yellow-500/90">
+              העמוד עדיין טיוטה — פרסמו אותו כדי שהלקוחות יוכלו לראות.
+            </p>
+          )}
         </div>
-      ) : (
-        <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {pages.map((page) => {
-            const published = page.status === "PUBLISHED";
-            return (
-              <div
-                key={page.id}
-                className="flex flex-col rounded-2xl border border-border bg-surface p-5"
-              >
-                <div className="flex items-start justify-between gap-3">
-                  <div className="grid h-11 w-11 place-items-center rounded-xl bg-surface-2 text-primary">
-                    <AuraMark className="h-6 w-6" />
-                  </div>
-                  <span
-                    className={cn(
-                      "rounded-full px-2.5 py-1 text-xs font-medium",
-                      published
-                        ? "bg-primary/15 text-primary"
-                        : "bg-surface-2 text-text-muted",
-                    )}
-                  >
-                    {published ? "Published" : "Draft"}
-                  </span>
-                </div>
-
-                <p className="mt-4 font-display text-base font-medium">{page.title}</p>
-                <p className="truncate text-xs text-text-muted">
-                  useaura.me/{session?.username}
-                </p>
-
-                <div className="mt-5 flex flex-wrap items-center gap-2">
-                  <Link
-                    href={`/builder/${page.id}`}
-                    className={buttonClasses("secondary", "sm", "flex-1")}
-                  >
-                    <Pencil className="h-4 w-4" />
-                    Edit
-                  </Link>
-                  <CopyLinkButton url={`https://useaura.me/${session?.username}`} />
-                  {published && (
-                    <Link
-                      href={`/${session?.username}`}
-                      target="_blank"
-                      className={buttonClasses("ghost", "sm")}
-                    >
-                      <ExternalLink className="h-4 w-4" />
-                      View
-                    </Link>
-                  )}
-                </div>
-              </div>
-            );
-          })}
+        <div className="flex gap-2">
+          <CopyLinkButton slug={biz.slug} />
+          <a
+            href={`/${biz.slug}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-2 rounded-xl border border-line px-4 py-2.5 text-sm font-semibold hover:bg-white/5"
+          >
+            צפייה בעמוד
+          </a>
         </div>
+      </Card>
+
+      {/* stats */}
+      <div className="grid grid-cols-3 gap-4">
+        <Card className="text-center">
+          <Eye className="mx-auto h-6 w-6 text-halo" strokeWidth={1.75} />
+          <p className="mt-2 text-2xl font-extrabold">{visits30}</p>
+          <p className="text-xs text-ink-2">צפיות (30 יום)</p>
+        </Card>
+        <Card className="text-center">
+          <CalendarCheck className="mx-auto h-6 w-6 text-mint" strokeWidth={1.75} />
+          <p className="mt-2 text-2xl font-extrabold">{apptsToday}</p>
+          <p className="text-xs text-ink-2">תורים היום</p>
+        </Card>
+        <Card className="text-center">
+          <Hourglass className="mx-auto h-6 w-6 text-viole" strokeWidth={1.75} />
+          <p className="mt-2 text-2xl font-extrabold">{pending.length}</p>
+          <p className="text-xs text-ink-2">ממתינים לאישור</p>
+        </Card>
+      </div>
+
+      {/* pending approvals */}
+      {pending.length > 0 && (
+        <Card>
+          <h2 className="mb-3 font-bold">תורים שממתינים לאישור שלך</h2>
+          <div className="flex flex-col gap-2">
+            {pending.map((a) => (
+              <AppointmentRow
+                key={a.id}
+                appt={{
+                  id: a.id,
+                  customerName: a.customerName,
+                  customerPhone: a.customerPhone,
+                  serviceName: a.service?.name ?? null,
+                  startsAt: a.startsAt.toISOString(),
+                  status: a.status,
+                }}
+              />
+            ))}
+          </div>
+        </Card>
       )}
+
+      {/* upcoming */}
+      <Card>
+        <div className="mb-3 flex items-center justify-between">
+          <h2 className="font-bold">התורים הקרובים</h2>
+          <Link href="/dashboard/appointments" className="flex items-center gap-1 text-sm text-halo hover:underline">
+            ליומן המלא <ArrowLeft className="h-4 w-4" />
+          </Link>
+        </div>
+        {upcoming.length === 0 ? (
+          <p className="py-4 text-center text-sm text-ink-2">
+            {c.booking
+              ? "אין תורים קרובים. שתפו את הקישור שלכם כדי שלקוחות יתחילו לקבוע."
+              : "זימון תורים זמין בחבילת עסקים."}
+          </p>
+        ) : (
+          <div className="flex flex-col gap-2">
+            {upcoming.map((a) => (
+              <AppointmentRow
+                key={a.id}
+                appt={{
+                  id: a.id,
+                  customerName: a.customerName,
+                  customerPhone: a.customerPhone,
+                  serviceName: a.service?.name ?? null,
+                  startsAt: a.startsAt.toISOString(),
+                  status: a.status,
+                }}
+              />
+            ))}
+          </div>
+        )}
+      </Card>
+
+      {/* quick actions */}
+      <div className="grid gap-4 sm:grid-cols-2">
+        <Link href="/dashboard/editor" className="card group flex items-center gap-4 p-5 transition hover:border-halo/40">
+          <Paintbrush className="h-8 w-8 text-halo" strokeWidth={1.5} />
+          <div>
+            <p className="font-bold group-hover:text-halo">עיצוב העמוד</p>
+            <p className="text-sm text-ink-2">תוכן, צבעים, רקעים ופונטים</p>
+          </div>
+        </Link>
+        {!c.booking && (
+          <Link href="/dashboard/plan" className="card group flex items-center gap-4 p-5 transition hover:border-viole/40">
+            <Rocket className="h-8 w-8 text-viole" strokeWidth={1.5} />
+            <div>
+              <p className="font-bold group-hover:text-viole">רוצים לקבל תורים אונליין?</p>
+              <p className="text-sm text-ink-2">שדרגו לחבילת עסקים — ₪49.99/חודש</p>
+            </div>
+          </Link>
+        )}
+      </div>
     </div>
   );
 }

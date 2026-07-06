@@ -1,58 +1,23 @@
 import Link from "next/link";
-import { redirect } from "next/navigation";
-import { getSession } from "@/lib/session";
-import { AuraLogo } from "@/components/aura-logo";
-import { SignupForm } from "@/components/auth/signup-form";
+import type { Metadata } from "next";
+import { HilaLogo } from "@/components/ui";
+import { SignupForm } from "@/components/auth-forms";
 
-export default async function SignupPage() {
-  // Already signed in? Never ask again — straight to the dashboard.
-  if (await getSession()) redirect("/dashboard");
+export const metadata: Metadata = { title: "הרשמה" };
 
+export default function SignupPage() {
   return (
-    <div className="aura-backdrop flex min-h-screen flex-col items-center justify-center px-6 py-12">
+    <div className="flex min-h-dvh flex-col items-center justify-center px-4 py-10">
       <Link href="/" className="mb-8">
-        <AuraLogo />
+        <HilaLogo size={34} />
       </Link>
-
-      <div className="w-full max-w-sm rounded-3xl border border-border bg-surface p-7">
-        <h1 className="font-display text-2xl font-medium tracking-tight">
-          Create your AURA
-        </h1>
-        <p className="mt-1 text-sm text-text-muted">
-          Claim your username and build your page in minutes.
+      <div className="card w-full max-w-md p-7">
+        <h1 className="text-2xl font-extrabold">יוצרים הילה לעסק שלך</h1>
+        <p className="mb-6 mt-1 text-sm text-ink-2">
+          ההרשמה לבעלי עסקים. הלקוחות שלך לא צריכים חשבון.
         </p>
-
-        <button
-          type="button"
-          disabled
-          className="mt-6 inline-flex h-11 w-full items-center justify-center gap-2 rounded-full border border-border bg-surface text-sm font-medium text-text-muted opacity-60"
-        >
-          Continue with Google
-          <span className="text-xs">· soon</span>
-        </button>
-
-        <div className="my-5 flex items-center gap-3 text-xs text-text-muted">
-          <span className="aura-rule flex-1" />
-          or
-          <span className="aura-rule flex-1" />
-        </div>
-
         <SignupForm />
-
-        <p className="mt-5 text-center text-sm text-text-muted">
-          Already have an account?{" "}
-          <Link
-            href="/login"
-            className="text-text underline-offset-4 hover:underline"
-          >
-            Log in
-          </Link>
-        </p>
       </div>
-
-      <p className="mt-6 text-xs text-text-muted">
-        Email + password works now · Google sign-in lands in a later phase
-      </p>
     </div>
   );
 }

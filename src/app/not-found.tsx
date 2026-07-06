@@ -1,22 +1,22 @@
 import Link from "next/link";
-import { AuraLogo } from "@/components/aura-logo";
-import { buttonClasses } from "@/components/ui/button";
+import { HilaLogo } from "@/components/ui";
 
 export default function NotFound() {
   return (
-    <div className="aura-backdrop flex min-h-screen flex-col items-center justify-center gap-6 px-6 text-center">
-      <AuraLogo />
-      <div>
-        <h1 className="font-display text-3xl font-medium tracking-tight">
-          This page has no aura
-        </h1>
-        <p className="mt-2 text-text-muted">
-          It doesn&apos;t exist, or it hasn&apos;t been published yet.
-        </p>
+    <div className="flex min-h-dvh flex-col items-center justify-center gap-6 px-4 text-center">
+      <HilaLogo size={40} />
+      <h1 className="text-3xl font-extrabold">העמוד לא נמצא</h1>
+      <p className="max-w-sm text-ink-2">
+        אולי הכתובת השתנתה, או שהעסק עדיין לא פרסם את העמוד שלו.
+      </p>
+      <div className="flex gap-3">
+        <Link href="/" className="rounded-xl bg-halo px-5 py-2.5 font-bold text-night hover:bg-halo-2">
+          לעמוד הבית
+        </Link>
+        <Link href="/signup" className="rounded-xl border border-line px-5 py-2.5 font-semibold hover:bg-white/5">
+          יצירת עמוד משלך
+        </Link>
       </div>
-      <Link href="/" className={buttonClasses("primary", "md")}>
-        Back home
-      </Link>
     </div>
   );
 }

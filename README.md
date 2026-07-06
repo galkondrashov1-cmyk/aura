@@ -1,36 +1,44 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# הילה — ההילה של העסק שלך ✨
 
-## Getting Started
+פלטפורמה לבעלי עסקים קטנים: עמוד נחיתה מעוצב (1–2 עמודים) + זימון תורים ופגישות אונליין — בעברית, RTL, מותאם לנייד.
 
-First, run the development server:
+## החבילות
+
+| חבילה | מחיר | מה מקבלים |
+|---|---|---|
+| **חינם** | ₪0 | עמוד נחיתה, כתובת אישית, 3 ערכות עיצוב, רקעים ופונטים בסיסיים, סטטיסטיקות |
+| **עיצוב** | ₪9.90/חודש | כל ערכות העיצוב, רקעים חיים והילות, כל הפונטים העבריים, כל סגנונות הכפתורים, אנימציות |
+| **עסקים** | ₪49.99/חודש | הכל + עמוד זימון תורים: שירותים ומחירים, שעות פעילות, אימות לקוח ב־SMS (דמו), אישור אוטומטי/ידני, ביטול בקליק |
+
+> תשלומים במצב **דמו** — שדרוג מחליף את החבילה מיד ללא חיוב. חיבור סליקה (Grow/PayPal/Stripe) נכנס ב־`src/lib/actions/plan.ts`.
+
+## איך זה בנוי
+
+- **Next.js 16** (App Router, Server Actions, Proxy) + **Tailwind v4**
+- **PostgreSQL + Prisma** — `Business`, `Site` (תוכן+עיצוב כ־JSON), `Service`, `WorkingHour`, `Appointment`, `OtpCode`, `Visit`
+- **אימות** לבעלי עסקים בלבד (JWT cookie, bcrypt). לקוחות קצה לא נרשמים — קובעים תור עם שם, טלפון וקוד OTP (דמו: הקוד מוצג על המסך; ספק SMS אמיתי נכנס ב־`src/app/api/otp/route.ts`)
+- **מערכת העיצוב** — `src/lib/design.ts`: ערכות, רקעים (כולל חיים ומונפשים), פונטים עבריים, כפתורים ואפקטים. אכיפת חבילה גם בשמירה וגם בזמן רנדור (`resolveDesign`)
+- **חישוב משבצות** — `src/lib/slots.ts`: שעות פעילות − תורים תפוסים − buffer, לפי שעון ישראל (Asia/Jerusalem)
+
+## מבנה עמודים
+
+- `/` שיווק · `/signup` `/login` — בעלי עסקים
+- `/dashboard` — סקירה, `editor` (עורך + תצוגה חיה), `appointments`, `services`, `hours`, `plan`, `settings`
+- `/{slug}` — העמוד הציבורי של העסק · `/{slug}/book` — אשף קביעת תור · `/cancel/{token}` — ביטול ללקוח
+
+## הרצה מקומית
 
 ```bash
+npm install
+# Postgres מקומי (או Docker: docker run -e POSTGRES_PASSWORD=password -p 5432:5432 -d postgres)
+cp .env.example .env            # ולעדכן DATABASE_URL/DIRECT_URL/AUTH_SECRET
+npx prisma db push
+node scripts/seed-demo.mjs      # עסק דמו: /dana · demo@hila.co.il / demo1234
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## פריסה (Vercel)
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
-
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+1. חיבור הריפו לפרויקט Vercel; Postgres דרך Vercel Postgres/Neon (`DATABASE_URL` + `DIRECT_URL`).
+2. משתני סביבה: `AUTH_SECRET` (מחרוזת אקראית ארוכה).
+3. ה־build מריץ `prisma db push` אוטומטית.

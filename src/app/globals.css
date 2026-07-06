@@ -1,562 +1,171 @@
 @import "tailwindcss";
 
-/* ============================================================
-   AURA — Deep Space design tokens (dual dark mode)
-   Default (:root)          → "Vivid"  (published pages + marketing)
-   [data-mode="muted"]      → "Muted"  (editor + global toggle)
-   Both share token NAMES so components are written once.
-   ============================================================ */
-
-:root {
-  --bg: #08090c;
-  --surface: #121419;
-  --surface-2: #1a1d24;
-  --primary: #00e5a0;
-  --primary-ink: #053d2c;
-  --secondary: #3b82f6;
-  --accent: #a855f7;
-  --text: #e8eaed;
-  --text-muted: #9aa3af;
-  --border: #232734;
-  --glow: 0 0 44px -8px rgba(0, 229, 160, 0.5);
-  --radius: 14px;
-  /* Adaptive bg-effect palette. --fx-ink draws textures (lines/dots/stars),
-     --fx-lift is the luminance direction for glows. Dark pages: white ink,
-     glows lifted toward white. LIGHT_VARS flips both to black inline. */
-  --fx-ink: #fff;
-  --fx-lift: #fff;
-}
-
-/* Computed on each effect overlay (not :root) so var(--primary) resolves to
-   the page accent set inline on the page wrapper, not the site default. */
-[class^="bgfx-"],
-[class*=" bgfx-"] {
-  --fx-glow: color-mix(in oklab, var(--primary) 80%, var(--fx-lift));
-  --fx-glow2: color-mix(in oklab, var(--fx-c2, var(--accent)) 80%, var(--fx-lift));
-}
-
-[data-mode="muted"] {
-  --bg: #0c0e12;
-  --surface: #161922;
-  --surface-2: #1f232e;
-  --primary: #4fb89c;
-  --primary-ink: #08251b;
-  --secondary: #5c7fb2;
-  --accent: #8e7db4;
-  --text: #cdd2d8;
-  --text-muted: #8b939f;
-  --border: #262b36;
-  --glow: 0 0 0 0 transparent;
-}
-
-@theme inline {
-  --color-bg: var(--bg);
-  --color-surface: var(--surface);
-  --color-surface-2: var(--surface-2);
-  --color-primary: var(--primary);
-  --color-primary-ink: var(--primary-ink);
-  --color-secondary: var(--secondary);
-  --color-accent: var(--accent);
-  --color-text: var(--text);
-  --color-text-muted: var(--text-muted);
-  --color-border: var(--border);
-  --font-display: var(--font-jakarta);
-  --font-sans: var(--font-inter);
-  --radius-aura: var(--radius);
+/* ── הילה — brand tokens ─────────────────────────────────────────────── */
+@theme {
+  --color-night: #0a0c12; /* app background */
+  --color-night-2: #10131c; /* raised surface */
+  --color-night-3: #171b27; /* higher surface */
+  --color-line: rgba(255, 255, 255, 0.09);
+  --color-ink: #eceef2; /* main text on dark */
+  --color-ink-2: #9aa1ad; /* muted text */
+  --color-halo: #f0b429; /* warm halo gold */
+  --color-halo-2: #ffd166;
+  --color-viole: #8b7cf6; /* secondary violet */
+  --color-mint: #4fd1a5;
+  --font-ui: var(--font-heebo), system-ui, sans-serif;
 }
 
 html {
-  color-scheme: dark;
+  scroll-behavior: smooth;
 }
 
 body {
-  background: var(--bg);
-  color: var(--text);
-  font-family: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  font-family: var(--font-ui);
+  background: var(--color-night);
+  color: var(--color-ink);
   -webkit-font-smoothing: antialiased;
-  text-rendering: optimizeLegibility;
 }
 
-/* contentEditable placeholder for the rich-text fields */
-.rich-input:empty::before {
-  content: attr(data-placeholder);
-  color: var(--text-muted);
+::selection {
+  background: rgba(240, 180, 41, 0.35);
+}
+
+/* ── App chrome helpers ──────────────────────────────────────────────── */
+.card {
+  background: var(--color-night-2);
+  border: 1px solid var(--color-line);
+  border-radius: 1rem;
+}
+
+.halo-ring {
+  background: conic-gradient(
+    from 180deg,
+    rgba(240, 180, 41, 0) 0%,
+    rgba(240, 180, 41, 0.85) 25%,
+    rgba(255, 209, 102, 1) 50%,
+    rgba(139, 124, 246, 0.85) 75%,
+    rgba(240, 180, 41, 0) 100%
+  );
+  filter: blur(18px);
+  animation: halo-spin 9s linear infinite;
+}
+@keyframes halo-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.glow-text {
+  text-shadow: 0 0 32px rgba(240, 180, 41, 0.45);
+}
+
+/* ── Published-site helpers (driven by --site-* vars) ────────────────── */
+.site-scope {
+  background: var(--site-bg);
+  color: var(--site-text);
+  font-family: var(--site-font), system-ui, sans-serif;
+}
+
+.bg-animated {
+  animation: bg-drift 16s ease infinite;
+}
+@keyframes bg-drift {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+
+/* floating halo orbs layer (for the "הילה" backgrounds) */
+.halo-orb {
+  position: absolute;
+  border-radius: 9999px;
+  filter: blur(70px);
+  opacity: 0.5;
+  animation: orb-float 14s ease-in-out infinite;
   pointer-events: none;
 }
-
-/* Mobile tap hardening: remove the 300ms tap delay and make taps land
-   reliably on iOS Safari for all interactive elements. */
-button,
-a,
-label,
-select,
-input,
-textarea,
-[role="button"] {
-  touch-action: manipulation;
-  -webkit-tap-highlight-color: transparent;
+@keyframes orb-float {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  33% { transform: translate(4%, -6%) scale(1.12); }
+  66% { transform: translate(-5%, 4%) scale(0.94); }
 }
 
-/* signature aura glow — flattens automatically in muted mode */
-.aura-glow {
-  box-shadow: var(--glow);
+/* entrance effects */
+.fx-fade > * {
+  animation: fx-fade 0.9s ease both;
+}
+.fx-rise > * {
+  animation: fx-rise 0.8s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+.fx-fade > *:nth-child(2), .fx-rise > *:nth-child(2) { animation-delay: 0.12s; }
+.fx-fade > *:nth-child(3), .fx-rise > *:nth-child(3) { animation-delay: 0.24s; }
+.fx-fade > *:nth-child(4), .fx-rise > *:nth-child(4) { animation-delay: 0.36s; }
+.fx-fade > *:nth-child(5), .fx-rise > *:nth-child(5) { animation-delay: 0.48s; }
+.fx-fade > *:nth-child(n + 6), .fx-rise > *:nth-child(n + 6) { animation-delay: 0.6s; }
+@keyframes fx-fade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes fx-rise {
+  from { opacity: 0; transform: translateY(22px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
-/* soft radial light behind hero sections; muted mode stays flat */
-.aura-backdrop {
-  background:
-    radial-gradient(
-      62% 48% at 50% -4%,
-      color-mix(in oklab, var(--primary) 14%, transparent) 0%,
-      transparent 72%
-    ),
-    var(--bg);
+/* halo pulse effect — a breathing glow behind the hero */
+.fx-halo-pulse {
+  animation: fx-halo 4.5s ease-in-out infinite;
 }
-[data-mode="muted"] .aura-backdrop {
-  background: var(--bg);
+@keyframes fx-halo {
+  0%, 100% { opacity: 0.35; transform: scale(1); }
+  50% { opacity: 0.7; transform: scale(1.15); }
 }
 
-/* hairline that fades — used for premium dividers */
-.aura-rule {
-  height: 1px;
-  background: linear-gradient(
-    90deg,
-    transparent,
-    var(--border) 18%,
-    var(--border) 82%,
-    transparent
-  );
+/* site button variants */
+.site-btn {
+  border-radius: var(--site-btn-radius);
+  font-weight: 600;
+  transition: transform 0.15s ease, box-shadow 0.2s ease, background 0.2s ease;
+}
+.site-btn:hover {
+  transform: translateY(-2px);
+}
+.site-btn:active {
+  transform: translateY(0);
+}
+.site-btn-solid {
+  background: var(--site-accent);
+  color: #fff;
+}
+.site-btn-outline {
+  border: 2px solid var(--site-accent);
+  color: var(--site-accent);
+  background: transparent;
+}
+.site-btn-soft {
+  background: color-mix(in srgb, var(--site-accent) 16%, transparent);
+  color: var(--site-accent);
+}
+.site-btn-glow {
+  background: var(--site-accent);
+  color: #fff;
+  box-shadow: 0 0 26px color-mix(in srgb, var(--site-accent) 55%, transparent);
+}
+.site-btn-glow:hover {
+  box-shadow: 0 0 40px color-mix(in srgb, var(--site-accent) 75%, transparent);
 }
 
-/* ===== Builder design effects ===== */
-
-@keyframes auraPulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); } }
-@keyframes auraFloat { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
-@keyframes auraWobble { 0%, 100% { transform: rotate(0); } 25% { transform: rotate(-2.5deg); } 75% { transform: rotate(2.5deg); } }
-@keyframes auraBounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
-@keyframes auraJelly { 0%, 100% { transform: scale(1, 1); } 30% { transform: scale(1.06, 0.94); } 60% { transform: scale(0.96, 1.04); } }
-@keyframes auraWiggle { 0%, 100% { transform: rotate(0); } 25% { transform: rotate(-12deg); } 75% { transform: rotate(12deg); } }
-@keyframes auraShake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-2px); } 75% { transform: translateX(2px); } }
-
-.fx-pulse:hover { animation: auraPulse 0.7s ease-in-out infinite; }
-.fx-float { animation: auraFloat 3s ease-in-out infinite; }
-.fx-wobble:hover { animation: auraWobble 0.5s ease-in-out; }
-.fx-bounce:hover { animation: auraBounce 0.6s ease; }
-.fx-jelly:hover { animation: auraJelly 0.5s ease; }
-.fx-wiggle:hover { animation: auraWiggle 0.4s ease-in-out; }
-.fx-bounce-icon:hover { animation: auraBounce 0.5s ease; }
-.fx-shake:hover { animation: auraShake 0.4s ease-in-out; }
-
-.fx-shine { position: relative; overflow: hidden; }
-.fx-shine::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(120deg, transparent 30%, rgba(255, 255, 255, 0.28) 50%, transparent 70%);
-  transform: translateX(-150%);
-  transition: transform 0.6s ease;
-}
-.fx-shine:hover::before { transform: translateX(150%); }
-
-.bgfx-vignette { background: radial-gradient(120% 90% at 50% 0%, transparent 50%, rgba(0, 0, 0, 0.55) 100%); }
-.bgfx-topglow { background: radial-gradient(60% 40% at 50% 0%, color-mix(in oklab, var(--fx-glow) 36%, transparent), transparent 70%); }
-.bgfx-spotlight { background: radial-gradient(46% 34% at 50% 16%, color-mix(in oklab, var(--fx-glow) 38%, transparent), transparent 62%); }
-.bgfx-edges { box-shadow: inset 0 0 120px 26px color-mix(in oklab, var(--fx-glow) 32%, transparent); }
-.bgfx-grain {
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-  opacity: 0.14;
-}
-.bgfx-scanlines { background: repeating-linear-gradient(transparent 0 2px, color-mix(in srgb, var(--fx-ink) 15%, transparent) 2px 3px); }
-.bgfx-grid {
-  background:
-    linear-gradient(color-mix(in srgb, var(--fx-ink) 11%, transparent) 1px, transparent 1px) 0 0 / 40px 40px,
-    linear-gradient(90deg, color-mix(in srgb, var(--fx-ink) 11%, transparent) 1px, transparent 1px) 0 0 / 40px 40px;
-}
-.bgfx-dots { background: radial-gradient(color-mix(in srgb, var(--fx-ink) 24%, transparent) 1.5px, transparent 2.1px) 0 0 / 22px 22px; }
-.bgfx-aurora {
-  background: linear-gradient(120deg, color-mix(in oklab, var(--fx-glow) 32%, transparent), transparent 45%, color-mix(in oklab, var(--fx-glow2) 32%, transparent));
-  background-size: 200% 200%;
-  animation: auraDrift calc(8s * var(--spd, 1)) ease-in-out infinite;
-}
-@keyframes auraDrift { 0%, 100% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } }
-.bgfx-shimmer {
-  background: linear-gradient(110deg, transparent 35%, color-mix(in srgb, var(--fx-ink) 13%, transparent) 50%, transparent 65%);
-  background-size: 200% 100%;
-  animation: auraShimmer calc(5s * var(--spd, 1)) linear infinite;
-}
-@keyframes auraShimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
-.bgfx-pulse {
-  background: radial-gradient(55% 42% at 50% 0%, color-mix(in oklab, var(--fx-glow) 36%, transparent), transparent 70%);
-  animation: auraGlowPulse calc(3s * var(--spd, 1)) ease-in-out infinite;
-}
-@keyframes auraGlowPulse { 0%, 100% { opacity: 0.25; } 50% { opacity: 1; } }
-
-/* Idle keyframes (continuous) */
-@keyframes auraIdleFloat { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-4px); } }
-@keyframes auraIdleScale { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.04); } }
-@keyframes auraIdleHop { 0%, 12%, 70%, 100% { transform: translateY(0); } 40% { transform: translateY(-6px); } }
-@keyframes auraIdleBreathe { 0%, 100% { opacity: 0.8; } 50% { opacity: 1; } }
-@keyframes auraIdleSway { 0%, 100% { transform: rotate(-2deg); } 50% { transform: rotate(2deg); } }
-@keyframes auraIdleRock { 0%, 55%, 100% { transform: rotate(0); } 62% { transform: rotate(-5deg); } 70% { transform: rotate(5deg); } 78% { transform: rotate(-3deg); } 85% { transform: rotate(0); } }
-@keyframes auraIdleDrift { 0%, 100% { transform: translateX(-6px); } 50% { transform: translateX(6px); } }
-@keyframes auraIdleSpin { to { transform: rotate(360deg); } }
-
-/* Idle animations (applied to a wrapper element) */
-.bi-float, .ii-float { animation: auraIdleFloat calc(3s * var(--spd, 1)) ease-in-out infinite; }
-.bi-pulse, .ii-pulse { animation: auraIdleScale calc(2.2s * var(--spd, 1)) ease-in-out infinite; }
-.bi-bounce, .ii-bounce { animation: auraIdleHop calc(1.8s * var(--spd, 1)) ease-in-out infinite; }
-.bi-breathe, .ii-breathe { animation: auraIdleBreathe calc(3s * var(--spd, 1)) ease-in-out infinite; }
-.bi-sway, .ii-sway { animation: auraIdleSway calc(3.5s * var(--spd, 1)) ease-in-out infinite; }
-.bi-wobble, .ii-wobble { animation: auraIdleRock calc(3s * var(--spd, 1)) ease-in-out infinite; }
-.bi-drift, .ii-drift { animation: auraIdleDrift calc(3.2s * var(--spd, 1)) ease-in-out infinite; }
-.ii-spin { display: inline-flex; animation: auraIdleSpin calc(8s * var(--spd, 1)) linear infinite; }
-
-/* Button styles (applied to the link button itself) */
-.cs-surface { background: var(--surface-2); color: var(--text); }
-.cs-deep { background: var(--bg); color: var(--text); border: 1px solid var(--border); }
-.cs-invert { background: var(--text); color: var(--bg); }
-.cs-tint { background: color-mix(in oklab, var(--primary) 16%, transparent); color: var(--text); }
-.cs-glass { background: rgba(255, 255, 255, 0.05); color: var(--text); backdrop-filter: blur(8px); border: 1px solid rgba(255, 255, 255, 0.1); }
-.cs-frost { background: rgba(255, 255, 255, 0.1); color: var(--text); backdrop-filter: blur(14px); border: 1px solid rgba(255, 255, 255, 0.15); }
-.cs-smoke { background: rgba(0, 0, 0, 0.25); color: var(--text); backdrop-filter: blur(8px); border: 1px solid rgba(255, 255, 255, 0.1); }
-.cs-clear { background: rgba(255, 255, 255, 0.03); color: var(--text); backdrop-filter: blur(4px); border: 1px solid rgba(255, 255, 255, 0.1); }
-.cs-hair { border: 1px solid var(--border); color: var(--text); }
-.cs-bold { border: 2px solid color-mix(in oklab, var(--text) 30%, transparent); color: var(--text); }
-.cs-primary { border: 1px solid color-mix(in oklab, var(--primary) 60%, transparent); color: var(--primary); }
-.cs-dashed { border: 1px dashed var(--border); color: var(--text); }
-.cs-soft { background: var(--surface); color: var(--text); box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3); }
-.cs-floaty { background: var(--surface-2); color: var(--text); box-shadow: 0 12px 32px rgba(0, 0, 0, 0.4); }
-.cs-pop { background: var(--surface); color: var(--text); border: 1px solid var(--border); box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3); }
-.cs-lift { background: var(--surface-2); color: var(--text); box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5); }
-.cs-grad-aurora { background: linear-gradient(100deg, var(--primary), var(--accent)); color: var(--primary-ink); }
-.cs-grad-sunset { background: linear-gradient(100deg, #ff6b5e, #ffb347); color: #2a1a14; }
-.cs-grad-ocean { background: linear-gradient(100deg, #3b82f6, #4fd1c5); color: #04342c; }
-.cs-grad-violet { background: linear-gradient(100deg, #a855f7, #5b5bd6); color: #fff; }
-.cs-neon-ring { background: var(--surface); color: var(--primary); border: 1px solid color-mix(in oklab, var(--primary) 70%, transparent); box-shadow: 0 0 20px color-mix(in oklab, var(--primary) 35%, transparent); }
-.cs-neon-glow { background: color-mix(in oklab, var(--primary) 10%, transparent); color: var(--primary); border: 1px solid color-mix(in oklab, var(--primary) 40%, transparent); box-shadow: 0 0 24px color-mix(in oklab, var(--primary) 30%, transparent); }
-.cs-neon-cyber { background: var(--bg); color: var(--secondary); border: 1px solid color-mix(in oklab, var(--secondary) 60%, transparent); box-shadow: 0 0 20px color-mix(in oklab, var(--secondary) 35%, transparent); }
-.cs-neon-magenta { background: var(--bg); color: var(--accent); border: 1px solid color-mix(in oklab, var(--accent) 60%, transparent); box-shadow: 0 0 20px color-mix(in oklab, var(--accent) 35%, transparent); }
-
-/* Button hover effects */
-.bh-scale { transition: transform 0.2s; } .bh-scale:hover { transform: scale(1.03); }
-.bh-lift { transition: transform 0.2s; } .bh-lift:hover { transform: translateY(-2px); }
-.bh-press { transition: transform 0.15s; } .bh-press:hover { transform: scale(0.97); } .bh-press:active { transform: scale(0.93); }
-.bh-slide { transition: transform 0.2s; } .bh-slide:hover { transform: translateX(4px); }
-.bh-tilt { transition: transform 0.2s; } .bh-tilt:hover { transform: rotate(-1.5deg); }
-.bh-skew { transition: transform 0.2s; } .bh-skew:hover { transform: skewX(-4deg); }
-.bh-popup { transition: transform 0.2s; } .bh-popup:hover { transform: translateY(-4px) scale(1.02); }
-.bh-shrink { transition: transform 0.2s; } .bh-shrink:hover { transform: scale(0.98); }
-.bh-brighten { transition: filter 0.2s; } .bh-brighten:hover { filter: brightness(1.12); }
-.bh-saturate { transition: filter 0.2s; } .bh-saturate:hover { filter: saturate(2) brightness(1.12); }
-.bh-fade { transition: opacity 0.2s; } .bh-fade:hover { opacity: 0.8; }
-.bh-glow { transition: box-shadow 0.2s; } .bh-glow:hover { box-shadow: 0 0 24px color-mix(in oklab, var(--primary) 45%, transparent); }
-.bh-shadow { transition: box-shadow 0.2s; } .bh-shadow:hover { box-shadow: 0 12px 32px rgba(0, 0, 0, 0.45); }
-.bh-underglow { transition: box-shadow 0.2s; } .bh-underglow:hover { box-shadow: 0 8px 30px color-mix(in oklab, var(--primary) 40%, transparent); }
-.bh-growglow { transition: transform 0.2s, box-shadow 0.2s; } .bh-growglow:hover { transform: scale(1.03); box-shadow: 0 0 24px color-mix(in oklab, var(--primary) 40%, transparent); }
-.bh-ring { transition: box-shadow 0.2s; } .bh-ring:hover { box-shadow: 0 0 0 2px color-mix(in oklab, var(--primary) 50%, transparent); }
-.bh-outline { transition: box-shadow 0.2s; } .bh-outline:hover { box-shadow: 0 0 0 1px color-mix(in oklab, var(--text) 25%, transparent); }
-.bh-shine { position: relative; overflow: hidden; }
-.bh-shine::before { content: ""; position: absolute; inset: 0; background: linear-gradient(120deg, transparent 30%, rgba(255, 255, 255, 0.28) 50%, transparent 70%); transform: translateX(-150%); transition: transform 0.6s ease; }
-.bh-shine:hover::before { transform: translateX(150%); }
-.bh-pulse:hover { animation: auraPulse 0.7s ease-in-out infinite; }
-.bh-wobble:hover { animation: auraWobble 0.5s ease-in-out; }
-.bh-bounce:hover { animation: auraBounce 0.6s ease; }
-.bh-jelly:hover { animation: auraJelly 0.5s ease; }
-
-/* Icon hover effects */
-.ih-scale { transition: transform 0.2s; } .ih-scale:hover { transform: scale(1.25); }
-.ih-pop { transition: transform 0.2s; } .ih-pop:hover { transform: scale(1.5); }
-.ih-lift { transition: transform 0.2s; } .ih-lift:hover { transform: translateY(-4px); }
-.ih-drop { transition: transform 0.2s; } .ih-drop:hover { transform: translateY(4px); }
-.ih-spin { transition: transform 0.3s; } .ih-spin:hover { transform: rotate(180deg); }
-.ih-tilt { transition: transform 0.2s; } .ih-tilt:hover { transform: rotate(12deg); }
-.ih-flip { transition: transform 0.2s; } .ih-flip:hover { transform: scaleX(-1); }
-.ih-color { transition: color 0.2s; } .ih-color:hover { color: var(--primary); }
-.ih-fade { transition: opacity 0.2s; } .ih-fade:hover { opacity: 0.6; }
-.ih-glow { transition: filter 0.2s, color 0.2s; } .ih-glow:hover { color: var(--primary); filter: drop-shadow(0 0 8px color-mix(in oklab, var(--primary) 60%, transparent)); }
-.ih-growcolor { transition: transform 0.2s, color 0.2s; } .ih-growcolor:hover { transform: scale(1.25); color: var(--primary); }
-.ih-wiggle:hover { animation: auraWiggle 0.4s ease-in-out; }
-.ih-bounce:hover { animation: auraBounce 0.5s ease; }
-.ih-pulse:hover { animation: auraPulse 0.6s ease-in-out infinite; }
-.ih-shake:hover { animation: auraShake 0.4s ease-in-out; }
-
-/* ===== Typography scale (multiplies the renderer's text sizes) ===== */
-.aura-typescale h1 { font-size: calc(1.5rem * var(--ts, 1)); }
-.aura-typescale h2 { font-size: calc(1.125rem * var(--ts, 1)); }
-.aura-typescale p { font-size: calc(0.875rem * var(--ts, 1)); }
-
-/* ===== Brutalist / Retro button styles ===== */
-.cs-brutal { background: var(--surface-2); color: var(--text); border: 2px solid var(--text); box-shadow: 4px 4px 0 0 var(--text); }
-.cs-brutal-accent { background: var(--primary); color: var(--primary-ink); border: 2px solid var(--text); box-shadow: 4px 4px 0 0 var(--text); }
-.cs-brutal-mono { background: var(--bg); color: var(--text); border: 2px solid var(--border); box-shadow: 5px 5px 0 0 var(--border); }
-.cs-retro-double { background: var(--surface); color: var(--text); border: 1px solid var(--text); outline: 1px solid var(--text); outline-offset: 3px; }
-.cs-retro-inset { background: var(--surface-2); color: var(--text); box-shadow: inset 0 2px 6px rgba(0,0,0,0.5), inset 0 -1px 0 rgba(255,255,255,0.08); }
-.cs-retro-stripe { background: repeating-linear-gradient(45deg, var(--surface-2) 0 10px, var(--surface) 10px 20px); color: var(--text); border: 1px solid var(--border); }
-
-/* ===== Special button styles (Pro) ===== */
-.cs-sp-sticker { background: var(--text); color: var(--bg); border: 3px solid #fff; box-shadow: 0 6px 18px rgba(0,0,0,0.45); transform: rotate(-1.2deg); }
-.cs-sp-ticket {
-  background: var(--surface-2); color: var(--text); border: 1px dashed color-mix(in oklab, var(--primary) 55%, transparent);
-  -webkit-mask: radial-gradient(circle 9px at 0 50%, transparent 98%, #000) left / 51% 100% no-repeat,
-                radial-gradient(circle 9px at 100% 50%, transparent 98%, #000) right / 51% 100% no-repeat;
-  mask: radial-gradient(circle 9px at 0 50%, transparent 98%, #000) left / 51% 100% no-repeat,
-        radial-gradient(circle 9px at 100% 50%, transparent 98%, #000) right / 51% 100% no-repeat;
-}
-.cs-sp-slant { background: color-mix(in oklab, var(--primary) 14%, var(--surface-2)); color: var(--text); clip-path: polygon(3% 0, 100% 0, 97% 100%, 0 100%); }
-.cs-sp-underline { background: transparent; color: var(--text); border-radius: 0 !important; border-bottom: 2px solid var(--primary); }
-.cs-sp-3d { background: var(--surface-2); color: var(--text); border: 1px solid var(--border); border-bottom: 4px solid color-mix(in oklab, var(--primary) 70%, transparent); }
-.cs-sp-aurora-edge { position: relative; background: var(--surface); color: var(--text); z-index: 0; }
-.cs-sp-aurora-edge::before {
-  content: ""; position: absolute; inset: -2px; border-radius: inherit; z-index: -1; padding: 2px;
-  background: linear-gradient(100deg, var(--primary), var(--accent), var(--secondary), var(--primary));
-  background-size: 250% 100%;
-  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
-  -webkit-mask-composite: xor; mask-composite: exclude;
-  animation: auraEdgeFlow calc(5s * var(--spd, 1)) linear infinite;
-}
-@keyframes auraEdgeFlow { to { background-position: 250% 0; } }
-
-/* Slanted button shape (clip-path can't live in Tailwind utility maps) */
-.shape-slant { border-radius: 0 !important; clip-path: polygon(6% 0, 100% 0, 94% 100%, 0 100%); }
-
-/* ===== Dividers — all tapered at the far edges via mask ===== */
-.dv {
-  --dvc: var(--border);
-  width: 100%;
-  -webkit-mask-image: linear-gradient(90deg, transparent, #000 18%, #000 82%, transparent);
-  mask-image: linear-gradient(90deg, transparent, #000 18%, #000 82%, transparent);
-}
-.dv-line { height: 1px; background: var(--dvc); }
-.dv-dashed { height: 0; border-top: 2px dashed var(--dvc); }
-.dv-dotted { height: 0; border-top: 3px dotted var(--dvc); }
-.dv-glow { height: 2px; background: var(--dvc); box-shadow: 0 0 12px 1px var(--dvc); border-radius: 2px; }
-.dv-double { height: 7px; border-top: 1px solid var(--dvc); border-bottom: 1px solid var(--dvc); }
-.dv-wave {
-  height: 7px;
-  background: radial-gradient(circle at 50% 130%, transparent 0 3px, var(--dvc) 3px 4px, transparent 4.5px) 0 0 / 14px 7px repeat-x;
-}
-.dv-shimmer {
-  height: 2px;
-  border-radius: 2px;
-  background: linear-gradient(90deg, var(--dvc), color-mix(in oklab, var(--dvc) 20%, white), var(--dvc));
-  background-size: 200% 100%;
-  animation: auraShimmer calc(3s * var(--spd, 1)) linear infinite;
-}
-.dv-march { height: 0; border-top: 3px dashed var(--dvc); animation: auraMarch calc(1.2s * var(--spd, 1)) linear infinite; }
-@keyframes auraMarch { to { transform: translateX(14px); } }
-.dv-pulse { height: 2px; background: var(--dvc); box-shadow: 0 0 14px 2px var(--dvc); border-radius: 2px; animation: auraGlowPulse calc(2.4s * var(--spd, 1)) ease-in-out infinite; }
-
-/* ===== Extra button hover effects ===== */
-.bh-expand { transition: transform 0.25s, letter-spacing 0.25s; } .bh-expand:hover { transform: scale(1.02); letter-spacing: 0.04em; }
-.bh-magnetic { transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1); } .bh-magnetic:hover { transform: translateY(-3px) scale(1.04); }
-.bh-depth { transition: transform 0.2s, box-shadow 0.2s; } .bh-depth:hover { transform: translateY(-2px); box-shadow: 0 10px 0 -2px color-mix(in oklab, var(--primary) 40%, transparent), 0 18px 30px rgba(0,0,0,0.4); }
-
-/* ===== Extra background effects ===== */
-.bgfx-starfield {
-  background-image:
-    radial-gradient(2.5px 2.5px at 20% 30%, var(--fx-ink), transparent),
-    radial-gradient(2.5px 2.5px at 70% 65%, color-mix(in srgb, var(--fx-ink) 80%, transparent), transparent),
-    radial-gradient(3px 3px at 40% 80%, color-mix(in srgb, var(--fx-ink) 70%, transparent), transparent),
-    radial-gradient(2.5px 2.5px at 85% 20%, color-mix(in srgb, var(--fx-ink) 90%, transparent), transparent),
-    radial-gradient(2px 2px at 55% 45%, color-mix(in srgb, var(--fx-ink) 70%, transparent), transparent),
-    radial-gradient(2px 2px at 8% 85%, color-mix(in srgb, var(--fx-ink) 80%, transparent), transparent),
-    radial-gradient(3.5px 3.5px at 12% 62%, var(--fx-glow), transparent),
-    radial-gradient(3px 3px at 92% 88%, var(--fx-glow2), transparent);
-  background-size: 130px 130px;
-}
-.bgfx-halftone {
-  background: radial-gradient(color-mix(in srgb, var(--fx-ink) 50%, transparent) 1.6px, transparent 2.2px) 0 0 / 15px 15px;
-  -webkit-mask-image: linear-gradient(180deg, #000, rgba(0, 0, 0, 0.25) 55%, transparent 85%);
-  mask-image: linear-gradient(180deg, #000, rgba(0, 0, 0, 0.25) 55%, transparent 85%);
-}
-.bgfx-beam { background: linear-gradient(115deg, transparent 38%, color-mix(in oklab, var(--fx-glow) 30%, transparent) 50%, transparent 62%); }
-.bgfx-meshmove {
-  background:
-    radial-gradient(40% 40% at 20% 20%, color-mix(in oklab, var(--fx-glow) 34%, transparent), transparent 60%),
-    radial-gradient(40% 40% at 80% 70%, color-mix(in oklab, var(--fx-glow2) 34%, transparent), transparent 60%);
-  background-size: 180% 180%;
-  animation: auraMeshMove calc(10s * var(--spd, 1)) ease-in-out infinite;
-}
-@keyframes auraMeshMove { 0%, 100% { background-position: 0% 0%; } 50% { background-position: 100% 100%; } }
-.bgfx-rotate { overflow: hidden; }
-.bgfx-rotate::before {
-  content: "";
-  position: absolute;
-  left: 50%;
-  top: 30%;
-  width: 220vmax;
-  height: 220vmax;
-  margin: -110vmax 0 0 -110vmax;
-  background: conic-gradient(from 0deg, color-mix(in oklab, var(--fx-glow) 28%, transparent), transparent 30%, color-mix(in oklab, var(--fx-glow2) 28%, transparent) 60%, transparent 90%);
-  animation: auraRotate calc(14s * var(--spd, 1)) linear infinite;
-}
-@keyframes auraRotate { to { transform: rotate(360deg); } }
-
-/* ===== Creative button hover effects ===== */
-.bh-glitch { position: relative; transition: transform 0.1s; }
-.bh-glitch:hover { animation: auraGlitch 0.35s steps(2) infinite; text-shadow: 1.5px 0 #ff3b6b, -1.5px 0 #22d3ee; }
-@keyframes auraGlitch { 0%,100% { transform: translate(0); } 25% { transform: translate(-1.5px,1px); } 50% { transform: translate(1.5px,-1px); } 75% { transform: translate(-1px,-1px); } }
-
-.bh-rainbow { position: relative; z-index: 0; }
-.bh-rainbow::before {
-  content: ""; position: absolute; inset: -2px; border-radius: inherit; z-index: -1; padding: 2px;
-  background: conic-gradient(from 0deg, #ff3b6b, #fbbf24, #34d399, #22d3ee, #a855f7, #ff3b6b);
-  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
-  -webkit-mask-composite: xor; mask-composite: exclude;
-  opacity: 0; transition: opacity 0.2s;
-}
-.bh-rainbow:hover::before { opacity: 1; animation: auraSpin 2.5s linear infinite; }
-@keyframes auraSpin { to { transform: rotate(360deg); } }
-
-.bh-liquid { transition: transform 0.4s cubic-bezier(0.68,-0.55,0.27,1.55), border-radius 0.4s; }
-.bh-liquid:hover { transform: scale(1.05); border-radius: 40% 60% 55% 45% / 55% 45% 55% 45%; }
-
-.bh-neonflicker { transition: text-shadow 0.2s, box-shadow 0.2s; }
-.bh-neonflicker:hover {
-  animation: auraNeon 1.4s infinite alternate;
-  box-shadow: 0 0 8px color-mix(in oklab, var(--primary) 60%, transparent), 0 0 22px color-mix(in oklab, var(--primary) 35%, transparent);
-}
-@keyframes auraNeon { 0%,18%,22%,100% { opacity: 1; } 20% { opacity: 0.7; } }
-
-/* ===== Extra overlay / glow / animated background effects ===== */
-.bgfx-topfade { background: linear-gradient(180deg, rgba(0,0,0,0.6), transparent 42%); }
-.bgfx-bottomfade { background: linear-gradient(0deg, rgba(0,0,0,0.6), transparent 45%); }
-.bgfx-frame { box-shadow: inset 0 0 0 10px rgba(0,0,0,0.35), inset 0 0 0 11.5px color-mix(in oklab, var(--fx-glow) 85%, transparent); }
-.bgfx-haze { background: radial-gradient(80% 60% at 50% 40%, color-mix(in srgb, var(--fx-ink) 13%, transparent), transparent 70%); }
-.bgfx-sideglow {
-  background:
-    radial-gradient(32% 58% at 0% 50%, color-mix(in oklab, var(--fx-glow) 34%, transparent), transparent 70%),
-    radial-gradient(32% 58% at 100% 50%, color-mix(in oklab, var(--fx-glow2) 34%, transparent), transparent 70%);
-}
-.bgfx-underglow { background: radial-gradient(60% 42% at 50% 100%, color-mix(in oklab, var(--fx-glow) 38%, transparent), transparent 70%); }
-.bgfx-stardrift {
-  background-image:
-    radial-gradient(3px 3px at 20% 30%, var(--fx-ink), transparent),
-    radial-gradient(3px 3px at 70% 65%, color-mix(in srgb, var(--fx-ink) 85%, transparent), transparent),
-    radial-gradient(3.5px 3.5px at 40% 80%, color-mix(in srgb, var(--fx-ink) 75%, transparent), transparent),
-    radial-gradient(3px 3px at 85% 20%, color-mix(in srgb, var(--fx-ink) 90%, transparent), transparent),
-    radial-gradient(2.5px 2.5px at 55% 48%, color-mix(in srgb, var(--fx-ink) 75%, transparent), transparent),
-    radial-gradient(2.5px 2.5px at 10% 78%, color-mix(in srgb, var(--fx-ink) 80%, transparent), transparent),
-    radial-gradient(3px 3px at 33% 10%, color-mix(in srgb, var(--fx-ink) 85%, transparent), transparent),
-    radial-gradient(3.5px 3.5px at 90% 42%, var(--fx-glow), transparent);
-  background-size: 130px 130px;
-  animation: auraStarDrift calc(18s * var(--spd, 1)) linear infinite;
-}
-@keyframes auraStarDrift { to { background-position: 130px 260px; } }
-
-/* ===== Interactive (pointer-following) background effects ===== */
-.bgfx-cursorglow {
-  background: radial-gradient(
-    320px circle at var(--mx, 50%) var(--my, 30%),
-    color-mix(in oklab, var(--fx-glow) 40%, transparent),
-    transparent 70%
-  );
-}
-.bgfx-cursorgrid {
-  background:
-    linear-gradient(color-mix(in oklab, var(--fx-glow) 70%, transparent) 1px, transparent 1px) 0 0 / 44px 44px,
-    linear-gradient(90deg, color-mix(in oklab, var(--fx-glow) 70%, transparent) 1px, transparent 1px) 0 0 / 44px 44px;
-  -webkit-mask-image: radial-gradient(260px circle at var(--mx, 50%) var(--my, 30%), #000 0%, rgba(0,0,0,0.45) 55%, transparent 80%);
-  mask-image: radial-gradient(260px circle at var(--mx, 50%) var(--my, 30%), #000 0%, rgba(0,0,0,0.45) 55%, transparent 80%);
-}
-.bgfx-cursorspot {
-  background: rgba(0, 0, 0, 0.5);
-  -webkit-mask-image: radial-gradient(280px circle at var(--mx, 50%) var(--my, 30%), transparent 0%, transparent 35%, #000 78%);
-  mask-image: radial-gradient(280px circle at var(--mx, 50%) var(--my, 30%), transparent 0%, transparent 35%, #000 78%);
+.site-card {
+  background: var(--site-surface);
+  border: 1px solid var(--site-border);
+  border-radius: var(--site-radius);
+  backdrop-filter: blur(10px);
 }
 
-/* ===== Creative background effects ===== */
-.bgfx-gridpersp {
-  background-image:
-    linear-gradient(color-mix(in oklab, var(--fx-glow) 60%, transparent) 1px, transparent 1px),
-    linear-gradient(90deg, color-mix(in oklab, var(--fx-glow) 60%, transparent) 1px, transparent 1px);
-  background-size: 44px 44px;
-  background-position: center bottom;
-  transform: perspective(340px) rotateX(58deg) scale(1.6);
-  transform-origin: center bottom;
-  opacity: 0.65;
-  -webkit-mask-image: linear-gradient(to top, #000 5%, transparent 70%);
-  mask-image: linear-gradient(to top, #000 5%, transparent 70%);
+/* thin scrollbars for editor panels */
+.thin-scroll::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
 }
-.bgfx-orbs::before, .bgfx-orbs::after {
-  content: ""; position: absolute; border-radius: 50%; filter: blur(48px); opacity: 0.6;
-}
-.bgfx-orbs::before { width: 260px; height: 260px; left: -40px; top: 8%; background: color-mix(in oklab, var(--fx-glow) 80%, transparent); animation: auraOrbA calc(9s * var(--spd, 1)) ease-in-out infinite; }
-.bgfx-orbs::after { width: 220px; height: 220px; right: -30px; bottom: 6%; background: color-mix(in oklab, var(--fx-glow2) 80%, transparent); animation: auraOrbB calc(12s * var(--spd, 1)) ease-in-out infinite; }
-@keyframes auraOrbA { 0%,100% { transform: translate(0,0); } 50% { transform: translate(56px,44px); } }
-@keyframes auraOrbB { 0%,100% { transform: translate(0,0); } 50% { transform: translate(-52px,-36px); } }
-.bgfx-aurorawave {
-  background: linear-gradient(120deg, color-mix(in oklab, var(--fx-glow) 36%, transparent), transparent 35%, color-mix(in oklab, var(--fx-glow2) 36%, transparent) 65%, transparent);
-  background-size: 220% 220%;
-  filter: blur(6px);
-  animation: auraWave calc(7s * var(--spd, 1)) ease-in-out infinite;
-}
-@keyframes auraWave { 0%,100% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } }
-.bgfx-rays {
-  overflow: hidden;
-  -webkit-mask-image: linear-gradient(to bottom, #000 0%, transparent 72%);
-  mask-image: linear-gradient(to bottom, #000 0%, transparent 72%);
-}
-.bgfx-rays::before {
-  content: ""; position: absolute; left: 50%; top: 0;
-  width: 220vmax; height: 220vmax;
-  transform: translateX(-50%);
-  transform-origin: 50% 0;
-  background: repeating-conic-gradient(
-    from -14deg at 50% 0%,
-    color-mix(in oklab, var(--fx-glow) 26%, transparent) 0deg 5deg,
-    transparent 5deg 16deg
-  );
-  animation: auraRays calc(12s * var(--spd, 1)) ease-in-out infinite alternate;
-}
-@keyframes auraRays {
-  from { transform: translateX(-50%) rotate(-5deg); }
-  to { transform: translateX(-50%) rotate(5deg); }
-}
-.bgfx-blobs::before, .bgfx-blobs::after {
-  content: ""; position: absolute; border-radius: 50%; filter: blur(56px); opacity: 0.55;
-}
-.bgfx-blobs::before {
-  width: 320px; height: 320px; left: -60px; top: 12%;
-  background: color-mix(in oklab, var(--fx-glow) 80%, transparent);
-  animation: auraBlobA calc(10s * var(--spd, 1)) ease-in-out infinite;
-}
-.bgfx-blobs::after {
-  width: 280px; height: 280px; right: -50px; bottom: 8%;
-  background: color-mix(in oklab, var(--fx-glow2) 80%, transparent);
-  animation: auraBlobB calc(13s * var(--spd, 1)) ease-in-out infinite;
-}
-@keyframes auraBlobA {
-  0%, 100% { transform: translate(0, 0) scale(1); border-radius: 50%; }
-  33% { transform: translate(70px, 40px) scale(1.15); border-radius: 58% 42% 55% 45% / 45% 58% 42% 55%; }
-  66% { transform: translate(20px, 90px) scale(0.92); border-radius: 42% 58% 45% 55% / 55% 42% 58% 45%; }
-}
-@keyframes auraBlobB {
-  0%, 100% { transform: translate(0, 0) scale(1); border-radius: 50%; }
-  50% { transform: translate(-80px, -50px) scale(1.2); border-radius: 60% 40% 45% 55% / 50% 60% 40% 50%; }
-}
-.bgfx-sparkle {
-  background-image:
-    radial-gradient(3px 3px at 18% 22%, var(--fx-ink), transparent),
-    radial-gradient(2.5px 2.5px at 65% 38%, var(--fx-glow), transparent),
-    radial-gradient(3px 3px at 82% 70%, var(--fx-ink), transparent),
-    radial-gradient(2.5px 2.5px at 35% 78%, var(--fx-glow2), transparent),
-    radial-gradient(2px 2px at 50% 12%, var(--fx-ink), transparent),
-    radial-gradient(2px 2px at 10% 60%, var(--fx-ink), transparent),
-    radial-gradient(2px 2px at 90% 45%, var(--fx-glow), transparent);
-  background-size: 120px 120px;
-  animation: auraSparkle calc(2.6s * var(--spd, 1)) ease-in-out infinite;
-}
-@keyframes auraSparkle { 0%, 100% { opacity: 0.2; } 50% { opacity: 1; } }
-
-@media (prefers-reduced-motion: reduce) {
-  .bi-float, .bi-pulse, .bi-bounce, .bi-breathe, .bi-sway, .bi-wobble, .bi-drift,
-  .ii-float, .ii-pulse, .ii-bounce, .ii-breathe, .ii-sway, .ii-wobble, .ii-drift, .ii-spin,
-  .bh-pulse:hover, .bh-wobble:hover, .bh-bounce:hover, .bh-jelly:hover,
-  .bh-glitch:hover, .bh-rainbow:hover::before, .bh-neonflicker:hover,
-  .ih-wiggle:hover, .ih-bounce:hover, .ih-pulse:hover, .ih-shake:hover,
-  .bgfx-aurora, .bgfx-shimmer, .bgfx-pulse, .bgfx-meshmove, .bgfx-rotate::before, .bgfx-rays::before,
-  .bgfx-stardrift, .bgfx-sparkle, .bgfx-blobs::before, .bgfx-blobs::after,
-  .dv-shimmer, .dv-march, .dv-pulse, .cs-sp-aurora-edge::before,
-  .bgfx-orbs::before, .bgfx-orbs::after, .bgfx-aurorawave { animation: none; }
+.thin-scroll::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.14);
+  border-radius: 3px;
 }
