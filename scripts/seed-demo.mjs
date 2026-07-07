@@ -1,9 +1,58 @@
-// Seed a demo business so there's something to look at right after cloning:
-//   email demo@hila.co.il / password demo1234 · public page at /dana
+// Seeds (idempotent, runs on every deploy):
+//   1. Gal's admin account — galkondrashov1@gmail.com / 52465246, role ADMIN
+//   2. Demo business — demo@hila.co.il / demo1234 · public page at /dana
 import { PrismaClient } from "@prisma/client";
 import bcrypt from "bcryptjs";
 
 const prisma = new PrismaClient();
+
+// ── platform admin (Gal) ────────────────────────────────────────────────
+const admin = await prisma.business.upsert({
+  where: { email: "galkondrashov1@gmail.com" },
+  // Keep the account as-is on redeploys, but make sure it stays ADMIN.
+  update: { role: "ADMIN" },
+  create: {
+    email: "galkondrashov1@gmail.com",
+    passwordHash: await bcrypt.hash("52465246", 10),
+    ownerName: "גל",
+    name: "הילה HQ",
+    slug: "gal",
+    role: "ADMIN",
+    plan: "BUSINESS",
+    site: {
+      create: {
+        content: {
+          emoji: "😇",
+          tagline: "ההילה של העסק שלך",
+          about: "",
+          ctaText: "לקביעת פגישה",
+          phone: "",
+          whatsapp: "",
+          instagram: "",
+          facebook: "",
+          address: "",
+          showServices: true,
+          showHours: true,
+          showAbout: true,
+        },
+        design: {
+          theme: "hila-night",
+          background: "halo-night",
+          accent: "#f0b429",
+          font: "secular",
+          button: "pill",
+          buttonFill: "glow",
+          corners: "xl",
+          effects: "halo",
+        },
+      },
+    },
+    hours: {
+      create: [0, 1, 2, 3, 4].map((day) => ({ day, startMin: 540, endMin: 1020 })),
+    },
+  },
+});
+console.log(`Seeded admin: ${admin.email} (role=${admin.role}) → /${admin.slug}`);
 
 const biz = await prisma.business.upsert({
   where: { email: "demo@hila.co.il" },

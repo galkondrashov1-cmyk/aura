@@ -20,6 +20,8 @@ model Business {
   name         String // business display name
   slug         String   @unique // public URL: /{slug}
   phone        String?
+  role         String   @default("OWNER") // OWNER | ADMIN
+  status       String   @default("ACTIVE") // ACTIVE | SUSPENDED
   plan         String   @default("FREE") // FREE | DESIGN | BUSINESS
   autoConfirm  Boolean  @default(true) // booking: auto-confirm vs owner approval
   slotStepMin  Int      @default(15) // slot grid granularity (minutes)

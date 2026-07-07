@@ -37,6 +37,7 @@ export default async function PublicBusinessPage({ params }: Props) {
   const { slug } = await params;
   const biz = await loadBusiness(slug);
   if (!biz || !biz.site) notFound();
+  if (biz.status !== "ACTIVE") notFound(); // suspended by admin
 
   // Owners can preview their own draft; everyone else sees published only.
   const session = await getSession();

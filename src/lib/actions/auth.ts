@@ -4,7 +4,7 @@ import { redirect } from "next/navigation";
 import { z } from "zod";
 import bcrypt from "bcryptjs";
 import { prisma } from "@/lib/prisma";
-import { createSession, destroySession } from "@/lib/session";
+import { createSession, destroySession, sessionOf } from "@/lib/session";
 import { DEFAULT_CONTENT } from "@/lib/content";
 import { DEFAULT_DESIGN } from "@/lib/design";
 
@@ -66,14 +66,7 @@ export async function signupAction(_prev: AuthState, formData: FormData): Promis
     },
   });
 
-  await createSession({
-    id: biz.id,
-    email: biz.email,
-    slug: biz.slug,
-    name: biz.name,
-    ownerName: biz.ownerName,
-    plan: biz.plan,
-  });
+  await createSession(sessionOf(biz));
   redirect("/dashboard");
 }
 
@@ -94,14 +87,7 @@ export async function loginAction(_prev: AuthState, formData: FormData): Promise
   if (!biz || !(await bcrypt.compare(parsed.data.password, biz.passwordHash))) {
     return { error: "אימייל או סיסמה שגויים" };
   }
-  await createSession({
-    id: biz.id,
-    email: biz.email,
-    slug: biz.slug,
-    name: biz.name,
-    ownerName: biz.ownerName,
-    plan: biz.plan,
-  });
+  await createSession(sessionOf(biz));
   redirect("/dashboard");
 }
 

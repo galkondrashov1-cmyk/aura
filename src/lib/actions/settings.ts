@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import bcrypt from "bcryptjs";
 import { prisma } from "@/lib/prisma";
-import { getSession, createSession } from "@/lib/session";
+import { getSession, createSession, sessionOf } from "@/lib/session";
 import { RESERVED_SLUGS } from "@/lib/reserved";
 
 export type SettingsState = { error?: string; saved?: boolean } | null;
@@ -43,14 +43,7 @@ export async function saveSettings(_prev: SettingsState, formData: FormData): Pr
     where: { id: session.id },
     data: { name: businessName, ownerName, slug, phone: phone ?? null },
   });
-  await createSession({
-    id: biz.id,
-    email: biz.email,
-    slug: biz.slug,
-    name: biz.name,
-    ownerName: biz.ownerName,
-    plan: biz.plan,
-  });
+  await createSession(sessionOf(biz));
   revalidatePath("/dashboard/settings");
   return { saved: true };
 }

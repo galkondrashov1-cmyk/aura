@@ -12,9 +12,9 @@ export async function GET(req: Request) {
 
   const biz = await prisma.business.findUnique({
     where: { slug },
-    select: { id: true, plan: true, site: { select: { published: true } } },
+    select: { id: true, plan: true, status: true, site: { select: { published: true } } },
   });
-  if (!biz?.site?.published || !caps(asPlan(biz.plan)).booking) {
+  if (!biz?.site?.published || biz.status !== "ACTIVE" || !caps(asPlan(biz.plan)).booking) {
     return NextResponse.json({ slots: [] }, { status: 404 });
   }
   const service = await prisma.service.findFirst({

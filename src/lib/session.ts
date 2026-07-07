@@ -15,7 +15,29 @@ export type SessionBusiness = {
   name: string;
   ownerName: string;
   plan: string;
+  role?: string; // OWNER | ADMIN (older cookies may not carry it)
 };
+
+/** Build the session payload from a Business row. */
+export function sessionOf(biz: {
+  id: string;
+  email: string;
+  slug: string;
+  name: string;
+  ownerName: string;
+  plan: string;
+  role: string;
+}): SessionBusiness {
+  return {
+    id: biz.id,
+    email: biz.email,
+    slug: biz.slug,
+    name: biz.name,
+    ownerName: biz.ownerName,
+    plan: biz.plan,
+    role: biz.role,
+  };
+}
 
 export async function signSession(biz: SessionBusiness): Promise<string> {
   return new SignJWT({ biz })

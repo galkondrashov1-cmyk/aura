@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
-import { getSession, createSession } from "@/lib/session";
+import { getSession, createSession, sessionOf } from "@/lib/session";
 import { asPlan, type Plan } from "@/lib/plans";
 
 // DEMO billing: "upgrading" just flips the plan. A real payment provider
@@ -15,14 +15,7 @@ export async function setPlan(plan: Plan) {
     where: { id: session.id },
     data: { plan: asPlan(plan) },
   });
-  await createSession({
-    id: biz.id,
-    email: biz.email,
-    slug: biz.slug,
-    name: biz.name,
-    ownerName: biz.ownerName,
-    plan: biz.plan,
-  });
+  await createSession(sessionOf(biz));
   revalidatePath("/dashboard");
   revalidatePath(`/${biz.slug}`);
 }

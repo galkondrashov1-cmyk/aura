@@ -26,7 +26,15 @@ const ITEMS = [
   { href: "/dashboard/settings", label: "הגדרות", icon: HaloGear },
 ];
 
-export function DashboardNav({ slug, businessName }: { slug: string; businessName: string }) {
+export function DashboardNav({
+  slug,
+  businessName,
+  isAdmin = false,
+}: {
+  slug: string;
+  businessName: string;
+  isAdmin?: boolean;
+}) {
   const pathname = usePathname();
   return (
     <>
@@ -37,6 +45,14 @@ export function DashboardNav({ slug, businessName }: { slug: string; businessNam
         </Link>
         <p className="mb-5 truncate px-2 text-xs text-ink-2">{businessName}</p>
         <nav className="flex flex-1 flex-col gap-1">
+          {isAdmin && (
+            <Link
+              href="/admin"
+              className="mb-1 flex items-center gap-3 rounded-xl border border-viole/30 bg-viole/8 px-3 py-2.5 text-sm font-bold text-viole transition hover:bg-viole/15"
+            >
+              👑 פאנל ניהול
+            </Link>
+          )}
           {ITEMS.map((item) => {
             const active = item.exact ? pathname === item.href : pathname.startsWith(item.href);
             return (
@@ -77,6 +93,11 @@ export function DashboardNav({ slug, businessName }: { slug: string; businessNam
           <HilaLogo size={22} />
         </Link>
         <div className="flex items-center gap-1">
+          {isAdmin && (
+            <Link href="/admin" className="rounded-lg p-2 text-viole" aria-label="פאנל ניהול">
+              👑
+            </Link>
+          )}
           <a href={`/${slug}`} target="_blank" rel="noopener noreferrer" className="rounded-lg p-2 text-ink-2 hover:text-ink">
             <ExternalLink className="h-5 w-5" />
           </a>

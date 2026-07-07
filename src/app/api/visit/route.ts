@@ -7,9 +7,11 @@ export async function POST(req: Request) {
     if (typeof slug !== "string") return NextResponse.json({ ok: false }, { status: 400 });
     const biz = await prisma.business.findUnique({
       where: { slug },
-      select: { id: true, site: { select: { published: true } } },
+      select: { id: true, status: true, site: { select: { published: true } } },
     });
-    if (!biz?.site?.published) return NextResponse.json({ ok: false }, { status: 404 });
+    if (!biz?.site?.published || biz.status !== "ACTIVE") {
+      return NextResponse.json({ ok: false }, { status: 404 });
+    }
     await prisma.visit.create({
       data: {
         businessId: biz.id,

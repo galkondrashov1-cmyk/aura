@@ -24,7 +24,7 @@ export default async function BookPage({ params }: Props) {
       hours: true,
     },
   });
-  if (!biz?.site?.published) notFound();
+  if (!biz?.site?.published || biz.status !== "ACTIVE") notFound();
   const plan = asPlan(biz.plan);
   if (!caps(plan).booking || biz.services.length === 0) notFound();
 

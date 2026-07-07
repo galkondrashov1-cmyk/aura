@@ -38,9 +38,15 @@ export async function POST(req: Request) {
 
   const biz = await prisma.business.findUnique({
     where: { slug },
-    select: { id: true, plan: true, autoConfirm: true, site: { select: { published: true } } },
+    select: {
+      id: true,
+      plan: true,
+      status: true,
+      autoConfirm: true,
+      site: { select: { published: true } },
+    },
   });
-  if (!biz?.site?.published || !caps(asPlan(biz.plan)).booking) {
+  if (!biz?.site?.published || biz.status !== "ACTIVE" || !caps(asPlan(biz.plan)).booking) {
     return NextResponse.json({ error: "העסק לא מקבל תורים אונליין" }, { status: 404 });
   }
 
