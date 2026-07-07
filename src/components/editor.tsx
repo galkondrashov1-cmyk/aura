@@ -4,8 +4,8 @@
 // Everything edits local state; "שמירה" persists via the saveSite action.
 import { useMemo, useState, useTransition } from "react";
 import Link from "next/link";
-import { Check, Lock, Save, Sparkles } from "lucide-react";
-import { saveSite } from "@/lib/actions/site";
+import { Check, Eye, Lock, Sparkles } from "lucide-react";
+import { publishSite, saveSite } from "@/lib/actions/site";
 import type { SiteContent } from "@/lib/content";
 import {
   ACCENTS,
@@ -24,7 +24,6 @@ import { caps, type Plan } from "@/lib/plans";
 import { cn } from "@/lib/utils";
 import { Input, Label, Textarea } from "@/components/ui";
 import { SiteRenderer, type RenderHour, type RenderService } from "@/components/site-renderer";
-import { PublishToggle } from "@/components/dashboard-bits";
 
 type Props = {
   businessName: string;
@@ -43,6 +42,7 @@ export function Editor(props: Props) {
   const [content, setContent] = useState(props.initialContent);
   const [design, setDesign] = useState(props.initialDesign);
   const [saved, setSaved] = useState(true);
+  const [published, setPublished] = useState(props.published);
   const [pending, startTransition] = useTransition();
 
   const setC = <K extends keyof SiteContent>(k: K, v: SiteContent[K]) => {
@@ -54,11 +54,31 @@ export function Editor(props: Props) {
     setSaved(false);
   };
 
-  const save = () =>
+  // "פרסם" — one click: saves the draft and makes sure the page is live.
+  const publish = () =>
+    startTransition(async () => {
+      await saveSite({ content, design });
+      if (!published) {
+        await publishSite(true);
+        setPublished(true);
+      }
+      setSaved(true);
+    });
+
+  // "צפה בהילה שלך" — flushes unsaved changes first so what you see is
+  // what you built. (The tab opens immediately to stay popup-blocker-safe.)
+  const viewMyHila = () => {
+    if (saved) {
+      window.open(`/${props.slug}`, "_blank", "noopener");
+      return;
+    }
+    const tab = window.open("about:blank", "_blank");
     startTransition(async () => {
       await saveSite({ content, design });
       setSaved(true);
+      if (tab) tab.location.href = `/${props.slug}`;
     });
+  };
 
   const preview = useMemo(
     () => (
@@ -101,17 +121,26 @@ export function Editor(props: Props) {
         </div>
         <div className="flex items-center gap-2">
           <button
-            onClick={save}
-            disabled={pending || saved}
+            onClick={publish}
+            disabled={pending || (saved && published)}
             className={cn(
-              "inline-flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-bold transition cursor-pointer",
-              saved ? "bg-white/5 text-ink-2" : "bg-halo text-night hover:bg-halo-2",
+              "inline-flex items-center gap-2 rounded-xl px-5 py-2.5 text-sm font-bold transition cursor-pointer",
+              saved && published
+                ? "bg-mint/15 text-mint"
+                : "bg-halo text-night hover:bg-halo-2 shadow-[0_0_20px_rgba(240,180,41,0.3)]",
             )}
           >
-            {saved ? <Check className="h-4 w-4" /> : <Save className="h-4 w-4" />}
-            {pending ? "שומרים…" : saved ? "נשמר" : "שמירה"}
+            {saved && published ? <Check className="h-4 w-4" /> : <Sparkles className="h-4 w-4" />}
+            {pending ? "מפרסמים…" : saved && published ? "מפורסם" : "פרסם"}
           </button>
-          <PublishToggle published={props.published} />
+          <button
+            onClick={viewMyHila}
+            disabled={pending}
+            className="inline-flex items-center gap-2 rounded-xl border border-line px-4 py-2.5 text-sm font-semibold text-ink transition hover:border-halo/40 hover:text-halo cursor-pointer"
+          >
+            <Eye className="h-4 w-4" />
+            צפה בהילה שלך
+          </button>
         </div>
       </div>
 

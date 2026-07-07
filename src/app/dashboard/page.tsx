@@ -84,7 +84,7 @@ export default async function DashboardPage() {
             rel="noopener noreferrer"
             className="inline-flex items-center gap-2 rounded-xl border border-line px-4 py-2.5 text-sm font-semibold hover:bg-white/5"
           >
-            צפייה בעמוד
+            צפה בהילה שלך
           </a>
         </div>
       </Card>
