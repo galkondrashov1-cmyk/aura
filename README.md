@@ -39,6 +39,6 @@ npm run dev
 
 ## פריסה (Vercel)
 
-1. חיבור הריפו לפרויקט Vercel; Postgres דרך Vercel Postgres/Neon (`DATABASE_URL` + `DIRECT_URL`).
+1. חיבור הריפו לפרויקט Vercel; Postgres דרך Vercel Postgres/Neon (`DATABASE_URL`).
 2. משתני סביבה: `AUTH_SECRET` (מחרוזת אקראית ארוכה).
-3. ה־build מריץ `prisma db push` אוטומטית.
+3. ה־build מריץ `prisma db push` + seeding של עסק הדמו אוטומטית.
