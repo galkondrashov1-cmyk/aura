@@ -560,3 +560,106 @@ textarea,
   .dv-shimmer, .dv-march, .dv-pulse, .cs-sp-aurora-edge::before,
   .bgfx-orbs::before, .bgfx-orbs::after, .bgfx-aurorawave { animation: none; }
 }
+
+/* ═══════════ Page-entry, splash & loading animations ═══════════ */
+
+/* Every route mounts with a soft rise-in (retriggered by template.tsx). */
+.page-enter {
+  animation: pageEnter 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+@keyframes pageEnter {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: none; }
+}
+
+/* Public-page blocks cascade in one after another. */
+.aura-stagger > * {
+  animation: pageEnter 0.55s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+.aura-stagger > :nth-child(1) { animation-delay: 0.05s; }
+.aura-stagger > :nth-child(2) { animation-delay: 0.12s; }
+.aura-stagger > :nth-child(3) { animation-delay: 0.19s; }
+.aura-stagger > :nth-child(4) { animation-delay: 0.26s; }
+.aura-stagger > :nth-child(5) { animation-delay: 0.33s; }
+.aura-stagger > :nth-child(6) { animation-delay: 0.4s; }
+.aura-stagger > :nth-child(7) { animation-delay: 0.46s; }
+.aura-stagger > :nth-child(8) { animation-delay: 0.52s; }
+.aura-stagger > :nth-child(n + 9) { animation-delay: 0.58s; }
+
+/* First-paint splash: covers the PWA black window & initial load. */
+#aura-splash {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 18px;
+  background: #08090c;
+  transition: opacity 0.45s ease, visibility 0.45s ease;
+}
+#aura-splash.done {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+#aura-splash svg {
+  width: 76px;
+  height: 76px;
+  color: #00e5a0;
+  filter: drop-shadow(0 0 24px rgba(0, 229, 160, 0.35));
+}
+#aura-splash svg circle {
+  transform-origin: 50% 50%;
+  animation: splashRing 1.7s ease-in-out infinite;
+}
+#aura-splash svg circle:nth-child(1) { animation-delay: 0.36s; }
+#aura-splash svg circle:nth-child(2) { animation-delay: 0.24s; }
+#aura-splash svg circle:nth-child(3) { animation-delay: 0.12s; }
+#aura-splash svg circle:nth-child(4) { animation-delay: 0s; }
+@keyframes splashRing {
+  0%, 100% { opacity: 0.25; transform: scale(0.9); }
+  50% { opacity: 1; transform: scale(1); }
+}
+#aura-splash .splash-word {
+  font-family: var(--font-jakarta), var(--font-inter), sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 0.42em;
+  margin-left: 0.42em; /* optically recenter the tracked text */
+  color: #e7e9ee;
+  animation: splashWord 1.7s ease-in-out infinite;
+}
+@keyframes splashWord {
+  0%, 100% { opacity: 0.4; }
+  50% { opacity: 1; }
+}
+
+/* Route-level loading UI (loading.tsx) reuses the same ring animation. */
+.aura-loader {
+  display: flex;
+  min-height: 60vh;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+}
+.aura-loader svg {
+  width: 56px;
+  height: 56px;
+  color: var(--primary, #00e5a0);
+}
+.aura-loader svg circle {
+  transform-origin: 50% 50%;
+  animation: splashRing 1.7s ease-in-out infinite;
+}
+.aura-loader svg circle:nth-child(1) { animation-delay: 0.36s; }
+.aura-loader svg circle:nth-child(2) { animation-delay: 0.24s; }
+.aura-loader svg circle:nth-child(3) { animation-delay: 0.12s; }
+
+@media (prefers-reduced-motion: reduce) {
+  .page-enter, .aura-stagger > *,
+  #aura-splash svg circle, #aura-splash .splash-word,
+  .aura-loader svg circle { animation: none; }
+}

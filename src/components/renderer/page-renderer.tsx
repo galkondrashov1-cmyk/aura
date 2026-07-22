@@ -654,7 +654,7 @@ export function PageRenderer({
       )}
       <div
         className={cn(
-          "aura-typescale relative z-10 mx-auto flex flex-col px-5 py-14",
+          "aura-typescale aura-stagger relative z-10 mx-auto flex flex-col px-5 py-14",
           layout.contentWidth,
           layout.spacing,
         )}
