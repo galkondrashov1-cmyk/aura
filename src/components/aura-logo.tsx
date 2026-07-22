@@ -1,18 +1,19 @@
 import { cn } from "@/lib/utils";
 
-/** The "Aura field" mark — concentric radiating rings. Uses currentColor. */
+/** The "Aura field" mark — three radiating rings around a core, matching the
+    app icon. Uses currentColor; `aura-mark` adds the icon's neon bloom. */
 export function AuraMark({ className }: { className?: string }) {
   return (
     <svg
       viewBox="0 0 48 48"
-      className={cn("h-7 w-7", className)}
+      className={cn("aura-mark h-7 w-7", className)}
       fill="none"
       aria-hidden="true"
     >
-      <circle cx="24" cy="24" r="20" stroke="currentColor" strokeWidth="1.5" opacity="0.3" />
-      <circle cx="24" cy="24" r="13" stroke="currentColor" strokeWidth="1.5" opacity="0.6" />
-      <circle cx="24" cy="24" r="6.5" stroke="currentColor" strokeWidth="1.5" />
-      <circle cx="24" cy="24" r="2.5" fill="currentColor" />
+      <circle cx="24" cy="24" r="21" stroke="currentColor" strokeWidth="1.6" opacity="0.55" />
+      <circle cx="24" cy="24" r="14.5" stroke="currentColor" strokeWidth="1.7" opacity="0.8" />
+      <circle cx="24" cy="24" r="8.5" stroke="currentColor" strokeWidth="1.8" />
+      <circle cx="24" cy="24" r="2.8" fill="currentColor" />
     </svg>
   );
 }

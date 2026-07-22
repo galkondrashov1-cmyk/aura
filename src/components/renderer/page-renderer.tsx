@@ -4,6 +4,7 @@ import { ViewBeacon } from "@/components/view-beacon";
 import { GalleryView } from "./gallery-view";
 import { CountdownView } from "./countdown-view";
 import { CursorFx } from "./cursor-fx";
+import { PageIntro } from "./page-intro";
 import { cn } from "@/lib/utils";
 import type {
   Block,
@@ -645,6 +646,7 @@ export function PageRenderer({
         embedded ? "min-h-full" : "min-h-screen",
       )}
     >
+      {!embedded && <PageIntro bg={r.bg?.css} />}
       {content.design?.bgFx && INTERACTIVE_BG_FX.has(content.design.bgFx) ? (
         <CursorFx variant={content.design.bgFx as "cursorglow" | "cursorgrid" | "cursorspot"} />
       ) : (
@@ -655,6 +657,8 @@ export function PageRenderer({
       <div
         className={cn(
           "aura-typescale aura-stagger relative z-10 mx-auto flex flex-col px-5 py-14",
+          // Hold the block cascade until the intro curtain has lifted.
+          !embedded && "aura-stagger-intro",
           layout.contentWidth,
           layout.spacing,
         )}

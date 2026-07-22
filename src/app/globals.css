@@ -576,15 +576,91 @@ textarea,
 .aura-stagger > * {
   animation: pageEnter 0.55s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
-.aura-stagger > :nth-child(1) { animation-delay: 0.05s; }
-.aura-stagger > :nth-child(2) { animation-delay: 0.12s; }
-.aura-stagger > :nth-child(3) { animation-delay: 0.19s; }
-.aura-stagger > :nth-child(4) { animation-delay: 0.26s; }
-.aura-stagger > :nth-child(5) { animation-delay: 0.33s; }
-.aura-stagger > :nth-child(6) { animation-delay: 0.4s; }
-.aura-stagger > :nth-child(7) { animation-delay: 0.46s; }
-.aura-stagger > :nth-child(8) { animation-delay: 0.52s; }
-.aura-stagger > :nth-child(n + 9) { animation-delay: 0.58s; }
+.aura-stagger > :nth-child(1) { animation-delay: calc(var(--intro-delay, 0s) + 0.05s); }
+.aura-stagger > :nth-child(2) { animation-delay: calc(var(--intro-delay, 0s) + 0.12s); }
+.aura-stagger > :nth-child(3) { animation-delay: calc(var(--intro-delay, 0s) + 0.19s); }
+.aura-stagger > :nth-child(4) { animation-delay: calc(var(--intro-delay, 0s) + 0.26s); }
+.aura-stagger > :nth-child(5) { animation-delay: calc(var(--intro-delay, 0s) + 0.33s); }
+.aura-stagger > :nth-child(6) { animation-delay: calc(var(--intro-delay, 0s) + 0.4s); }
+.aura-stagger > :nth-child(7) { animation-delay: calc(var(--intro-delay, 0s) + 0.46s); }
+.aura-stagger > :nth-child(8) { animation-delay: calc(var(--intro-delay, 0s) + 0.52s); }
+.aura-stagger > :nth-child(n + 9) { animation-delay: calc(var(--intro-delay, 0s) + 0.58s); }
+/* Public pages: hold the cascade until the intro curtain lifts. */
+.aura-stagger-intro { --intro-delay: 0.82s; }
+
+/* The mark carries the app icon's neon bloom wherever it appears. */
+.aura-mark {
+  filter: drop-shadow(0 0 6px color-mix(in oklab, currentColor 45%, transparent));
+}
+
+/* ── Public page intro (useaura.me/<name>) ────────────────────────
+   Curtain in the page's own background that lifts off a pulsing aura
+   mark. Never captures pointer events and self-hides in CSS, so a
+   stalled script can't trap the page behind it. */
+.aura-intro {
+  position: fixed;
+  /* Overscanned: the root template's rise-in transform briefly makes this a
+     contained (not viewport) fixed box, and the bleed hides the offset. */
+  inset: -24px;
+  z-index: 60;
+  display: grid;
+  place-items: center;
+  pointer-events: none;
+  animation: introLift 0.62s cubic-bezier(0.4, 0, 0.2, 1) 0.78s forwards;
+}
+@keyframes introLift {
+  to { opacity: 0; visibility: hidden; }
+}
+.aura-intro svg {
+  width: 108px;
+  height: 108px;
+  color: var(--primary, #00e5a0);
+  filter: drop-shadow(0 0 26px color-mix(in oklab, var(--primary, #00e5a0) 45%, transparent));
+}
+.aura-intro .ring {
+  transform-origin: 50% 50%;
+  animation: introRing 0.85s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+.aura-intro .r1 { animation-delay: 0s; opacity: 0.32; }
+.aura-intro .r2 { animation-delay: 0.09s; opacity: 0.6; }
+.aura-intro .r3 { animation-delay: 0.18s; }
+.aura-intro .r4 { animation-delay: 0.27s; }
+@keyframes introRing {
+  0% { opacity: 0; transform: scale(0.3) rotate(-25deg); }
+  55% { transform: scale(1.07) rotate(0deg); }
+  100% { transform: scale(1) rotate(0deg); }
+}
+.aura-intro .pulse {
+  transform-origin: 50% 50%;
+  animation: introPulse 1.05s ease-out 0.34s both;
+}
+
+/* Profile route loading UI — same mark, looping until the page arrives. */
+.aura-page-loading {
+  position: fixed;
+  inset: -24px;
+  z-index: 60;
+  display: grid;
+  place-items: center;
+}
+.aura-page-loading svg {
+  width: 108px;
+  height: 108px;
+  color: var(--primary, #00e5a0);
+  filter: drop-shadow(0 0 26px color-mix(in oklab, var(--primary, #00e5a0) 45%, transparent));
+}
+.aura-page-loading .ring {
+  transform-origin: 50% 50%;
+  animation: splashRing 1.7s ease-in-out infinite;
+}
+.aura-page-loading .r1 { animation-delay: 0.36s; }
+.aura-page-loading .r2 { animation-delay: 0.24s; }
+.aura-page-loading .r3 { animation-delay: 0.12s; }
+.aura-page-loading .r4 { animation-delay: 0s; }
+@keyframes introPulse {
+  0% { opacity: 0.5; transform: scale(0.55); }
+  100% { opacity: 0; transform: scale(2.2); }
+}
 
 /* First-paint splash: covers the PWA black window & initial load. */
 #aura-splash {
@@ -662,4 +738,9 @@ textarea,
   .page-enter, .aura-stagger > *,
   #aura-splash svg circle, #aura-splash .splash-word,
   .aura-loader svg circle { animation: none; }
+  /* The intro curtain hides itself via its animation, so it must be removed
+     outright here rather than merely frozen. */
+  .aura-intro { display: none; }
+  .aura-intro .ring, .aura-intro .pulse,
+  .aura-page-loading .ring { animation: none; }
 }
