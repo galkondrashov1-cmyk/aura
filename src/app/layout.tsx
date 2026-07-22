@@ -42,18 +42,14 @@ export default function RootLayout({
       suppressHydrationWarning
     >
       <body className={`min-h-screen bg-bg text-text antialiased ${fontVars}`}>
-        <div id="aura-splash" aria-hidden>
-          <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <circle cx="24" cy="24" r="20" stroke="currentColor" strokeWidth="1.5" opacity="0.3" />
-            <circle cx="24" cy="24" r="13" stroke="currentColor" strokeWidth="1.5" opacity="0.6" />
-            <circle cx="24" cy="24" r="6.5" stroke="currentColor" strokeWidth="1.5" />
-            <circle cx="24" cy="24" r="2.5" fill="currentColor" />
-          </svg>
-          <span className="splash-word">AURA</span>
-        </div>
+        {/* First-paint splash. Created AND removed entirely by this inline
+            script so the node never exists in React's tree — a React-rendered
+            splash that the script later removes breaks hydration on slow
+            loads (React finds DOM that doesn't match the server HTML and
+            falls back to a full client re-render with an error flash). */}
         <script
           dangerouslySetInnerHTML={{
-            __html: `(function(){var t=Date.now();function hide(){var s=document.getElementById("aura-splash");if(!s)return;var w=Math.max(0,450-(Date.now()-t));setTimeout(function(){s.classList.add("done");setTimeout(function(){s.remove()},500)},w)}if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",hide);else hide();setTimeout(hide,2500)})();`,
+            __html: `(function(){try{var d=document.createElement("div");d.id="aura-splash";d.setAttribute("aria-hidden","true");d.innerHTML='<svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="24" cy="24" r="20" stroke="currentColor" stroke-width="1.5" opacity="0.3"/><circle cx="24" cy="24" r="13" stroke="currentColor" stroke-width="1.5" opacity="0.6"/><circle cx="24" cy="24" r="6.5" stroke="currentColor" stroke-width="1.5"/><circle cx="24" cy="24" r="2.5" fill="currentColor"/></svg><span class="splash-word">AURA</span>';document.body.appendChild(d);var t=Date.now(),done=false;function hide(){if(done)return;done=true;var w=Math.max(0,450-(Date.now()-t));setTimeout(function(){d.classList.add("done");setTimeout(function(){d.remove()},500)},w)}if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",hide);else hide();setTimeout(hide,2500)}catch(e){}})();`,
           }}
         />
         {children}
