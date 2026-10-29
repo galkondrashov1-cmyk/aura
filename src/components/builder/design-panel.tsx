@@ -31,7 +31,7 @@ import {
   shapeTier,
   bgFxCategoryTier,
 } from "@/lib/design";
-import { FONTS, FONT_CATEGORIES } from "@/lib/fonts";
+import { FONTS, FONT_CATEGORIES, ALL_FONTS_HREF, fontFamilyVar } from "@/lib/fonts";
 import { caps, PLAN_RANK, type Plan } from "@/lib/plans";
 import {
   PAGE_LAYOUTS,
@@ -105,6 +105,8 @@ export function DesignPanel({
 
   return (
     <div className="space-y-5">
+      {/* Every font, for the pickers' live previews (React hoists this to <head>). */}
+      <link rel="stylesheet" href={ALL_FONTS_HREF} precedence="fonts" />
       <div className="-mx-4 flex gap-1 overflow-x-auto px-4 pb-0.5 [scrollbar-width:none]">
         {TABS.map((t) => (
           <button
@@ -344,7 +346,7 @@ export function DesignPanel({
                         design[open] === f.id ? "border-primary" : "border-border",
                         locked && "opacity-50",
                       )}
-                      style={{ fontFamily: `var(${f.variable})` }}
+                      style={{ fontFamily: fontFamilyVar(f.id) }}
                     >
                       <span className="text-2xl leading-none text-text">{cat === "Hebrew" ? "אב" : "Ag"}</span>
                       <span className="truncate text-[11px] text-text-muted">{f.name}</span>
@@ -867,10 +869,7 @@ function TypeTab({
   const { isLocked, upgrade } = useLocked(plan);
   const fontName = (id?: string) => FONTS.find((f) => f.id === id)?.name;
   const fontTier = (id: string) => fontCategoryTier(FONTS.find((f) => f.id === id)?.category ?? "Sans");
-  const fontVar = (id?: string) => {
-    const f = FONTS.find((x) => x.id === id);
-    return f ? `var(${f.variable})` : undefined;
-  };
+  const fontVar = fontFamilyVar;
 
   return (
     <div className="space-y-5">

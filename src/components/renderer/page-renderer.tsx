@@ -17,7 +17,7 @@ import {
   looksRtl,
   resolveBackground,
 } from "@/lib/studio";
-import { fontFamilyVar } from "@/lib/fonts";
+import { fontFamilyVar, fontsHref } from "@/lib/fonts";
 import { SocialIcon } from "@/lib/socials";
 import { toPlain } from "@/lib/richtext";
 import { resolveHref, type HrefMap } from "@/lib/links";
@@ -245,6 +245,9 @@ export function PageRenderer({
   }
 
   const paletteKey = `${design.accent ?? ""}|${bg.light}`;
+  // Only this page's fonts — one small stylesheet, hoisted into <head> and
+  // de-duplicated by React (many pages on one screen share it).
+  const fontsLink = fontsHref([design.font, design.headingFont]);
 
   return (
     <div
@@ -262,6 +265,12 @@ export function PageRenderer({
         editable && "pg-editable",
       )}
     >
+      {fontsLink && (
+        <>
+          <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+          <link rel="stylesheet" href={fontsLink} precedence="fonts" />
+        </>
+      )}
       {bg.image && (
         <div aria-hidden className={cn("pointer-events-none inset-0", fixedLayers ? "fixed" : "absolute")}>
           <div

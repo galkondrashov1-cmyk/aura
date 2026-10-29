@@ -1,6 +1,5 @@
 import type { Metadata, Viewport } from "next";
 import { Inter, Plus_Jakarta_Sans } from "next/font/google";
-import { fontVars } from "@/lib/fonts";
 import "./globals.css";
 
 const inter = Inter({
@@ -45,7 +44,7 @@ export default function RootLayout({
           app only — see globals.css). It used to be a <div> injected by an
           inline script, which landed in <body> ahead of React's streamed
           markup and made hydration fail on every single page load. */}
-      <body className={`min-h-screen bg-bg text-text antialiased ${fontVars}`}>
+      <body className="min-h-screen bg-bg text-text antialiased">
         {children}
       </body>
     </html>
