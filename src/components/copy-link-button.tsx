@@ -14,7 +14,7 @@ export function CopyLinkButton({ url, className }: { url: string; className?: st
       setCopied(true);
       setTimeout(() => setCopied(false), 1600);
     } catch {
-      window.prompt("Copy your page link:", url);
+      window.prompt("העתיקו את הקישור לעמוד:", url);
     }
   };
   return (
@@ -24,8 +24,8 @@ export function CopyLinkButton({ url, className }: { url: string; className?: st
       title={url}
       className={cn(buttonClasses("ghost", "sm"), className)}
     >
-      {copied ? <Check className="h-4 w-4 text-primary" /> : <Link2 className="h-4 w-4" />}
-      {copied ? "Copied!" : "Copy link"}
+      {copied ? <Check className="h-4 w-4 text-primary-text" /> : <Link2 className="h-4 w-4" />}
+      {copied ? "הועתק!" : "העתקת קישור"}
     </button>
   );
 }

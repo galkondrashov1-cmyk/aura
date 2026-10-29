@@ -1,3 +1,4 @@
+import { BRAND, titled } from "@/lib/brand";
 import { cache } from "react";
 import { revalidatePath } from "next/cache";
 import type { Metadata } from "next";
@@ -72,7 +73,7 @@ export async function livePages(userId: string, plan: Plan) {
 }
 
 export function publicMetadata(data: PublicPage | null, path: string): Metadata {
-  if (!data) return { title: "Not found · AURA" };
+  if (!data) return { title: titled("לא נמצא") };
   const { content } = data;
   const hero = heroOf(content);
   const seo = data.caps.customSeo;
@@ -84,11 +85,11 @@ export function publicMetadata(data: PublicPage | null, path: string): Metadata 
     (seo ? content.design?.seoDescription : undefined) ||
     data.seoDescription ||
     (hero ? toPlain(hero.tagline) : undefined) ||
-    `${name} on AURA`;
+    `${name} · ${BRAND.domain}`;
   // Pro: the creator's photo is the browser-tab icon instead of AURA's.
   const avatar = hero?.avatarUrl && /^(https:\/\/|\/api\/media\/)/.test(hero.avatarUrl) ? hero.avatarUrl : null;
   return {
-    title: `${name} · AURA`,
+    title: titled(name),
     description,
     ...(data.caps.customFavicon && avatar ? { icons: { icon: avatar, apple: avatar } } : {}),
     alternates: { canonical: path },

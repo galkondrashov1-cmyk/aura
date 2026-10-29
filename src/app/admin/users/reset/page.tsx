@@ -12,21 +12,21 @@ export default async function AdminResetLink({ searchParams }: { searchParams: P
   return (
     <div className="max-w-xl">
       <Link href="/admin/users" className="text-sm text-text-muted hover:text-text">
-        ← Users
+        → משתמשים
       </Link>
-      <h1 className="mt-3 font-display text-2xl font-medium tracking-tight">Password reset link</h1>
+      <h1 className="mt-3 font-display text-[2rem] leading-tight font-black tracking-tight">קישור לאיפוס סיסמה</h1>
       {user && link ? (
         <>
           <p className="mt-1 text-sm text-text-muted">
-            For @{user.username} ({user.email}). Works once, for one hour. Send it only to that email address.
+            עבור @{user.username} ({user.email}). עובד פעם אחת, למשך שעה. שלחו אותו רק לכתובת המייל הזו.
           </p>
-          <div className="mt-5 flex items-center gap-2 rounded-xl border border-border bg-surface-2 p-1.5 pl-3">
+          <div className="mt-5 flex items-center gap-2 rounded-xl border border-border bg-surface-2 p-1.5 ps-3">
             <span className="min-w-0 flex-1 truncate text-sm">{link}</span>
             <CopyLinkButton url={link} />
           </div>
         </>
       ) : (
-        <p className="mt-2 text-sm text-text-muted">User not found.</p>
+        <p className="mt-2 text-sm text-text-muted">המשתמש לא נמצא.</p>
       )}
     </div>
   );

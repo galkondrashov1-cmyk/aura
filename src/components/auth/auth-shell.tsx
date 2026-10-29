@@ -1,7 +1,8 @@
 import Link from "next/link";
-import { AuraLogo } from "@/components/aura-logo";
+import { Logo } from "@/components/logo";
+import { BRAND } from "@/lib/brand";
 
-/** The centered card every auth screen shares. */
+/** Every auth screen: the form on paper, a typographic ink panel beside it. */
 export function AuthShell({
   title,
   subtitle,
@@ -14,16 +15,31 @@ export function AuthShell({
   footer?: React.ReactNode;
 }) {
   return (
-    <div className="aura-backdrop flex min-h-dvh flex-col items-center justify-center px-5 py-12">
-      <Link href="/" className="mb-8">
-        <AuraLogo />
-      </Link>
-      <div className="w-full max-w-sm rounded-3xl border border-border bg-surface p-6 sm:p-7">
-        <h1 className="font-display text-2xl font-medium tracking-tight">{title}</h1>
-        <p className="mt-1 mb-6 text-sm text-text-muted">{subtitle}</p>
-        {children}
-        {footer && <div className="mt-5 text-center text-sm text-text-muted [&_a]:underline">{footer}</div>}
+    <div className="grid min-h-dvh lg:grid-cols-2">
+      <div className="flex flex-col px-5 py-6 sm:px-10">
+        <Link href="/" aria-label={BRAND.name} className="self-start">
+          <Logo />
+        </Link>
+        <div className="m-auto w-full max-w-sm py-12">
+          <h1 className="font-display text-[2.6rem] leading-none font-black tracking-tight">{title}</h1>
+          <p className="mt-3 mb-8 text-text-muted">{subtitle}</p>
+          {children}
+          {footer && (
+            <div className="mt-6 border-t border-border pt-5 text-sm text-text-muted [&_a]:text-text [&_a]:underline">{footer}</div>
+          )}
+        </div>
       </div>
+      <aside className="hidden flex-col justify-between bg-text p-12 text-bg lg:flex">
+        <span className="size-3 bg-primary" />
+        <p className="display-xl">
+          עמוד אחד.
+          <br />
+          בדיוק כמוכם.
+        </p>
+        <p dir="ltr" className="text-end text-sm text-bg/50">
+          {BRAND.domain}
+        </p>
+      </aside>
     </div>
   );
 }

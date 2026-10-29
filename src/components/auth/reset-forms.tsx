@@ -17,37 +17,37 @@ export function ForgotForm({ support }: { support: string | null }) {
 
   if (state?.sent) {
     return (
-      <div className="rounded-2xl border border-primary/40 bg-primary/10 p-4 text-sm">
-        <MailCheck className="mb-2 h-5 w-5 text-primary" />
-        If <span className="font-medium">{state.email}</span> has an AURA account, a reset link is on its way. It works for
-        one hour — check spam if you don&apos;t see it.
+      <div className="rounded-lg border border-primary/40 bg-primary/10 p-4 text-sm">
+        <MailCheck className="mb-2 h-5 w-5 text-primary-text" />
+        אם ל־<span className="font-medium">{state.email}</span> יש חשבון אצלנו, קישור איפוס כבר בדרך. הוא תקף לשעה — אם
+        לא הגיע, בדקו בספאם.
       </div>
     );
   }
 
   return (
     <form action={action} className="space-y-3">
-      <Input name="email" type="email" placeholder="you@email.com" autoComplete="email" defaultValue={state?.email} required />
+      <Input name="email" type="email" placeholder="you@email.com" dir="ltr" autoComplete="email" defaultValue={state?.email} required />
       {state?.error === "no-email" ? (
         <p className="text-sm text-text-muted">
-          Password emails aren&apos;t switched on yet.{" "}
+          שליחת מיילים עוד לא הופעלה.{" "}
           {support ? (
             <>
-              Write to{" "}
-              <a href={`mailto:${support}?subject=AURA password reset`} className="text-text underline">
+              כתבו ל־{" "}
+              <a href={`mailto:${support}?subject=איפוס סיסמה`} className="text-text underline">
                 {support}
               </a>{" "}
-              from this address and we&apos;ll send you a reset link.
+              מהכתובת הזו ונשלח לכם קישור איפוס.
             </>
           ) : (
-            "Contact the AURA team from this address and we'll send you a reset link."
+            "פנו אלינו מהכתובת הזו ונשלח לכם קישור איפוס."
           )}
         </p>
       ) : (
-        state?.error && <p className="text-sm text-red-400">{state.error}</p>
+        state?.error && <p className="text-sm text-red-700">{state.error}</p>
       )}
       <button type="submit" disabled={pending} className={buttonClasses("primary", "md", "w-full")}>
-        {pending ? "Sending…" : "Send reset link"}
+        {pending ? "שולחים…" : "שליחת קישור איפוס"}
       </button>
     </form>
   );
@@ -57,10 +57,10 @@ export function ResetForm({ token }: { token: string }) {
   const [state, action, pending] = useActionState<ResetState, FormData>(resetPassword.bind(null, token), undefined);
   return (
     <form action={action} className="space-y-3">
-      <PasswordInput name="password" placeholder="New password (8+ characters)" autoComplete="new-password" minLength={8} required />
-      {state?.error && <p className="text-sm text-red-400">{state.error}</p>}
+      <PasswordInput name="password" placeholder="סיסמה חדשה (8 תווים לפחות)" autoComplete="new-password" minLength={8} required />
+      {state?.error && <p className="text-sm text-red-700">{state.error}</p>}
       <button type="submit" disabled={pending} className={buttonClasses("primary", "md", "w-full")}>
-        {pending ? "Saving…" : "Save & log in"}
+        {pending ? "שומרים…" : "שמירה והתחברות"}
       </button>
     </form>
   );

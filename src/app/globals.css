@@ -2,16 +2,37 @@
 @import "./studio.css";
 
 /* ============================================================
-   AURA — Deep Space design tokens (dual dark mode)
-   Default (:root)          → "Vivid"  (published pages + marketing)
-   [data-mode="muted"]      → "Muted"  (editor + global toggle)
-   Both share token NAMES so components are written once.
+   Two palettes that share token NAMES, so components are written once.
+   :root            → the product UI ("paper"): warm limestone, ink, one
+                      tangerine accent — typographic, editorial, brand-neutral.
+   [data-mode=vivid] → the defaults of a creator's page (dark). Every page
+                      root carries it, so the site's look never leaks into
+                      anyone's published page.
    ============================================================ */
 
 :root,
-/* Also restores the vivid palette inside a muted subtree — the editor canvas
-   shows pages exactly as visitors see them. */
+[data-mode="muted"] {
+  --bg: #f4f1ea;
+  --surface: #fbfaf6;
+  --surface-2: #ebe6dc;
+  --primary: #f04e14;
+  --primary-text: #b23c10;
+  --primary-ink: #141210;
+  --secondary: #141210;
+  --accent: #141210;
+  --text: #141210;
+  --text-muted: #625c53;
+  --border: #d9d2c5;
+  --ink-soft: #b23c10;
+  --glow: 0 0 0 0 transparent;
+  --radius: 8px;
+  --ease: cubic-bezier(0.16, 1, 0.3, 1);
+  --fx-ink: #000;
+  --fx-lift: #000;
+}
+
 [data-mode="vivid"] {
+  --primary-text: var(--primary);
   --bg: #08090c;
   --surface: #121419;
   --surface-2: #1a1d24;
@@ -39,44 +60,36 @@
   --fx-glow2: color-mix(in oklab, var(--fx-c2, var(--accent)) 80%, var(--fx-lift));
 }
 
-[data-mode="muted"] {
-  --bg: #0c0e12;
-  --surface: #161922;
-  --surface-2: #1f232e;
-  --primary: #4fb89c;
-  --primary-ink: #08251b;
-  --secondary: #5c7fb2;
-  --accent: #8e7db4;
-  --text: #cdd2d8;
-  --text-muted: #8b939f;
-  --border: #262b36;
-  --glow: 0 0 0 0 transparent;
-}
-
 @theme inline {
   --color-bg: var(--bg);
   --color-surface: var(--surface);
   --color-surface-2: var(--surface-2);
   --color-primary: var(--primary);
   --color-primary-ink: var(--primary-ink);
+  --color-primary-text: var(--primary-text);
   --color-secondary: var(--secondary);
   --color-accent: var(--accent);
   --color-text: var(--text);
   --color-text-muted: var(--text-muted);
   --color-border: var(--border);
-  --font-display: var(--font-jakarta);
-  --font-sans: var(--font-inter);
+  --font-display: var(--font-head);
+  --font-sans: var(--font-body);
   --radius-aura: var(--radius);
 }
 
 html {
+  color-scheme: light;
+}
+/* A creator's public page owns the whole canvas (incl. overscroll). */
+html:has(.pg-public) {
   color-scheme: dark;
+  background: #08090c;
 }
 
 body {
   background: var(--bg);
   color: var(--text);
-  font-family: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  font-family: var(--font-body), ui-sans-serif, system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
 }
@@ -591,11 +604,6 @@ textarea,
 .aura-stagger-intro { --intro-delay: 0.55s; }
 .aura-stagger-fade { --intro-delay: 0.15s; }
 
-/* The mark carries the app icon's neon bloom wherever it appears. */
-.aura-mark {
-  filter: drop-shadow(0 0 6px color-mix(in oklab, currentColor 45%, transparent));
-}
-
 /* ── Public page intro (useaura.me/<name>) ────────────────────────
    Curtain in the page's own background that lifts off a pulsing aura
    mark. Never captures pointer events and self-hides in CSS, so a
@@ -691,7 +699,7 @@ textarea,
     right: 0;
     top: calc(50% + 40px);
     text-align: center;
-    font: 500 13px/1 var(--font-jakarta), var(--font-inter), sans-serif;
+    font: 500 13px/1 var(--font-head), var(--font-body), sans-serif;
     letter-spacing: 0.42em;
     text-indent: 0.42em; /* optically recenter the tracked text */
     color: #e7e9ee;
@@ -705,34 +713,49 @@ textarea,
   50% { opacity: 1; transform: scale(1); }
 }
 
-/* Route-level loading UI (loading.tsx) reuses the same ring animation. */
-.aura-loader {
-  display: flex;
-  min-height: 60vh;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 14px;
-}
-.aura-loader svg {
-  width: 56px;
-  height: 56px;
-  color: var(--primary, #00e5a0);
-}
-.aura-loader svg circle {
-  transform-origin: 50% 50%;
-  animation: splashRing 1.7s ease-in-out infinite;
-}
-.aura-loader svg circle:nth-child(1) { animation-delay: 0.36s; }
-.aura-loader svg circle:nth-child(2) { animation-delay: 0.24s; }
-.aura-loader svg circle:nth-child(3) { animation-delay: 0.12s; }
-
 @media (prefers-reduced-motion: reduce) {
-  .page-enter, .aura-stagger > *,
-  .aura-loader svg circle { animation: none; }
+  .page-enter, .aura-stagger > * { animation: none; }
   /* The intro curtain hides itself via its animation, so it must be removed
      outright here rather than merely frozen. */
   .aura-intro { display: none; }
   .aura-intro .ring, .aura-intro .pulse,
   .aura-page-loading .ring { animation: none; }
 }
+
+/* Directional icons mirror in right-to-left UI (Hebrew is the default). */
+[dir="rtl"] :is(.lucide-arrow-left, .lucide-arrow-right, .lucide-chevron-left, .lucide-chevron-right, .lucide-undo-2, .lucide-redo-2, .lucide-log-out) {
+  scale: -1 1;
+}
+
+/* ===== Product UI: editorial language =====
+   One signature move — the ink wipe: headlines are revealed from the reading
+   edge (right, in Hebrew), rules draw in the same direction. One house easing
+   (--ease); big moves slow, small moves quick. Still and composed under
+   prefers-reduced-motion. */
+@keyframes ink-wipe {
+  from { clip-path: inset(-0.2em 0 -0.2em 100%); }
+  to { clip-path: inset(-0.2em 0 -0.2em 0); }
+}
+@keyframes rule-draw {
+  from { transform: scaleX(0); }
+  to { transform: scaleX(1); }
+}
+.wipe { animation: ink-wipe 1.1s var(--ease) both; }
+.wipe-2 { animation-delay: 0.12s; }
+.wipe-3 { animation-delay: 0.24s; }
+.rule { height: 1px; background: var(--text); transform-origin: right; }
+[dir="ltr"] .rule { transform-origin: left; }
+@supports (animation-timeline: view()) {
+  .wipe-in { animation: ink-wipe linear both; animation-timeline: view(); animation-range: entry 0% cover 28%; }
+  .rule-in { animation: rule-draw linear both; animation-timeline: view(); animation-range: entry 0% cover 25%; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .wipe, .wipe-in, .rule-in { animation: none; }
+}
+/* Display type: tight leading, tighter tracking as size grows. */
+.display-xl { font-family: var(--font-head), serif; font-weight: 900; line-height: 0.92; letter-spacing: -0.02em; font-size: clamp(3.1rem, 9.4vw, 8.75rem); }
+.display-l { font-family: var(--font-head), serif; font-weight: 800; line-height: 0.98; letter-spacing: -0.015em; font-size: clamp(2.3rem, 5.6vw, 4.6rem); }
+.kicker { font-size: 0.8rem; font-weight: 500; letter-spacing: 0.06em; color: var(--ink-soft); }
+.hl { text-decoration: underline; text-decoration-color: var(--primary); text-decoration-thickness: 0.12em; text-underline-offset: 0.12em; text-decoration-skip-ink: none; }
+/* Pending navigation: a bar that grows from the reading edge. */
+.nav-pending { transform-origin: right; animation: rule-draw 0.9s var(--ease) both; }

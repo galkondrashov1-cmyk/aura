@@ -17,11 +17,11 @@ export function newBlock(type: BlockType): Block {
   const id = crypto.randomUUID();
   switch (type) {
     case "hero":
-      return { id, type, name: "Your Name", tagline: "" };
+      return { id, type, name: "השם שלכם", tagline: "" };
     case "links":
-      return { id, type, items: [{ label: "New link", url: "https://", icon: "auto" }] };
+      return { id, type, items: [{ label: "קישור חדש", url: "https://", icon: "auto" }] };
     case "text":
-      return { id, type, heading: "Heading", body: "Some text…" };
+      return { id, type, heading: "כותרת", body: "קצת טקסט…" };
     case "socials":
       return { id, type, items: [{ platform: "instagram", url: "https://" }] };
     case "image":
@@ -31,7 +31,7 @@ export function newBlock(type: BlockType): Block {
     case "video":
       return { id, type, url: "", title: "" };
     case "faq":
-      return { id, type, items: [{ question: "Question?", answer: "Answer." }] };
+      return { id, type, items: [{ question: "שאלה?", answer: "תשובה." }] };
     case "divider":
       return { id, type };
     case "embed":
@@ -41,31 +41,31 @@ export function newBlock(type: BlockType): Block {
     case "countdown":
       return { id, type, target: "", label: "" };
     case "marquee":
-      return { id, type, text: "Your message here", style: "band", speed: "normal" };
+      return { id, type, text: "ההודעה שלכם כאן", style: "band", speed: "normal" };
     case "features":
       return {
         id,
         type,
-        heading: "What I offer",
+        heading: "מה אני מציע/ה",
         cols: 2,
         items: [
-          { icon: "✨", title: "First thing", text: "A short line about it." },
-          { icon: "⚡", title: "Second thing", text: "A short line about it." },
+          { icon: "✨", title: "דבר ראשון", text: "שורה קצרה עליו." },
+          { icon: "⚡", title: "דבר שני", text: "שורה קצרה עליו." },
         ],
       };
     case "testimonials":
-      return { id, type, heading: "What people say", items: [{ quote: "Absolutely wonderful to work with.", name: "Happy client", rating: 5 }] };
+      return { id, type, heading: "מה אומרים עליי", items: [{ quote: "פשוט תענוג לעבוד ביחד.", name: "לקוחה מרוצה", rating: 5 }] };
     case "stats":
-      return { id, type, items: [{ value: "120+", label: "Clients" }, { value: "4.9", label: "Rating" }, { value: "8", label: "Years" }] };
+      return { id, type, items: [{ value: "120+", label: "לקוחות" }, { value: "4.9", label: "דירוג" }, { value: "8", label: "שנים" }] };
     case "pricing":
       return {
         id,
         type,
-        heading: "Pricing",
-        items: [{ name: "Basic", price: "$29", period: "/month", features: "One thing\nAnother thing", cta: "Get started", url: "https://" }],
+        heading: "מחירון",
+        items: [{ name: "בסיסי", price: "₪99", period: "/חודש", features: "דבר אחד\nעוד דבר", cta: "להתחיל", url: "https://" }],
       };
     case "form":
-      return { id, type, kind: "newsletter", heading: "Stay in the loop", text: "Occasional updates, never spam.", button: "Join" };
+      return { id, type, kind: "newsletter", heading: "הישארו מעודכנים", text: "עדכונים מדי פעם, בלי ספאם.", button: "הצטרפות" };
     case "map":
       return { id, type, query: "", height: "md" };
     case "spacer":
@@ -87,7 +87,7 @@ export function blockSummary(b: Block): string {
     case "features":
     case "testimonials":
     case "pricing":
-      return b.heading ?? `${b.items.length} items`;
+      return b.heading ?? `${b.items.length} פריטים`;
     case "stats":
       return b.items.map((s) => s.value).join(" · ");
     case "marquee":
@@ -97,9 +97,9 @@ export function blockSummary(b: Block): string {
     case "map":
       return b.query;
     case "faq":
-      return `${b.items.length} questions`;
+      return `${b.items.length} שאלות`;
     case "gallery":
-      return `${b.images.length} images`;
+      return `${b.images.length} תמונות`;
     default:
       return "";
   }
@@ -131,8 +131,8 @@ function Fields({ block, plan, onPatch }: { block: Block; plan: Plan; onPatch: P
       return (
         <div className="space-y-3">
           <ImageField value={block.url} onChange={(url) => onPatch({ url: url ?? "" })} />
-          <input value={block.alt ?? ""} onChange={(e) => onPatch({ alt: e.target.value })} placeholder="Describe the image (for screen readers)" className={fieldCls} />
-          <RichTextInput value={block.caption} onChange={(caption) => onPatch({ caption })} placeholder="Caption (optional)" />
+          <input value={block.alt ?? ""} onChange={(e) => onPatch({ alt: e.target.value })} placeholder="תיאור התמונה (לקוראי מסך)" className={fieldCls} />
+          <RichTextInput value={block.caption} onChange={(caption) => onPatch({ caption })} placeholder="כיתוב (רשות)" />
           <ImageControls value={block.img} onChange={(img) => onPatch({ img })} />
         </div>
       );
@@ -142,9 +142,9 @@ function Fields({ block, plan, onPatch }: { block: Block; plan: Plan; onPatch: P
           <Seg
             value={block.layout ?? "grid"}
             options={[
-              { id: "grid", label: "Grid" },
-              { id: "masonry", label: "Masonry" },
-              { id: "carousel", label: <>Slideshow {!c.gallerySlideshow && <TierPill tier="PLUS" />}</> },
+              { id: "grid", label: "רשת" },
+              { id: "masonry", label: "פסיפס" },
+              { id: "carousel", label: <>מצגת {!c.gallerySlideshow && <TierPill tier="PLUS" />}</> },
             ]}
             onChange={(layout) => onPatch({ layout })}
           />
@@ -153,20 +153,20 @@ function Fields({ block, plan, onPatch }: { block: Block; plan: Plan; onPatch: P
           )}
           {block.images.map((im, i) => (
             <ItemCard key={i} onRemove={() => onPatch({ images: block.images.filter((_, j) => j !== i) })}>
-              <div className="pr-8">
+              <div className="pe-8">
                 <ImageField value={im.url} onChange={(url) => onPatch({ images: block.images.map((x, j) => (j === i ? { ...x, url: url ?? "" } : x)) })} />
               </div>
             </ItemCard>
           ))}
-          <AddItem label="Add image" onClick={() => onPatch({ images: [...block.images, { url: "" }] })} />
+          <AddItem label="הוספת תמונה" onClick={() => onPatch({ images: [...block.images, { url: "" }] })} />
         </div>
       );
     case "video":
       return (
         <div className="space-y-2">
-          <input value={block.url} onChange={(e) => onPatch({ url: e.target.value })} placeholder="YouTube or Vimeo link" className={fieldCls} />
-          <RichTextInput value={block.title} onChange={(title) => onPatch({ title })} placeholder="Title (optional)" />
-          <p className="text-[11px] text-text-muted">Loads instantly — the player only downloads when a visitor taps play.</p>
+          <input value={block.url} onChange={(e) => onPatch({ url: e.target.value })} placeholder="קישור ל־YouTube או Vimeo" className={fieldCls} />
+          <RichTextInput value={block.title} onChange={(title) => onPatch({ title })} placeholder="כותרת (רשות)" />
+          <p className="text-[11px] text-text-muted">נטען מיד — הנגן יורד רק כשהמבקר לוחץ על נגן.</p>
         </div>
       );
     case "faq":
@@ -175,13 +175,13 @@ function Fields({ block, plan, onPatch }: { block: Block; plan: Plan; onPatch: P
           <Seg value={block.align ?? "left"} options={ALIGNS} onChange={(align) => onPatch({ align })} />
           {block.items.map((it, i) => (
             <ItemCard key={i} onRemove={() => onPatch({ items: block.items.filter((_, j) => j !== i) })}>
-              <div className="pr-8">
-                <RichTextInput value={it.question} onChange={(question) => onPatch({ items: block.items.map((x, j) => (j === i ? { ...x, question } : x)) })} placeholder="Question" />
+              <div className="pe-8">
+                <RichTextInput value={it.question} onChange={(question) => onPatch({ items: block.items.map((x, j) => (j === i ? { ...x, question } : x)) })} placeholder="שאלה" />
               </div>
-              <RichTextInput value={it.answer} multiline onChange={(answer) => onPatch({ items: block.items.map((x, j) => (j === i ? { ...x, answer } : x)) })} placeholder="Answer" />
+              <RichTextInput value={it.answer} multiline onChange={(answer) => onPatch({ items: block.items.map((x, j) => (j === i ? { ...x, answer } : x)) })} placeholder="תשובה" />
             </ItemCard>
           ))}
-          <AddItem label="Add question" onClick={() => onPatch({ items: [...block.items, { question: "Question?", answer: "Answer." }] })} />
+          <AddItem label="הוספת שאלה" onClick={() => onPatch({ items: [...block.items, { question: "שאלה?", answer: "תשובה." }] })} />
         </div>
       );
     case "divider":
@@ -189,63 +189,63 @@ function Fields({ block, plan, onPatch }: { block: Block; plan: Plan; onPatch: P
     case "embed":
       return (
         <div className="space-y-2">
-          <input value={block.url} onChange={(e) => onPatch({ url: e.target.value })} placeholder="https:// page to embed" className={fieldCls} />
+          <input value={block.url} onChange={(e) => onPatch({ url: e.target.value })} placeholder="כתובת https להטמעה" className={fieldCls} />
           <Seg value={block.height ?? "md"} options={HEIGHTS} onChange={(height) => onPatch({ height })} />
-          <p className="text-[11px] text-text-muted">Forms, calendars, maps, widgets — any https page.</p>
+          <p className="text-[11px] text-text-muted">טפסים, יומנים, מפות, וידג׳טים — כל עמוד https.</p>
         </div>
       );
     case "music":
       return (
         <div className="space-y-2">
-          <input value={block.url} onChange={(e) => onPatch({ url: e.target.value })} placeholder="Spotify / SoundCloud / Apple Music link" className={fieldCls} />
-          <p className="text-[11px] text-text-muted">Paste a share link — it becomes a playable mini-player.</p>
+          <input value={block.url} onChange={(e) => onPatch({ url: e.target.value })} placeholder="קישור מ־Spotify / SoundCloud / Apple Music" className={fieldCls} />
+          <p className="text-[11px] text-text-muted">הדביקו קישור שיתוף — הוא יהפוך לנגן קטן.</p>
         </div>
       );
     case "countdown":
       return (
         <div className="space-y-2">
-          <input value={block.label ?? ""} onChange={(e) => onPatch({ label: e.target.value })} placeholder="Label (e.g. Launching in…)" className={fieldCls} />
-          <input type="datetime-local" value={block.target} onChange={(e) => onPatch({ target: e.target.value })} className={fieldCls} aria-label="Countdown target" />
+          <input value={block.label ?? ""} onChange={(e) => onPatch({ label: e.target.value })} placeholder="תווית (למשל: משיקים בעוד…)" className={fieldCls} />
+          <input type="datetime-local" value={block.target} onChange={(e) => onPatch({ target: e.target.value })} className={fieldCls} aria-label="תאריך היעד" />
         </div>
       );
     case "marquee":
       return (
         <div className="space-y-3">
-          <input value={block.text} onChange={(e) => onPatch({ text: e.target.value })} placeholder="Scrolling text" maxLength={140} className={fieldCls} />
+          <input value={block.text} onChange={(e) => onPatch({ text: e.target.value })} placeholder="טקסט רץ" maxLength={140} className={fieldCls} />
           <div>
-            <Label>Style</Label>
+            <Label>סגנון</Label>
             <Seg
               value={block.style ?? "plain"}
               options={[
-                { id: "plain", label: "Plain" },
-                { id: "band", label: "Band" },
-                { id: "outline", label: "Outline" },
-                { id: "tilt", label: "Tilted" },
+                { id: "plain", label: "פשוט" },
+                { id: "band", label: "פס" },
+                { id: "outline", label: "קו מתאר" },
+                { id: "tilt", label: "נטוי" },
               ]}
               onChange={(style) => onPatch({ style })}
             />
           </div>
           <div>
-            <Label>Speed</Label>
+            <Label>מהירות</Label>
             <Seg
               value={block.speed ?? "normal"}
               options={[
-                { id: "slow", label: "Slow" },
-                { id: "normal", label: "Normal" },
-                { id: "fast", label: "Fast" },
+                { id: "slow", label: "איטי" },
+                { id: "normal", label: "רגיל" },
+                { id: "fast", label: "מהיר" },
               ]}
               onChange={(speed) => onPatch({ speed })}
             />
           </div>
-          <Toggle checked={!!block.reverse} onChange={(reverse) => onPatch({ reverse: reverse || undefined })} label="Scroll the other way" />
+          <Toggle checked={!!block.reverse} onChange={(reverse) => onPatch({ reverse: reverse || undefined })} label="גלילה לכיוון ההפוך" />
         </div>
       );
     case "features":
       return (
         <div className="space-y-2.5">
-          <input value={block.heading ?? ""} onChange={(e) => onPatch({ heading: e.target.value || undefined })} placeholder="Section heading (optional)" className={fieldCls} />
+          <input value={block.heading ?? ""} onChange={(e) => onPatch({ heading: e.target.value || undefined })} placeholder="כותרת המקטע (רשות)" className={fieldCls} />
           <div>
-            <Label>Columns</Label>
+            <Label>עמודות</Label>
             <Seg
               value={String(block.cols ?? 2)}
               options={[
@@ -260,26 +260,26 @@ function Fields({ block, plan, onPatch }: { block: Block; plan: Plan; onPatch: P
             const set = (p: Partial<typeof it>) => onPatch({ items: block.items.map((x, j) => (j === i ? { ...x, ...p } : x)) });
             return (
               <ItemCard key={i} onRemove={() => onPatch({ items: block.items.filter((_, j) => j !== i) })}>
-                <div className="flex gap-2 pr-8">
+                <div className="flex gap-2 pe-8">
                   <EmojiInput value={it.icon} onChange={(icon) => set({ icon })} />
-                  <input value={it.title} onChange={(e) => set({ title: e.target.value })} placeholder="Title" className={fieldCls} />
+                  <input value={it.title} onChange={(e) => set({ title: e.target.value })} placeholder="כותרת" className={fieldCls} />
                 </div>
-                <input value={it.text ?? ""} onChange={(e) => set({ text: e.target.value || undefined })} placeholder="Short description" className={fieldCls} />
+                <input value={it.text ?? ""} onChange={(e) => set({ text: e.target.value || undefined })} placeholder="תיאור קצר" className={fieldCls} />
               </ItemCard>
             );
           })}
-          <AddItem onClick={() => onPatch({ items: [...block.items, { icon: "✦", title: "New feature" }] })} />
+          <AddItem onClick={() => onPatch({ items: [...block.items, { icon: "✦", title: "שירות חדש" }] })} />
         </div>
       );
     case "testimonials":
       return (
         <div className="space-y-2.5">
-          <input value={block.heading ?? ""} onChange={(e) => onPatch({ heading: e.target.value || undefined })} placeholder="Section heading (optional)" className={fieldCls} />
+          <input value={block.heading ?? ""} onChange={(e) => onPatch({ heading: e.target.value || undefined })} placeholder="כותרת המקטע (רשות)" className={fieldCls} />
           <Seg
             value={block.layout ?? "stack"}
             options={[
-              { id: "stack", label: "Stacked" },
-              { id: "carousel", label: "Swipe carousel" },
+              { id: "stack", label: "אחד מתחת לשני" },
+              { id: "carousel", label: "קרוסלה להחלקה" },
             ]}
             onChange={(layout) => onPatch({ layout })}
           />
@@ -287,10 +287,10 @@ function Fields({ block, plan, onPatch }: { block: Block; plan: Plan; onPatch: P
             const set = (p: Partial<typeof it>) => onPatch({ items: block.items.map((x, j) => (j === i ? { ...x, ...p } : x)) });
             return (
               <ItemCard key={i} onRemove={() => onPatch({ items: block.items.filter((_, j) => j !== i) })}>
-                <textarea value={it.quote} onChange={(e) => set({ quote: e.target.value })} placeholder="What they said" rows={3} className={cn(fieldCls, "h-auto resize-none py-2 pr-8")} />
+                <textarea value={it.quote} onChange={(e) => set({ quote: e.target.value })} placeholder="מה אמרו" rows={3} className={cn(fieldCls, "h-auto resize-none py-2 pe-8")} />
                 <div className="grid grid-cols-2 gap-2">
-                  <input value={it.name} onChange={(e) => set({ name: e.target.value })} placeholder="Name" className={fieldCls} />
-                  <input value={it.role ?? ""} onChange={(e) => set({ role: e.target.value || undefined })} placeholder="Role / company" className={fieldCls} />
+                  <input value={it.name} onChange={(e) => set({ name: e.target.value })} placeholder="שם" className={fieldCls} />
+                  <input value={it.role ?? ""} onChange={(e) => set({ role: e.target.value || undefined })} placeholder="תפקיד / חברה" className={fieldCls} />
                 </div>
                 <div className="flex items-center gap-1">
                   {[1, 2, 3, 4, 5].map((n) => (
@@ -298,13 +298,13 @@ function Fields({ block, plan, onPatch }: { block: Block; plan: Plan; onPatch: P
                       <Star className={cn("h-5 w-5", (it.rating ?? 0) >= n ? "fill-amber-400 text-amber-400" : "text-text-muted")} />
                     </button>
                   ))}
-                  <span className="ml-2 text-[11px] text-text-muted">{it.rating ? "" : "No stars"}</span>
+                  <span className="ms-2 text-[11px] text-text-muted">{it.rating ? "" : "בלי כוכבים"}</span>
                 </div>
-                <ImageField value={it.avatar} onChange={(avatar) => set({ avatar })} placeholder="Photo (optional)" maxDim={300} />
+                <ImageField value={it.avatar} onChange={(avatar) => set({ avatar })} placeholder="תמונה (רשות)" maxDim={300} />
               </ItemCard>
             );
           })}
-          <AddItem label="Add testimonial" onClick={() => onPatch({ items: [...block.items, { quote: "", name: "", rating: 5 }] })} />
+          <AddItem label="הוספת המלצה" onClick={() => onPatch({ items: [...block.items, { quote: "", name: "", rating: 5 }] })} />
         </div>
       );
     case "stats":
@@ -314,41 +314,41 @@ function Fields({ block, plan, onPatch }: { block: Block; plan: Plan; onPatch: P
             const set = (p: Partial<typeof it>) => onPatch({ items: block.items.map((x, j) => (j === i ? { ...x, ...p } : x)) });
             return (
               <ItemCard key={i} onRemove={() => onPatch({ items: block.items.filter((_, j) => j !== i) })}>
-                <div className="grid grid-cols-[6rem_1fr] gap-2 pr-8">
+                <div className="grid grid-cols-[6rem_1fr] gap-2 pe-8">
                   <input value={it.value} onChange={(e) => set({ value: e.target.value })} placeholder="120+" className={fieldCls} />
-                  <input value={it.label} onChange={(e) => set({ label: e.target.value })} placeholder="Label" className={fieldCls} />
+                  <input value={it.label} onChange={(e) => set({ label: e.target.value })} placeholder="תווית" className={fieldCls} />
                 </div>
               </ItemCard>
             );
           })}
-          {block.items.length < 4 && <AddItem label="Add number" onClick={() => onPatch({ items: [...block.items, { value: "10", label: "Label" }] })} />}
-          <p className="text-[11px] text-text-muted">Numbers count up when visitors scroll to them. Prefixes & suffixes work: $4.9M, 98%, 10K+.</p>
+          {block.items.length < 4 && <AddItem label="הוספת מספר" onClick={() => onPatch({ items: [...block.items, { value: "10", label: "תווית" }] })} />}
+          <p className="text-[11px] text-text-muted">המספרים סופרים כשהמבקרים גוללים אליהם. אפשר קידומות וסיומות: ₪4.9M, ‏98%, ‏10K+.</p>
         </div>
       );
     case "pricing":
       return (
         <div className="space-y-2.5">
-          <input value={block.heading ?? ""} onChange={(e) => onPatch({ heading: e.target.value || undefined })} placeholder="Section heading (optional)" className={fieldCls} />
+          <input value={block.heading ?? ""} onChange={(e) => onPatch({ heading: e.target.value || undefined })} placeholder="כותרת המקטע (רשות)" className={fieldCls} />
           {block.items.map((it, i) => {
             const set = (p: Partial<typeof it>) => onPatch({ items: block.items.map((x, j) => (j === i ? { ...x, ...p } : x)) });
             return (
               <ItemCard key={i} onRemove={() => onPatch({ items: block.items.filter((_, j) => j !== i) })}>
-                <input value={it.name} onChange={(e) => set({ name: e.target.value })} placeholder="Plan name" className={cn(fieldCls, "pr-10")} />
+                <input value={it.name} onChange={(e) => set({ name: e.target.value })} placeholder="שם החבילה" className={cn(fieldCls, "pe-10")} />
                 <div className="grid grid-cols-2 gap-2">
                   <input value={it.price} onChange={(e) => set({ price: e.target.value })} placeholder="₪99" className={fieldCls} />
-                  <input value={it.period ?? ""} onChange={(e) => set({ period: e.target.value || undefined })} placeholder="/month" className={fieldCls} />
+                  <input value={it.period ?? ""} onChange={(e) => set({ period: e.target.value || undefined })} placeholder="/חודש" className={fieldCls} />
                 </div>
-                <textarea value={it.features ?? ""} onChange={(e) => set({ features: e.target.value })} placeholder={"One feature per line"} rows={3} className={cn(fieldCls, "h-auto resize-none py-2")} />
+                <textarea value={it.features ?? ""} onChange={(e) => set({ features: e.target.value })} placeholder={"יכולת אחת בכל שורה"} rows={3} className={cn(fieldCls, "h-auto resize-none py-2")} />
                 <div className="grid grid-cols-2 gap-2">
-                  <input value={it.cta ?? ""} onChange={(e) => set({ cta: e.target.value || undefined })} placeholder="Button text" className={fieldCls} />
-                  <input value={it.url ?? ""} onChange={(e) => set({ url: e.target.value })} placeholder="Button link" className={fieldCls} />
+                  <input value={it.cta ?? ""} onChange={(e) => set({ cta: e.target.value || undefined })} placeholder="טקסט הכפתור" className={fieldCls} />
+                  <input value={it.url ?? ""} onChange={(e) => set({ url: e.target.value })} placeholder="קישור הכפתור" className={fieldCls} />
                 </div>
-                <Toggle checked={!!it.featured} onChange={(featured) => set({ featured: featured || undefined })} label="Highlight as most popular" />
+                <Toggle checked={!!it.featured} onChange={(featured) => set({ featured: featured || undefined })} label="הדגשה כהכי פופולרי" />
               </ItemCard>
             );
           })}
           {block.items.length < 4 && (
-            <AddItem label="Add plan" onClick={() => onPatch({ items: [...block.items, { name: "Plan", price: "$49", period: "/month", features: "", cta: "Choose", url: "https://" }] })} />
+            <AddItem label="הוספת חבילה" onClick={() => onPatch({ items: [...block.items, { name: "חבילה", price: "₪199", period: "/חודש", features: "", cta: "לבחירה", url: "https://" }] })} />
           )}
         </div>
       );
@@ -358,28 +358,28 @@ function Fields({ block, plan, onPatch }: { block: Block; plan: Plan; onPatch: P
           <Seg
             value={block.kind}
             options={[
-              { id: "newsletter", label: "Newsletter (email)" },
-              { id: "contact", label: "Contact (name + message)" },
+              { id: "newsletter", label: "ניוזלטר (מייל)" },
+              { id: "contact", label: "יצירת קשר (שם + הודעה)" },
             ]}
             onChange={(kind) => onPatch({ kind })}
           />
-          <input value={block.heading ?? ""} onChange={(e) => onPatch({ heading: e.target.value || undefined })} placeholder="Heading" className={fieldCls} />
-          <input value={block.text ?? ""} onChange={(e) => onPatch({ text: e.target.value || undefined })} placeholder="Short line under the heading" className={fieldCls} />
+          <input value={block.heading ?? ""} onChange={(e) => onPatch({ heading: e.target.value || undefined })} placeholder="כותרת" className={fieldCls} />
+          <input value={block.text ?? ""} onChange={(e) => onPatch({ text: e.target.value || undefined })} placeholder="שורה קצרה מתחת לכותרת" className={fieldCls} />
           <div className="grid grid-cols-2 gap-2">
-            <input value={block.button ?? ""} onChange={(e) => onPatch({ button: e.target.value || undefined })} placeholder="Button text" className={fieldCls} />
-            <input value={block.success ?? ""} onChange={(e) => onPatch({ success: e.target.value || undefined })} placeholder="Thank-you message" className={fieldCls} />
+            <input value={block.button ?? ""} onChange={(e) => onPatch({ button: e.target.value || undefined })} placeholder="טקסט הכפתור" className={fieldCls} />
+            <input value={block.success ?? ""} onChange={(e) => onPatch({ success: e.target.value || undefined })} placeholder="הודעת תודה" className={fieldCls} />
           </div>
           <p className="rounded-lg bg-surface-2/70 px-3 py-2 text-[11px] text-text-muted">
-            Submissions land in your <span className="text-text">Inbox</span> (dashboard) — export them to CSV anytime.
+            הפניות מגיעות ל<span className="text-text">תיבת הפניות</span> בלוח הבקרה — אפשר לייצא ל־CSV בכל רגע.
           </p>
         </div>
       );
     case "map":
       return (
         <div className="space-y-2.5">
-          <input value={block.query} onChange={(e) => onPatch({ query: e.target.value })} placeholder="Address or place name" className={fieldCls} />
+          <input value={block.query} onChange={(e) => onPatch({ query: e.target.value })} placeholder="כתובת או שם מקום" className={fieldCls} />
           <Seg value={block.height ?? "md"} options={HEIGHTS} onChange={(height) => onPatch({ height })} />
-          <p className="text-[11px] text-text-muted">Visitors get one-tap directions in Google Maps or Waze.</p>
+          <p className="text-[11px] text-text-muted">המבקרים מקבלים ניווט בלחיצה ב־Google Maps או ב־Waze.</p>
         </div>
       );
     case "spacer":
@@ -405,24 +405,24 @@ function BlockStyle({ block, plan, onPatch }: { block: Block; plan: Plan; onPatc
   return (
     <details className="group rounded-xl border border-border">
       <summary className="flex cursor-pointer list-none items-center justify-between px-3 py-2.5 text-sm text-text-muted select-none">
-        Block style
+        עיצוב הבלוק
         <span className="text-[11px] transition-transform group-open:rotate-180">▾</span>
       </summary>
       <div className="space-y-4 border-t border-border p-3">
-        <Section title="Container">
+        <Section title="מעטפת">
           <Chips
             value={block.box ?? "inherit"}
             plan={plan}
-            options={[{ id: "inherit", name: "Page default" }, ...SECTION_STYLES]}
+            options={[{ id: "inherit", name: "כמו בעמוד" }, ...SECTION_STYLES]}
             onChange={(box) => onPatch({ box: box === "inherit" ? undefined : box })}
           />
         </Section>
-        <Section title="Entrance">
+        <Section title="כניסה">
           <Chips
             value={block.anim ?? "inherit"}
             plan={plan}
             cols={4}
-            options={[{ id: "inherit", name: "Page default" }, ...REVEALS]}
+            options={[{ id: "inherit", name: "כמו בעמוד" }, ...REVEALS]}
             onChange={(anim) => onPatch({ anim: anim === "inherit" ? undefined : anim })}
           />
         </Section>
@@ -434,14 +434,14 @@ function BlockStyle({ block, plan, onPatch }: { block: Block; plan: Plan; onPatc
 // ─────────────────────────── Editors ───────────────────────────
 
 const ALIGNS = [
-  { id: "left" as const, label: "Start" },
-  { id: "center" as const, label: "Center" },
-  { id: "right" as const, label: "End" },
+  { id: "left" as const, label: "התחלה" },
+  { id: "center" as const, label: "מרכז" },
+  { id: "right" as const, label: "סוף" },
 ];
 const HEIGHTS = [
-  { id: "sm" as const, label: "Short" },
-  { id: "md" as const, label: "Medium" },
-  { id: "lg" as const, label: "Tall" },
+  { id: "sm" as const, label: "נמוך" },
+  { id: "md" as const, label: "בינוני" },
+  { id: "lg" as const, label: "גבוה" },
 ];
 const EMOJI = ["✨", "⚡", "🔥", "💎", "🚀", "❤️", "🎯", "📅", "📸", "🎵", "🛍️", "💬", "📍", "☕", "🏋️", "🎨"];
 
@@ -453,9 +453,9 @@ function EmojiInput({ value, onChange }: { value?: string; onChange: (v: string 
         onChange={(e) => onChange(Array.from(e.target.value).slice(-2).join("") || undefined)}
         placeholder="✦"
         className="h-10 w-12 rounded-xl border border-border bg-surface-2 text-center text-lg text-text focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:outline-none"
-        aria-label="Icon (emoji)"
+        aria-label="אייקון (אימוג׳י)"
       />
-      <div className="absolute top-11 left-0 z-10 hidden w-56 grid-cols-8 gap-0.5 rounded-xl border border-border bg-bg p-1.5 shadow-2xl group-focus-within:grid">
+      <div className="absolute top-11 start-0 z-10 hidden w-56 grid-cols-8 gap-0.5 rounded-xl border border-border bg-bg p-1.5 shadow-2xl group-focus-within:grid">
         {EMOJI.map((e) => (
           <button key={e} type="button" onMouseDown={(ev) => ev.preventDefault()} onClick={() => onChange(e)} className="rounded-md p-1 text-base hover:bg-surface-2">
             {e}
@@ -492,12 +492,12 @@ function HeroEditor({ b, plan, onPatch }: { b: BlockOf<"hero">; plan: Plan; onPa
   const layout = b.layout ?? "center";
   return (
     <div className="space-y-4">
-      <Section title="Layout">
+      <Section title="פריסה">
         <Chips value={layout} plan={plan} options={HERO_LAYOUTS} onChange={(l) => onPatch({ layout: l })} />
       </Section>
       <div className="space-y-2">
-        <RichTextInput value={b.name} onChange={(name) => onPatch({ name })} placeholder="Name" />
-        <RichTextInput value={b.tagline} onChange={(tagline) => onPatch({ tagline })} placeholder="Tagline" />
+        <RichTextInput value={b.name} onChange={(name) => onPatch({ name })} placeholder="שם" />
+        <RichTextInput value={b.tagline} onChange={(tagline) => onPatch({ tagline })} placeholder="שורת תיאור" />
         <input
           defaultValue={(b.words ?? []).join(", ")}
           onChange={(e) =>
@@ -509,14 +509,14 @@ function HeroEditor({ b, plan, onPatch }: { b: BlockOf<"hero">; plan: Plan; onPa
                 .slice(0, 8),
             })
           }
-          placeholder="Typewriter words, comma separated (optional)"
+          placeholder="מילים למכונת כתיבה, מופרדות בפסיקים (רשות)"
           className={fieldCls}
         />
-        <input value={b.badge ?? ""} onChange={(e) => onPatch({ badge: e.target.value || undefined })} placeholder='Status badge, e.g. "Available for work"' maxLength={40} className={fieldCls} />
+        <input value={b.badge ?? ""} onChange={(e) => onPatch({ badge: e.target.value || undefined })} placeholder='תג סטטוס, למשל "פנוי/ה לפרויקטים"' maxLength={40} className={fieldCls} />
       </div>
-      <Section title="Profile photo">
+      <Section title="תמונת פרופיל">
         <ImageField value={b.avatarUrl} onChange={(avatarUrl) => onPatch({ avatarUrl: avatarUrl ?? null })} maxDim={640} />
-        <Slider label="Size" value={b.avatarScale ?? 80} min={48} max={200} step={4} suffix="px" onChange={(avatarScale) => onPatch({ avatarScale })} />
+        <Slider label="גודל" value={b.avatarScale ?? 80} min={48} max={200} step={4} suffix="px" onChange={(avatarScale) => onPatch({ avatarScale })} />
         <Seg
           value={b.avatar?.radius ?? (b.avatarShape === "square" ? "sm" : b.avatarShape === "rounded" ? "lg" : "full")}
           options={RADIUS_OPTS}
@@ -527,18 +527,18 @@ function HeroEditor({ b, plan, onPatch }: { b: BlockOf<"hero">; plan: Plan; onPa
           onChange={(e) => onPatch({ avatarIdle: e.target.value || undefined })}
           className={fieldCls}
         >
-          <option value="">Idle animation: none</option>
+          <option value="">אנימציה במנוחה: ללא</option>
           {AVATAR_IDLE.map((a) => (
             <option key={a.id} value={a.id}>
-              Idle animation: {a.name}
+              אנימציה במנוחה: {a.name}
             </option>
           ))}
         </select>
       </Section>
       {(layout === "center" || layout === "cover") && (
-        <Section title={layout === "cover" ? "Cover image" : "Banner"}>
+        <Section title={layout === "cover" ? "תמונת שער" : "באנר"}>
           <ImageField value={b.bannerUrl} onChange={(bannerUrl) => onPatch({ bannerUrl: bannerUrl ?? null })} maxDim={1800} />
-          {layout === "cover" && !b.bannerUrl && <p className="text-[11px] text-text-muted">No image? The cover glows in your accent colors.</p>}
+          {layout === "cover" && !b.bannerUrl && <p className="text-[11px] text-text-muted">אין תמונה? השער יזהר בצבעי המבטא שלכם.</p>}
         </Section>
       )}
     </div>
@@ -555,17 +555,17 @@ function LinksEditor({ b, plan, onPatch }: { b: BlockOf<"links">; plan: Plan; on
       <Seg
         value={b.layout ?? "list"}
         options={[
-          { id: "list", label: "Buttons" },
-          { id: "grid", label: "Tiles" },
-          { id: "cards", label: "Cards" },
+          { id: "list", label: "כפתורים" },
+          { id: "grid", label: "אריחים" },
+          { id: "cards", label: "כרטיסים" },
         ]}
         onChange={(layout) => onPatch({ layout })}
       />
       <div className="grid grid-cols-2 gap-2">
         <label className="flex flex-col gap-1 text-[11px] text-text-muted">
-          Idle motion
+          תנועה במנוחה
           <select value={b.buttonIdle ?? ""} onChange={(e) => onPatch({ buttonIdle: e.target.value || undefined })} className="h-9 rounded-lg border border-border bg-surface-2 px-2 text-xs text-text">
-            <option value="">Page default</option>
+            <option value="">כמו בעמוד</option>
             {BUTTON_IDLE.map((e) => (
               <option key={e.id} value={e.id}>
                 {e.name}
@@ -574,9 +574,9 @@ function LinksEditor({ b, plan, onPatch }: { b: BlockOf<"links">; plan: Plan; on
           </select>
         </label>
         <label className="flex flex-col gap-1 text-[11px] text-text-muted">
-          Hover effect
+          אפקט במעבר עכבר
           <select value={b.buttonFx ?? ""} onChange={(e) => onPatch({ buttonFx: e.target.value || undefined })} className="h-9 rounded-lg border border-border bg-surface-2 px-2 text-xs text-text">
-            <option value="">Page default</option>
+            <option value="">כמו בעמוד</option>
             {BUTTON_FX.map((e) => {
               const locked = e.category === "Creative" && !c.creativeEffects;
               return (
@@ -592,14 +592,14 @@ function LinksEditor({ b, plan, onPatch }: { b: BlockOf<"links">; plan: Plan; on
 
       {items.map((it, i) => (
         <ItemCard key={i} onRemove={() => setItems(items.filter((_, j) => j !== i))}>
-          <div className="flex items-start gap-2 pr-8">
+          <div className="flex items-start gap-2 pe-8">
             <IconPicker item={it} onChange={(p) => update(i, p)} />
             <div className="min-w-0 flex-1">
-              <RichTextInput value={it.label} onChange={(label) => update(i, { label })} placeholder="Label" />
+              <RichTextInput value={it.label} onChange={(label) => update(i, { label })} placeholder="תווית" />
             </div>
           </div>
-          <input value={it.url} onChange={(e) => update(i, { url: e.target.value })} placeholder="Link, email or phone" className={fieldCls} />
-          <input value={it.sub ?? ""} onChange={(e) => update(i, { sub: e.target.value || undefined })} placeholder="Subtitle (optional)" className={fieldCls} />
+          <input value={it.url} onChange={(e) => update(i, { url: e.target.value })} placeholder="קישור, מייל או טלפון" className={fieldCls} />
+          <input value={it.sub ?? ""} onChange={(e) => update(i, { sub: e.target.value || undefined })} placeholder="כותרת משנה (רשות)" className={fieldCls} />
           <div className="flex flex-wrap items-center gap-2">
             <button
               type="button"
@@ -609,7 +609,7 @@ function LinksEditor({ b, plan, onPatch }: { b: BlockOf<"links">; plan: Plan; on
                 it.highlighted ? "border-primary bg-primary/10 text-text" : "border-border text-text-muted hover:text-text",
               )}
             >
-              <Star className={cn("h-3.5 w-3.5", it.highlighted && "fill-primary text-primary")} /> Highlight
+              <Star className={cn("h-3.5 w-3.5", it.highlighted && "fill-primary text-primary-text")} /> הדגשה
             </button>
             <ThumbButton value={it.thumb} onChange={(thumb) => update(i, { thumb })} />
               <input
@@ -617,21 +617,21 @@ function LinksEditor({ b, plan, onPatch }: { b: BlockOf<"links">; plan: Plan; on
                 value={it.color || "#00e5a0"}
                 onChange={(e) => update(i, { color: e.target.value })}
                 className="h-8 w-9 cursor-pointer rounded-lg border border-border bg-surface-2"
-                title="This button's color"
-                aria-label="Button color"
+                title="הצבע של הכפתור הזה"
+                aria-label="צבע הכפתור"
               />
               {it.color && (
                 <button type="button" onClick={() => update(i, { color: undefined })} className="text-[11px] text-text-muted hover:text-text">
-                  Reset color
+                  איפוס צבע
                 </button>
               )}
               <select
                 value={it.fx ?? ""}
                 onChange={(e) => update(i, { fx: e.target.value || undefined })}
                 className="h-8 min-w-0 flex-1 rounded-lg border border-border bg-surface-2 px-2 text-xs text-text"
-                aria-label="This button's hover effect"
+                aria-label="אפקט מעבר העכבר של הכפתור"
               >
-                <option value="">Effect: default</option>
+                <option value="">אפקט: ברירת מחדל</option>
                 {BUTTON_FX.map((e) => (
                   <option key={e.id} value={e.id}>
                     {e.name}
@@ -642,7 +642,7 @@ function LinksEditor({ b, plan, onPatch }: { b: BlockOf<"links">; plan: Plan; on
           </div>
         </ItemCard>
       ))}
-      <AddItem label="Add link" onClick={() => setItems([...items, { label: "New link", url: "https://", icon: "auto" }])} />
+      <AddItem label="הוספת קישור" onClick={() => setItems([...items, { label: "קישור חדש", url: "https://", icon: "auto" }])} />
     </div>
   );
 }
@@ -655,11 +655,11 @@ function IconPicker({ item, onChange }: { item: LinkItem; onChange: (p: Partial<
     <details className="relative shrink-0">
       <summary
         className="grid h-10 w-10 cursor-pointer list-none place-items-center rounded-xl border border-border bg-surface-2 text-lg text-text"
-        aria-label="Link icon"
+        aria-label="אייקון הקישור"
       >
-        {auto ? <SocialIcon platform={platformFromUrl(item.url)} className="h-4 w-4" /> : item.icon || <span className="text-[10px] text-text-muted">Icon</span>}
+        {auto ? <SocialIcon platform={platformFromUrl(item.url)} className="h-4 w-4" /> : item.icon || <span className="text-[10px] text-text-muted">אייקון</span>}
       </summary>
-      <div className="absolute top-11 left-0 z-10 w-60 rounded-xl border border-border bg-bg p-2 shadow-2xl">
+      <div className="absolute top-11 start-0 z-10 w-60 rounded-xl border border-border bg-bg p-2 shadow-2xl">
         <div className="mb-1.5 flex gap-1">
           <button
             type="button"
@@ -669,7 +669,7 @@ function IconPicker({ item, onChange }: { item: LinkItem; onChange: (p: Partial<
             }}
             className={cn("flex-1 rounded-lg border px-2 py-1 text-[11px]", auto ? "border-primary text-text" : "border-border text-text-muted")}
           >
-            Auto (from link)
+            אוטומטי (לפי הקישור)
           </button>
           <button
             type="button"
@@ -679,7 +679,7 @@ function IconPicker({ item, onChange }: { item: LinkItem; onChange: (p: Partial<
             }}
             className="flex-1 rounded-lg border border-border px-2 py-1 text-[11px] text-text-muted"
           >
-            None
+            ללא
           </button>
         </div>
         <div className="grid grid-cols-8 gap-0.5">
@@ -712,9 +712,9 @@ function ThumbButton({ value, onChange }: { value?: string; onChange: (v: string
         ) : (
           <ImageIcon className="h-3.5 w-3.5" />
         )}
-        Thumbnail
+        תמונה ממוזערת
       </summary>
-      <div className="absolute top-10 left-0 z-10 w-72 rounded-xl border border-border bg-bg p-2 shadow-2xl">
+      <div className="absolute top-10 start-0 z-10 w-72 rounded-xl border border-border bg-bg p-2 shadow-2xl">
         <ImageField value={value} onChange={onChange} maxDim={400} />
       </div>
     </details>
@@ -725,8 +725,8 @@ function TextEditor({ b, plan, onPatch }: { b: BlockOf<"text">; plan: Plan; onPa
   const c = caps(plan);
   return (
     <div className="space-y-2.5">
-      <RichTextInput value={b.heading} onChange={(heading) => onPatch({ heading })} placeholder="Heading (optional)" />
-      <RichTextInput value={b.body} onChange={(body) => onPatch({ body })} placeholder="Text" multiline />
+      <RichTextInput value={b.heading} onChange={(heading) => onPatch({ heading })} placeholder="כותרת (רשות)" />
+      <RichTextInput value={b.body} onChange={(body) => onPatch({ body })} placeholder="טקסט" multiline />
       <div className="grid grid-cols-2 gap-2">
         <Seg value={b.align ?? "left"} options={ALIGNS} onChange={(align) => onPatch({ align })} />
         <Seg
@@ -740,10 +740,10 @@ function TextEditor({ b, plan, onPatch }: { b: BlockOf<"text">; plan: Plan; onPa
         />
       </div>
       <div className="flex items-center gap-2">
-        <ColorField value={b.color} fallback="#9AA3AF" label="Text color" onChange={(color) => onPatch({ color })} onReset={() => onPatch({ color: undefined })} />
+        <ColorField value={b.color} fallback="#9AA3AF" label="צבע טקסט" onChange={(color) => onPatch({ color })} onReset={() => onPatch({ color: undefined })} />
         {!c.perElement && <TierPill tier="PLUS" />}
       </div>
-      <Toggle checked={!!b.spoiler} onChange={(spoiler) => onPatch({ spoiler: spoiler || undefined })} label="Hide behind a tap-to-reveal spoiler" />
+      <Toggle checked={!!b.spoiler} onChange={(spoiler) => onPatch({ spoiler: spoiler || undefined })} label="הסתרה מאחורי ספוילר שנחשף בלחיצה" />
     </div>
   );
 }
@@ -758,9 +758,9 @@ function SocialsEditor({ b, plan, onPatch }: { b: BlockOf<"socials">; plan: Plan
         <Seg
           value={b.iconStyle ?? "plain"}
           options={[
-            { id: "plain", label: "Plain" },
-            { id: "chip", label: "Chips" },
-            { id: "brand", label: "Brand" },
+            { id: "plain", label: "פשוט" },
+            { id: "chip", label: "תגיות" },
+            { id: "brand", label: "צבעי מותג" },
           ]}
           onChange={(iconStyle) => onPatch({ iconStyle })}
         />
@@ -776,9 +776,9 @@ function SocialsEditor({ b, plan, onPatch }: { b: BlockOf<"socials">; plan: Plan
       </div>
       <div className="grid grid-cols-2 gap-2">
         <label className="flex flex-col gap-1 text-[11px] text-text-muted">
-          Hover effect
+          אפקט במעבר עכבר
           <select value={b.iconFx ?? ""} onChange={(e) => onPatch({ iconFx: e.target.value || undefined })} className="h-9 rounded-lg border border-border bg-surface-2 px-2 text-xs text-text">
-            <option value="">Page default</option>
+            <option value="">כמו בעמוד</option>
             {ICON_FX.map((e) => (
               <option key={e.id} value={e.id}>
                 {e.name}
@@ -787,9 +787,9 @@ function SocialsEditor({ b, plan, onPatch }: { b: BlockOf<"socials">; plan: Plan
           </select>
         </label>
         <label className="flex flex-col gap-1 text-[11px] text-text-muted">
-          Idle motion
+          תנועה במנוחה
           <select value={b.iconIdle ?? ""} onChange={(e) => onPatch({ iconIdle: e.target.value || undefined })} className="h-9 rounded-lg border border-border bg-surface-2 px-2 text-xs text-text">
-            <option value="">Page default</option>
+            <option value="">כמו בעמוד</option>
             {ICON_IDLE.map((e) => (
               <option key={e.id} value={e.id}>
                 {e.name}
@@ -800,7 +800,7 @@ function SocialsEditor({ b, plan, onPatch }: { b: BlockOf<"socials">; plan: Plan
       </div>
       {b.iconStyle !== "brand" && (
         <div className="flex items-center gap-2">
-          <ColorField value={b.iconColor} fallback="#9AA3AF" label="Icon color" onChange={(iconColor) => onPatch({ iconColor })} onReset={() => onPatch({ iconColor: undefined })} />
+          <ColorField value={b.iconColor} fallback="#9AA3AF" label="צבע אייקונים" onChange={(iconColor) => onPatch({ iconColor })} onReset={() => onPatch({ iconColor: undefined })} />
           {!c.perElement && <TierPill tier="PLUS" />}
         </div>
       )}
@@ -829,15 +829,15 @@ function SocialsEditor({ b, plan, onPatch }: { b: BlockOf<"socials">; plan: Plan
           <button
             type="button"
             onClick={() => setItems(items.filter((_, j) => j !== i))}
-            aria-label="Remove"
-            className="grid h-10 w-8 shrink-0 place-items-center text-text-muted hover:text-red-400"
+            aria-label="הסרה"
+            className="grid h-10 w-8 shrink-0 place-items-center text-text-muted hover:text-red-700"
           >
             ×
           </button>
         </div>
       ))}
       <AddItem
-        label="Add profile"
+        label="הוספת פרופיל"
         onClick={() => {
           const used = new Set(items.map((x) => x.platform));
           const next = SOCIAL_OPTIONS.find((o) => !used.has(o.value))?.value ?? "website";
@@ -851,15 +851,15 @@ function SocialsEditor({ b, plan, onPatch }: { b: BlockOf<"socials">; plan: Plan
 function DividerEditor({ b, plan, onPatch }: { b: BlockOf<"divider">; plan: Plan; onPatch: Patch }) {
   const c = caps(plan);
   const styles: { id: NonNullable<BlockOf<"divider">["style"]>; label: string; plus?: boolean }[] = [
-    { id: "line", label: "Line" },
-    { id: "dashed", label: "Dashed" },
-    { id: "dotted", label: "Dotted" },
-    { id: "glow", label: "Glow" },
-    { id: "double", label: "Double" },
-    { id: "wave", label: "Wave" },
-    { id: "shimmer", label: "Shimmer", plus: true },
-    { id: "march", label: "Marching", plus: true },
-    { id: "pulse", label: "Pulse", plus: true },
+    { id: "line", label: "קו" },
+    { id: "dashed", label: "מקווקו" },
+    { id: "dotted", label: "מנוקד" },
+    { id: "glow", label: "זוהר" },
+    { id: "double", label: "כפול" },
+    { id: "wave", label: "גל" },
+    { id: "shimmer", label: "נצנוץ", plus: true },
+    { id: "march", label: "צועד", plus: true },
+    { id: "pulse", label: "פועם", plus: true },
   ];
   return (
     <div className="space-y-3">
@@ -883,7 +883,7 @@ function DividerEditor({ b, plan, onPatch }: { b: BlockOf<"divider">; plan: Plan
         })}
       </div>
       <div className="flex items-center gap-2">
-        <ColorField value={b.color} fallback="#2A2F3A" label="Divider color" onChange={(color) => onPatch({ color })} onReset={() => onPatch({ color: undefined })} />
+        <ColorField value={b.color} fallback="#2A2F3A" label="צבע המפריד" onChange={(color) => onPatch({ color })} onReset={() => onPatch({ color: undefined })} />
         {!c.perElement && <TierPill tier="PLUS" />}
       </div>
       <div className="rounded-lg border border-border bg-bg px-3 py-4">

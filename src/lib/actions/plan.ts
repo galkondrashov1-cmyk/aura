@@ -19,10 +19,10 @@ export type ClaimResult =
  */
 export async function claimPlan(plan: Plan): Promise<ClaimResult> {
   const user = await getSession();
-  if (!user) return { ok: false, error: "Please log in again.", code: "login" };
+  if (!user) return { ok: false, error: "התחברו מחדש בבקשה.", code: "login" };
   const next = asPlan(plan);
   if (paypalConfigured() && next !== "FREE") {
-    return { ok: false, error: "Paid plans need a subscription.", code: "payment", needsPayment: true };
+    return { ok: false, error: "חבילות בתשלום דורשות מנוי.", code: "payment", needsPayment: true };
   }
   const rows = await prisma.$queryRaw<{ paypalSubId: string | null; planExpiresAt: string | null }[]>`
     SELECT "paypalSubId", "planExpiresAt" FROM "User" WHERE id = ${user.id} LIMIT 1
@@ -32,7 +32,7 @@ export async function claimPlan(plan: Plan): Promise<ClaimResult> {
   if (next === "FREE" && row?.paypalSubId && !row.planExpiresAt) {
     return {
       ok: false,
-      error: "Cancel your subscription first — you keep access until the end of what you paid for.",
+      error: "בטלו קודם את המנוי — הגישה נשמרת עד סוף התקופה ששולמה.",
       code: "subscription",
     };
   }

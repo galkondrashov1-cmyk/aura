@@ -1,68 +1,75 @@
 import Link from "next/link";
-import { AuraLogo } from "@/components/aura-logo";
+import { BRAND } from "@/lib/brand";
+import { Logo } from "@/components/logo";
 import { buttonClasses } from "@/components/ui/button";
 
 export function SiteNav() {
   return (
-    <header className="mx-auto flex max-w-6xl items-center justify-between px-4 py-5 sm:px-6">
-      <Link href="/">
-        <AuraLogo />
-      </Link>
-      <nav className="flex items-center gap-1.5 sm:gap-2">
-        <Link href="/pricing" className={buttonClasses("ghost", "sm", "px-3 max-[359px]:hidden sm:px-4")}>
-          Pricing
+    <header className="border-b border-text">
+      <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-5 sm:px-8">
+        <Link href="/" aria-label={BRAND.name}>
+          <Logo />
         </Link>
-        <Link href="/login" className={buttonClasses("ghost", "sm", "px-3 sm:px-4")}>
-          Log in
-        </Link>
-        <Link href="/signup" className={buttonClasses("primary", "sm")}>
-          <span className="sm:hidden">Sign up</span>
-          <span className="hidden sm:inline">Create your AURA</span>
-        </Link>
-      </nav>
+        <nav className="flex items-center gap-1 sm:gap-2">
+          <Link href="/pricing" className={buttonClasses("ghost", "sm", "max-[359px]:hidden")}>
+            מחירים
+          </Link>
+          <Link href="/login" className={buttonClasses("ghost", "sm")}>
+            התחברות
+          </Link>
+          <Link href="/signup" className={buttonClasses("primary", "sm")}>
+            <span className="sm:hidden">הרשמה</span>
+            <span className="hidden sm:inline">צרו עמוד משלכם</span>
+          </Link>
+        </nav>
+      </div>
     </header>
   );
 }
 
-const STEPS = [
-  { n: "01", title: "Claim your name", body: "useaura.me/you — takes about ten seconds, and it's yours." },
-  { n: "02", title: "Make it unmistakably yours", body: "Pick a theme, tune every block, watch it change live as you type." },
-  { n: "03", title: "Share one link everywhere", body: "Bio, stories, email signature — and watch the clicks roll in." },
-];
-
-export function HowItWorks() {
+/** "domain/____" field that carries the chosen name straight into signup. */
+export function ClaimField({ tone = "light" }: { tone?: "light" | "accent" }) {
   return (
-    <section className="mx-auto max-w-6xl px-6 py-16">
-      <h2 className="font-display text-3xl font-medium tracking-tight md:text-4xl">
-        Live in three steps
-      </h2>
-      <div className="mt-12 grid gap-8 md:grid-cols-3">
-        {STEPS.map((s) => (
-          <div key={s.n}>
-            <div className="font-display text-3xl font-medium text-primary">{s.n}</div>
-            <h3 className="mt-3 font-display text-lg font-medium">{s.title}</h3>
-            <p className="mt-1.5 text-sm text-text-muted">{s.body}</p>
-          </div>
-        ))}
-      </div>
-    </section>
+    <form action="/signup" className="flex flex-col gap-2 sm:flex-row">
+      <label
+        dir="ltr"
+        className={
+          "flex h-14 flex-1 items-center rounded-[4px] border px-4 text-lg focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-text " +
+          (tone === "accent" ? "border-text bg-bg" : "border-text bg-surface")
+        }
+      >
+        <span className="text-text-muted">{BRAND.domain}/</span>
+        <input
+          name="u"
+          aria-label="השם שתרצו"
+          placeholder="noa"
+          autoCapitalize="none"
+          autoCorrect="off"
+          spellCheck={false}
+          maxLength={20}
+          size={1}
+          pattern="[a-zA-Z0-9_]{3,20}"
+          title="3–20 אותיות באנגלית, ספרות או _"
+          className="min-w-0 flex-1 bg-transparent text-text outline-none placeholder:text-text-muted/50"
+        />
+      </label>
+      <button type="submit" className={buttonClasses(tone === "accent" ? "secondary" : "primary", "lg", tone === "accent" ? "bg-bg" : "")}>
+        תפסו את השם
+      </button>
+    </form>
   );
 }
 
 export function CtaBand() {
   return (
-    <section className="mx-auto max-w-6xl px-6 py-16">
-      <div className="aura-glow rounded-3xl border border-border bg-surface px-6 py-16 text-center">
-        <h2 className="font-display text-3xl font-medium tracking-tight md:text-4xl">
-          Your name is still available. Probably.
-        </h2>
-        <p className="mt-3 text-text-muted">
-          Claim useaura.me/you before someone with the same name does.
-        </p>
-        <div className="mt-8">
-          <Link href="/signup" className={buttonClasses("primary", "lg")}>
-            Create your AURA — free
-          </Link>
+    <section className="bg-primary text-primary-ink">
+      <div className="mx-auto grid max-w-7xl grid-cols-1 gap-10 px-5 py-20 sm:px-8 lg:grid-cols-12 lg:items-end">
+        <h2 className="display-xl wipe-in lg:col-span-7">השם שלכם עוד פנוי. כנראה.</h2>
+        <div className="lg:col-span-5">
+          <p className="mb-4 text-lg">
+            תפסו את <span dir="ltr">{BRAND.domain}/noa</span> לפני שמישהו עם אותו שם יקדים אתכם.
+          </p>
+          <ClaimField tone="accent" />
         </div>
       </div>
     </section>
@@ -71,29 +78,28 @@ export function CtaBand() {
 
 export function Footer() {
   return (
-    <footer className="border-t border-border">
-      <div className="mx-auto flex max-w-6xl flex-col items-start justify-between gap-6 px-6 py-12 sm:flex-row sm:items-center">
-        <div>
-          <AuraLogo />
-          <p className="mt-3 max-w-xs text-sm text-text-muted">
-            Built by a tiny team that sweats the details — every theme in AURA is
-            hand-tuned, not generated.
+    <footer className="bg-bg">
+      <div className="mx-auto max-w-7xl px-5 pt-16 pb-10 sm:px-8">
+        <p dir="ltr" className="text-end font-display text-[clamp(4rem,18vw,15rem)] leading-[0.8] font-black tracking-tight">
+          {BRAND.name}
+        </p>
+        <div className="mt-10 flex flex-wrap items-center justify-between gap-4 border-t border-text pt-6 text-sm text-text-muted">
+          <p>נבנה על ידי צוות קטן שמת על הפרטים. כל ערכת עיצוב כאן כוונה ביד.</p>
+          <nav className="flex gap-5">
+            <Link href="/pricing" className="hover:text-text">
+              מחירים
+            </Link>
+            <Link href="/login" className="hover:text-text">
+              התחברות
+            </Link>
+            <Link href="/signup" className="hover:text-text">
+              הרשמה
+            </Link>
+          </nav>
+          <p dir="ltr">
+            © {new Date().getFullYear()} {BRAND.name} · {BRAND.domain}
           </p>
         </div>
-        <div className="flex flex-wrap items-center gap-2">
-          <Link href="/pricing" className={buttonClasses("ghost", "sm")}>
-            Pricing
-          </Link>
-          <Link href="/login" className={buttonClasses("ghost", "sm")}>
-            Log in
-          </Link>
-          <Link href="/signup" className={buttonClasses("primary", "sm")}>
-            Create your AURA
-          </Link>
-        </div>
-      </div>
-      <div className="mx-auto max-w-6xl px-6 pb-10 text-xs text-text-muted">
-        © {new Date().getFullYear()} AURA · useaura.me
       </div>
     </footer>
   );

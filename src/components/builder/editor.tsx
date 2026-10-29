@@ -1,5 +1,8 @@
 "use client";
 
+import dynamic from "next/dynamic";
+
+import { BRAND } from "@/lib/brand";
 import { useActionState, useCallback, useEffect, useMemo, useRef, useState, useTransition } from "react";
 import Link from "next/link";
 import {
@@ -25,7 +28,7 @@ import {
   Undo2,
   X,
 } from "lucide-react";
-import { AuraMark } from "@/components/aura-logo";
+import { Mark } from "@/components/logo";
 import { PageRenderer } from "@/components/renderer/page-renderer";
 import { cn } from "@/lib/utils";
 import { savePage, publishPage, deletePage, unpublishPage, setPrimaryPage, updatePageSlug, type SlugState } from "@/lib/actions/pages";
@@ -33,11 +36,12 @@ import { asPageContent, heroOf, type Block, type BlockType, type PageContent, ty
 import { caps, type Plan } from "@/lib/plans";
 import { allowed, BLOCK_TIER, fitToPlanReport, looksRtl } from "@/lib/studio";
 import { toPlain } from "@/lib/richtext";
-import { DesignPanel } from "./design-panel";
+// Heavy panels load on first use, not with the editor.
+const DesignPanel = dynamic(() => import("./design-panel").then((m) => m.DesignPanel), { ssr: false });
 import { BLOCK_META, BlockFields, blockSummary, newBlock } from "./block-editors";
-import { PublishDialog } from "./publish-dialog";
+const PublishDialog = dynamic(() => import("./publish-dialog").then((m) => m.PublishDialog), { ssr: false });
 import { Modal, TierPill, UpgradeContext, fieldCls } from "./ui";
-import { Upsell } from "./upsell";
+const Upsell = dynamic(() => import("./upsell").then((m) => m.Upsell), { ssr: false });
 
 type Panel = "blocks" | "design";
 type SaveState = "saved" | "dirty" | "saving" | "error";
@@ -311,16 +315,16 @@ export function Editor({
     view === "block" && selectedBlock ? (
       <div className="space-y-4">
         <div className="flex items-center gap-1">
-          <IconBtn label="Move up" onClick={() => moveBlock(doc.blocks.indexOf(selectedBlock), doc.blocks.indexOf(selectedBlock) - 1)}>
+          <IconBtn label="למעלה" onClick={() => moveBlock(doc.blocks.indexOf(selectedBlock), doc.blocks.indexOf(selectedBlock) - 1)}>
             <ChevronUp className="h-4 w-4" />
           </IconBtn>
-          <IconBtn label="Move down" onClick={() => moveBlock(doc.blocks.indexOf(selectedBlock), doc.blocks.indexOf(selectedBlock) + 1)}>
+          <IconBtn label="למטה" onClick={() => moveBlock(doc.blocks.indexOf(selectedBlock), doc.blocks.indexOf(selectedBlock) + 1)}>
             <ChevronDown className="h-4 w-4" />
           </IconBtn>
-          <IconBtn label="Duplicate" onClick={() => duplicateBlock(selectedBlock.id)}>
+          <IconBtn label="שכפול" onClick={() => duplicateBlock(selectedBlock.id)}>
             <Copy className="h-4 w-4" />
           </IconBtn>
-          <IconBtn label="Delete block" danger onClick={() => removeBlock(selectedBlock.id)}>
+          <IconBtn label="מחיקת בלוק" danger onClick={() => removeBlock(selectedBlock.id)}>
             <Trash2 className="h-4 w-4" />
           </IconBtn>
           {!allowed(BLOCK_TIER[selectedBlock.type], plan) && (
@@ -370,46 +374,46 @@ export function Editor({
     );
 
   const panelTitle =
-    view === "block" && selectedBlock ? BLOCK_META[selectedBlock.type].label : view === "design" ? "Design studio" : "Blocks";
+    view === "block" && selectedBlock ? BLOCK_META[selectedBlock.type].label : view === "design" ? "סטודיו עיצוב" : "בלוקים";
 
   return (
     <UpgradeContext.Provider value={upgradeCtx}>
     <div data-mode="muted" className="flex h-[100dvh] flex-col bg-bg text-text">
       {/* ── Header ── */}
       <header className="flex shrink-0 items-center gap-2 border-b border-border px-3 py-2">
-        <Link href="/dashboard" aria-label="Back to dashboard" className="grid h-9 w-9 place-items-center rounded-xl text-text-muted hover:bg-surface hover:text-text">
+        <Link href="/dashboard" aria-label="חזרה ללוח הבקרה" className="grid h-9 w-9 place-items-center rounded-xl text-text-muted hover:bg-surface hover:text-text">
           <ArrowLeft className="h-5 w-5" />
         </Link>
         <div className="hidden min-w-0 items-center gap-2 sm:flex">
-          <AuraMark className="h-6 w-6 text-primary" />
+          <Mark className="size-3" />
           <div className="min-w-0 leading-tight">
-            <p className="truncate text-sm font-medium">{toPlain(heroOf(doc)?.name) || "Untitled"}</p>
-            <p className="truncate text-[11px] text-text-muted">useaura.me{publicPath}</p>
+            <p className="truncate text-sm font-medium">{toPlain(heroOf(doc)?.name) || "ללא שם"}</p>
+            <p className="truncate text-[11px] text-text-muted">{BRAND.domain}{publicPath}</p>
           </div>
         </div>
         <SaveBadge state={saveState} />
 
         <div className="ml-auto flex items-center gap-1">
-          <div className="mr-1 hidden items-center rounded-xl border border-border p-0.5 lg:flex">
+          <div className="me-1 hidden items-center rounded-xl border border-border p-0.5 lg:flex">
             <button
               onClick={() => setDevice("mobile")}
-              aria-label="Phone preview"
+              aria-label="תצוגת טלפון"
               className={cn("grid h-8 w-8 place-items-center rounded-lg", device === "mobile" ? "bg-surface-2 text-text" : "text-text-muted")}
             >
               <Smartphone className="h-4 w-4" />
             </button>
             <button
               onClick={() => setDevice("desktop")}
-              aria-label="Desktop preview"
+              aria-label="תצוגת מחשב"
               className={cn("grid h-8 w-8 place-items-center rounded-lg", device === "desktop" ? "bg-surface-2 text-text" : "text-text-muted")}
             >
               <Monitor className="h-4 w-4" />
             </button>
           </div>
-          <IconBtn label="Undo (⌘Z)" onClick={undo} disabled={hist.undo === 0} className="hidden sm:grid">
+          <IconBtn label="ביטול (⌘Z)" onClick={undo} disabled={hist.undo === 0} className="hidden sm:grid">
             <Undo2 className="h-4 w-4" />
           </IconBtn>
-          <IconBtn label="Redo (⇧⌘Z)" onClick={redo} disabled={hist.redo === 0} className="hidden sm:grid">
+          <IconBtn label="ביצוע מחדש (⇧⌘Z)" onClick={redo} disabled={hist.redo === 0} className="hidden sm:grid">
             <Redo2 className="h-4 w-4" />
           </IconBtn>
           <a
@@ -418,7 +422,7 @@ export function Editor({
             rel="noopener noreferrer"
             className="hidden h-9 items-center gap-1.5 rounded-full px-3 text-sm text-text-muted hover:bg-surface hover:text-text sm:inline-flex"
           >
-            <Eye className="h-4 w-4" /> Preview
+            <Eye className="h-4 w-4" /> תצוגה מקדימה
           </a>
           <button
             onClick={() => onPublish()}
@@ -426,7 +430,7 @@ export function Editor({
             className="relative inline-flex h-9 items-center gap-1.5 rounded-full bg-primary px-4 text-sm font-medium text-primary-ink transition hover:brightness-110 disabled:opacity-60"
           >
             {publishing && <Loader2 className="h-4 w-4 animate-spin" />}
-            {published ? (unpublishedChanges ? "Update" : "Published") : "Publish"}
+            {published ? (unpublishedChanges ? "עדכון" : "פורסם") : "פרסום"}
             {unpublishedChanges && <span className="absolute -top-0.5 -right-0.5 h-2.5 w-2.5 rounded-full bg-amber-400 ring-2 ring-bg" />}
           </button>
         </div>
@@ -444,12 +448,12 @@ export function Editor({
               onClick={() => setUpsell({ tier: "PLUS", mode: "unlock" })}
               className="sticky top-0 z-30 flex w-full items-center gap-2 border-b border-primary/25 bg-bg/90 px-3 py-2 text-start text-xs backdrop-blur"
             >
-              <Sparkles className="h-4 w-4 shrink-0 text-primary" />
+              <Sparkles className="h-4 w-4 shrink-0 text-primary-text" />
               <span className="min-w-0 flex-1 truncate text-text-muted">
-                <span className="text-text">Previewing {locked.length} premium {locked.length === 1 ? "touch" : "touches"}</span> — your live page shows
-                them once unlocked: {locked.map((f) => f.label).join(", ")}
+                <span className="text-text">{locked.length === 1 ? "נגיעת פרימיום אחת בתצוגה מקדימה" : `${locked.length} נגיעות פרימיום בתצוגה מקדימה`}</span> — הן
+                יופיעו בעמוד החי אחרי פתיחה: {locked.map((f) => f.label).join(", ")}
               </span>
-              <span className="shrink-0 rounded-full bg-primary px-2.5 py-1 font-medium text-primary-ink">Unlock</span>
+              <span className="shrink-0 rounded-full bg-primary px-2.5 py-1 font-medium text-primary-ink">פתיחה</span>
             </button>
           )}
           <div className={cn("mx-auto flex min-h-full items-start justify-center p-3 sm:p-6", device === "desktop" ? "max-w-none" : "max-w-[440px]")}>
@@ -474,14 +478,14 @@ export function Editor({
         {/* ── Panel: side column on desktop, docked sheet on phones ── */}
         <aside
           className={cn(
-            "shrink-0 flex-col border-border bg-bg lg:flex lg:h-auto lg:w-[420px] lg:border-l",
+            "shrink-0 flex-col border-border bg-bg lg:flex lg:h-auto lg:w-[420px] lg:border-s",
             mobileOpen ? "flex border-t" : "hidden",
             expanded ? "h-[82dvh]" : "h-[56dvh]",
           )}
         >
           <div className="flex shrink-0 items-center gap-2 border-b border-border px-3 py-2">
             {view === "block" ? (
-              <button onClick={() => setSelected(null)} aria-label="Back to blocks" className="grid h-8 w-8 place-items-center rounded-lg text-text-muted hover:text-text">
+              <button onClick={() => setSelected(null)} aria-label="חזרה לבלוקים" className="grid h-8 w-8 place-items-center rounded-lg text-text-muted hover:text-text">
                 <ArrowLeft className="h-4 w-4" />
               </button>
             ) : (
@@ -494,12 +498,12 @@ export function Editor({
                       setPanel((x) => (x ? p : x));
                     }}
                     className={cn(
-                      "flex items-center gap-1.5 rounded-[10px] px-3 py-1.5 text-sm capitalize",
+                      "flex items-center gap-1.5 rounded-[10px] px-3 py-1.5 text-sm",
                       view === p ? "bg-bg text-text shadow-sm" : "text-text-muted",
                     )}
                   >
                     {p === "blocks" ? <Layers className="h-4 w-4" /> : <Palette className="h-4 w-4" />}
-                    {p}
+                    {p === "blocks" ? "בלוקים" : "עיצוב"}
                   </button>
                 ))}
               </div>
@@ -507,7 +511,7 @@ export function Editor({
             <p className={cn("flex-1 truncate font-display text-base font-medium", view !== "block" && "lg:hidden")}>{panelTitle}</p>
             <button
               onClick={() => setExpanded((x) => !x)}
-              aria-label={expanded ? "Shrink panel" : "Expand panel"}
+              aria-label={expanded ? "הקטנת הפאנל" : "הגדלת הפאנל"}
               className="grid h-8 w-8 place-items-center rounded-lg text-text-muted hover:text-text lg:hidden"
             >
               {expanded ? <Minimize2 className="h-4 w-4" /> : <Maximize2 className="h-4 w-4" />}
@@ -517,7 +521,7 @@ export function Editor({
                 setSelected(null);
                 setPanel(null);
               }}
-              aria-label="Close panel"
+              aria-label="סגירת הפאנל"
               className="grid h-8 w-8 place-items-center rounded-lg text-text-muted hover:text-text lg:hidden"
             >
               <X className="h-5 w-5" />
@@ -532,10 +536,10 @@ export function Editor({
         className="flex shrink-0 items-stretch justify-around gap-1 border-t border-border bg-bg px-2 pt-1.5 lg:hidden"
         style={{ paddingBottom: "max(0.375rem, env(safe-area-inset-bottom))" }}
       >
-        <ToolBtn icon={Plus} label="Add" onClick={() => setAdding(true)} />
+        <ToolBtn icon={Plus} label="הוספה" onClick={() => setAdding(true)} />
         <ToolBtn
           icon={Layers}
-          label="Blocks"
+          label="בלוקים"
           active={mobileOpen && view === "blocks"}
           onClick={() => {
             setSelected(null);
@@ -544,15 +548,15 @@ export function Editor({
         />
         <ToolBtn
           icon={Palette}
-          label="Design"
+          label="עיצוב"
           active={mobileOpen && view === "design"}
           onClick={() => {
             setSelected(null);
             setPanel((p) => (p === "design" && !selected ? null : "design"));
           }}
         />
-        <ToolBtn icon={Undo2} label="Undo" onClick={undo} disabled={hist.undo === 0} />
-        <ToolBtn icon={Eye} label="Preview" href={`/d/${draftToken}`} />
+        <ToolBtn icon={Undo2} label="ביטול" onClick={undo} disabled={hist.undo === 0} />
+        <ToolBtn icon={Eye} label="תצוגה" href={`/d/${draftToken}`} />
       </nav>
 
       {adding && <AddBlockModal plan={plan} hasHero={doc.blocks.some((b) => b.type === "hero")} onPick={addBlock} onClose={() => setAdding(false)} />}
@@ -603,7 +607,7 @@ function CanvasFrame({ device, children }: { device: "mobile" | "desktop"; child
 
   if (device === "desktop") {
     return (
-      <div ref={outer} className="w-full overflow-hidden rounded-2xl border border-border shadow-2xl" style={{ height: height * scale || undefined }}>
+      <div ref={outer} className="w-full overflow-hidden rounded-lg border border-border shadow-2xl" style={{ height: height * scale || undefined }}>
         <div ref={inner} style={{ width: DESKTOP_W, transform: `scale(${scale})`, transformOrigin: "top left" }}>
           {children}
         </div>
@@ -675,7 +679,7 @@ function Outline({
                 else rows.current.delete(b.id);
               }}
               className={cn(
-                "group flex items-center gap-1 rounded-xl border bg-surface-2/70 py-1 pr-1 pl-0.5 transition-shadow",
+                "group flex items-center gap-1 rounded-xl border bg-surface-2/70 py-1 pe-1 ps-0.5 transition-shadow",
                 selected === b.id ? "border-primary" : "border-border",
                 dragging === b.id && "relative z-10 shadow-2xl ring-2 ring-primary/40",
               )}
@@ -683,12 +687,12 @@ function Outline({
               <span
                 onPointerDown={(e) => onPointerDown(e, b.id)}
                 className="grid h-9 w-7 shrink-0 cursor-grab touch-none place-items-center text-text-muted active:cursor-grabbing"
-                aria-label="Drag to reorder"
+                aria-label="גררו לשינוי הסדר"
               >
                 <GripVertical className="h-4 w-4" />
               </span>
               <button onClick={() => onSelect(b.id)} className="flex min-w-0 flex-1 items-center gap-2.5 py-1 text-start">
-                <span className="grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-bg text-primary">
+                <span className="grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-bg text-primary-text">
                   <Icon className="h-4 w-4" />
                 </span>
                 <span className="min-w-0">
@@ -699,24 +703,24 @@ function Outline({
                   <span className="block truncate text-[11px] text-text-muted">{blockSummary(b) || meta.description}</span>
                 </span>
               </button>
-              <IconBtn label="Duplicate" onClick={() => onDuplicate(b.id)} className="opacity-60 group-hover:opacity-100">
+              <IconBtn label="שכפול" onClick={() => onDuplicate(b.id)} className="opacity-60 group-hover:opacity-100">
                 <Copy className="h-3.5 w-3.5" />
               </IconBtn>
-              <IconBtn label="Delete" danger onClick={() => onDelete(b.id)} className="opacity-60 group-hover:opacity-100">
+              <IconBtn label="מחיקה" danger onClick={() => onDelete(b.id)} className="opacity-60 group-hover:opacity-100">
                 <Trash2 className="h-3.5 w-3.5" />
               </IconBtn>
             </div>
           );
         })}
         {blocks.length === 0 && (
-          <p className="rounded-xl border border-dashed border-border p-6 text-center text-sm text-text-muted">An empty canvas. Add your first block.</p>
+          <p className="rounded-xl border border-dashed border-border p-6 text-center text-sm text-text-muted">קנבס ריק. הוסיפו את הבלוק הראשון.</p>
         )}
       </div>
       <button
         onClick={onAdd}
         className="flex w-full items-center justify-center gap-1.5 rounded-xl border border-dashed border-primary/50 bg-primary/5 py-3 text-sm text-text transition-colors hover:bg-primary/10"
       >
-        <Plus className="h-4 w-4 text-primary" /> Add a block
+        <Plus className="h-4 w-4 text-primary-text" /> הוספת בלוק
       </button>
       {footer}
     </div>
@@ -753,25 +757,26 @@ function PageSettings({
   return (
     <details className="group rounded-xl border border-border">
       <summary className="flex cursor-pointer list-none items-center justify-between px-3 py-2.5 text-sm text-text-muted select-none">
-        Page settings
+        הגדרות עמוד
         <span className="text-[11px] transition-transform group-open:rotate-180">▾</span>
       </summary>
       <div className="space-y-3 border-t border-border p-3">
         {isPrimary ? (
           <p className="text-xs text-text-muted">
-            This is your <span className="text-text">main page</span> — it lives at useaura.me/{username}.
+            זה <span className="text-text">העמוד הראשי</span> שלכם — הכתובת שלו היא{" "}
+            <span dir="ltr">{BRAND.domain}/{username}</span>.
           </p>
         ) : (
           <>
             <form action={action} className="flex items-center gap-2">
-              <span className="shrink-0 text-xs text-text-muted">/{username}/</span>
-              <input name="slug" defaultValue={slug} className={cn(fieldCls, "h-9")} aria-label="Page address" />
+              <span className="shrink-0 text-xs text-text-muted" dir="ltr">/{username}/</span>
+              <input name="slug" defaultValue={slug} className={cn(fieldCls, "h-9")} aria-label="כתובת העמוד" dir="ltr" />
               <button disabled={pending} className="h-9 shrink-0 rounded-lg border border-border px-3 text-xs text-text hover:bg-surface-2">
-                {pending ? "…" : "Save"}
+                {pending ? "…" : "שמירה"}
               </button>
             </form>
-            {state?.error && <p className="text-xs text-red-400">{state.error}</p>}
-            {state?.ok && <p className="text-xs text-primary">Address updated.</p>}
+            {state?.error && <p className="text-xs text-red-700">{state.error}</p>}
+            {state?.ok && <p className="text-xs text-primary-text">הכתובת עודכנה.</p>}
             <button
               disabled={busy}
               onClick={() =>
@@ -782,7 +787,7 @@ function PageSettings({
               }
               className="w-full rounded-lg border border-border py-2 text-xs text-text hover:bg-surface-2"
             >
-              Make this my main page
+              להגדיר כעמוד הראשי
             </button>
           </>
         )}
@@ -798,17 +803,17 @@ function PageSettings({
               }
               className="flex-1 rounded-lg border border-border py-2 text-xs text-text-muted hover:text-text"
             >
-              Unpublish
+              הורדה מהאוויר
             </button>
           )}
           <form
             action={deletePage.bind(null, pageId)}
             className="flex-1"
             onSubmit={(e) => {
-              if (!confirm("Delete this page? This can't be undone.")) e.preventDefault();
+              if (!confirm("למחוק את העמוד? אי אפשר לבטל את הפעולה.")) e.preventDefault();
             }}
           >
-            <button className="w-full rounded-lg border border-red-500/30 py-2 text-xs text-red-400 hover:bg-red-500/10">Delete page</button>
+            <button className="w-full rounded-lg border border-red-500/30 py-2 text-xs text-red-700 hover:bg-red-500/10">מחיקת עמוד</button>
           </form>
         </div>
       </div>
@@ -817,6 +822,8 @@ function PageSettings({
 }
 
 // ─────────────────────────── Add block ───────────────────────────
+
+const GROUP_NAMES = { Essentials: "בסיסי", Sections: "מקטעים", Flair: "נגיעות" } as const;
 
 function AddBlockModal({
   plan,
@@ -829,13 +836,13 @@ function AddBlockModal({
   onPick: (t: BlockType) => void;
   onClose: () => void;
 }) {
-  const groups: ("Essentials" | "Sections" | "Flair")[] = ["Essentials", "Sections", "Flair"];
+  const groups = ["Essentials", "Sections", "Flair"] as const;
   return (
-    <Modal title="Add a block" onClose={onClose}>
+    <Modal title="הוספת בלוק" onClose={onClose}>
       <div className="space-y-5">
         {groups.map((g) => (
           <section key={g}>
-            <p className="mb-2 text-[11px] font-semibold tracking-wider text-text-muted uppercase">{g}</p>
+            <p className="mb-2 text-[11px] font-semibold tracking-wider text-text-muted uppercase">{GROUP_NAMES[g]}</p>
             <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
               {(Object.keys(BLOCK_META) as BlockType[])
                 .filter((t) => BLOCK_META[t].group === g && (t !== "hero" || !hasHero))
@@ -848,10 +855,10 @@ function AddBlockModal({
                       key={t}
                       onClick={() => onPick(t)}
                       className={cn(
-                        "relative flex flex-col items-start gap-2 rounded-2xl border border-border bg-surface-2/70 p-3 text-start transition-colors hover:border-primary/50",
+                        "relative flex flex-col items-start gap-2 rounded-lg border border-border bg-surface-2/70 p-3 text-start transition-colors hover:border-primary/50",
                       )}
                     >
-                      <span className="grid h-9 w-9 place-items-center rounded-xl bg-primary/12 text-primary">
+                      <span className="grid h-9 w-9 place-items-center rounded-xl bg-primary/12 text-primary-text">
                         <Icon className="h-[18px] w-[18px]" />
                       </span>
                       <span>
@@ -859,7 +866,7 @@ function AddBlockModal({
                         <span className="block text-[11px] leading-snug text-text-muted">{meta.description}</span>
                       </span>
                       {!allowed(tier, plan) && (
-                        <span className="absolute top-2.5 right-2.5">
+                        <span className="absolute top-2.5 end-2.5">
                           <TierPill tier={tier} />
                         </span>
                       )}
@@ -878,14 +885,14 @@ function AddBlockModal({
 
 function SaveBadge({ state }: { state: SaveState }) {
   const map = {
-    saved: { icon: Cloud, text: "Saved", cls: "text-text-muted" },
-    dirty: { icon: Cloud, text: "Editing…", cls: "text-text-muted" },
-    saving: { icon: Loader2, text: "Saving…", cls: "text-text-muted" },
-    error: { icon: CloudOff, text: "Not saved — retrying on next edit", cls: "text-red-400" },
+    saved: { icon: Cloud, text: "נשמר", cls: "text-text-muted" },
+    dirty: { icon: Cloud, text: "עורכים…", cls: "text-text-muted" },
+    saving: { icon: Loader2, text: "שומרים…", cls: "text-text-muted" },
+    error: { icon: CloudOff, text: "לא נשמר — מנסים שוב אוטומטית", cls: "text-red-700" },
   }[state];
   const Icon = map.icon;
   return (
-    <span className={cn("ml-1 hidden items-center gap-1 text-xs md:inline-flex", map.cls)} aria-live="polite">
+    <span className={cn("ms-1 hidden items-center gap-1 text-xs md:inline-flex", map.cls)} aria-live="polite">
       <Icon className={cn("h-3.5 w-3.5", state === "saving" && "animate-spin")} />
       {map.text}
     </span>
@@ -916,7 +923,7 @@ function IconBtn({
       aria-label={label}
       className={cn(
         "grid h-8 w-8 shrink-0 place-items-center rounded-lg text-text-muted transition-colors hover:bg-surface-2 disabled:opacity-30",
-        danger ? "hover:text-red-400" : "hover:text-text",
+        danger ? "hover:text-red-700" : "hover:text-text",
         className,
       )}
     >

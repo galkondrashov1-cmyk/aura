@@ -5,15 +5,15 @@ type Variant = "primary" | "secondary" | "ghost";
 type Size = "sm" | "md" | "lg";
 
 const variantClasses: Record<Variant, string> = {
-  primary: "bg-primary text-primary-ink hover:brightness-110 aura-glow",
-  secondary: "bg-surface text-text border border-border hover:bg-surface-2",
-  ghost: "text-text-muted hover:text-text hover:bg-surface",
+  primary: "bg-primary text-primary-ink hover:bg-[color-mix(in_oklab,var(--primary)_88%,#000)]",
+  secondary: "border border-text text-text hover:bg-text hover:text-bg",
+  ghost: "text-text-muted hover:text-text",
 };
 
 const sizeClasses: Record<Size, string> = {
-  sm: "h-9 px-4 text-sm",
-  md: "h-11 px-5 text-sm",
-  lg: "h-14 px-7 text-base",
+  sm: "h-9 px-3.5 text-sm",
+  md: "h-11 px-5 text-[0.95rem]",
+  lg: "h-14 px-8 text-lg",
 };
 
 /** Shared class string so links and buttons can share one look. */
@@ -23,7 +23,7 @@ export function buttonClasses(
   className?: string,
 ) {
   return cn(
-    "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full font-medium tracking-tight transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 disabled:pointer-events-none disabled:opacity-50",
+    "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-[4px] font-medium transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 disabled:pointer-events-none disabled:opacity-50",
     variantClasses[variant],
     sizeClasses[size],
     className,

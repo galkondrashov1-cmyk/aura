@@ -38,9 +38,9 @@ const profileSchema = z.object({
     .string()
     .trim()
     .toLowerCase()
-    .min(3, "Username must be at least 3 characters")
-    .max(20, "Username must be 20 characters or fewer")
-    .regex(/^[a-z0-9_]+$/, "Use only lowercase letters, numbers, and underscores"),
+    .min(3, "שם המשתמש צריך לפחות 3 תווים")
+    .max(20, "שם המשתמש יכול להכיל עד 20 תווים")
+    .regex(/^[a-z0-9_]+$/, "רק אותיות קטנות באנגלית, ספרות וקו תחתון"),
 });
 
 export async function updateProfileAction(
@@ -54,17 +54,17 @@ export async function updateProfileAction(
   };
   const parsed = profileSchema.safeParse(values);
   if (!parsed.success) {
-    return { error: parsed.error.issues[0]?.message ?? "Invalid input", values };
+    return { error: parsed.error.issues[0]?.message ?? "הפרטים לא תקינים", values };
   }
   const { name, username } = parsed.data;
-  if (RESERVED.has(username)) return { error: "That username is reserved", values };
+  if (RESERVED.has(username)) return { error: "שם המשתמש הזה שמור", values };
 
   if (username !== session.username) {
     const taken = await prisma.user.findUnique({
       where: { username },
       select: { id: true },
     });
-    if (taken && taken.id !== session.id) return { error: "That username is taken", values };
+    if (taken && taken.id !== session.id) return { error: "שם המשתמש תפוס", values };
   }
 
   const user = await prisma.user.update({
@@ -86,8 +86,8 @@ export async function updateProfileAction(
 }
 
 const passwordSchema = z.object({
-  current: z.string().min(1, "Enter your current password"),
-  next: z.string().min(8, "New password must be at least 8 characters"),
+  current: z.string().min(1, "הזינו את הסיסמה הנוכחית"),
+  next: z.string().min(8, "הסיסמה החדשה צריכה לפחות 8 תווים"),
 });
 
 export async function changePasswordAction(
@@ -100,12 +100,12 @@ export async function changePasswordAction(
     next: formData.get("next"),
   });
   if (!parsed.success) {
-    return { error: parsed.error.issues[0]?.message ?? "Invalid input" };
+    return { error: parsed.error.issues[0]?.message ?? "הפרטים לא תקינים" };
   }
 
   const ok = await passwordOk(session.id, parsed.data.current);
-  if (ok === "limited") return { error: "Too many attempts — try again in 15 minutes." };
-  if (!ok) return { error: "Current password is incorrect" };
+  if (ok === "limited") return { error: "יותר מדי ניסיונות — נסו שוב בעוד 15 דקות." };
+  if (!ok) return { error: "הסיסמה הנוכחית שגויה" };
 
   await prisma.user.update({
     where: { id: session.id },
@@ -123,11 +123,11 @@ export async function changePasswordAction(
 export async function deleteAccountAction(_prev: SettingsState, formData: FormData): Promise<SettingsState> {
   const session = await requireUser();
   if (String(formData.get("confirm") ?? "").trim().toLowerCase() !== session.username) {
-    return { error: `Type ${session.username} to confirm.` };
+    return { error: `הקלידו ${session.username} לאישור.` };
   }
   const ok = await passwordOk(session.id, String(formData.get("password") ?? ""));
-  if (ok === "limited") return { error: "Too many attempts — try again in 15 minutes." };
-  if (!ok) return { error: "Password is incorrect" };
+  if (ok === "limited") return { error: "יותר מדי ניסיונות — נסו שוב בעוד 15 דקות." };
+  if (!ok) return { error: "הסיסמה שגויה" };
 
   await beforeAccountDelete(session.id);
   // Mark every public URL stale while the pages still exist to enumerate.

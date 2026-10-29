@@ -1,6 +1,7 @@
+import { BRAND } from "@/lib/brand";
 import Link from "next/link";
 import { Mail, Phone, ExternalLink } from "lucide-react";
-import { AuraMark } from "@/components/aura-logo";
+import { Mark } from "@/components/logo";
 import { ViewBeacon } from "@/components/view-beacon";
 import { CursorFx } from "./cursor-fx";
 import { PageIntro } from "./page-intro";
@@ -207,11 +208,11 @@ export function PageRenderer({
   const badge = !hideBadge && (
     <Link
       href="/"
-      dir="ltr"
+      dir={lang === "he" ? "rtl" : "ltr"}
       className="mt-6 flex items-center justify-center gap-1.5 text-xs text-text-muted transition-colors hover:text-text"
     >
-      <AuraMark className="h-3.5 w-3.5 text-primary" />
-      Made with <span className="font-display font-medium">AURA</span>
+      <Mark className="size-2" />
+      {lang === "he" ? "נוצר עם" : "Made with"} <span className="font-display font-medium">{BRAND.name}</span>
     </Link>
   );
 
@@ -254,13 +255,15 @@ export function PageRenderer({
   return (
     <div
       dir={dir}
-      lang={lang === "he" ? "he" : undefined}
+      lang={lang}
+      data-mode="vivid"
       data-tfx={design.titleFx && design.titleFx !== "none" ? design.titleFx : undefined}
       style={style as React.CSSProperties}
       className={cn(
         // overflow-clip, not hidden: hidden would make this a scroll container
         // and break the sticky profile column of the split layout.
         "pg relative flex flex-col overflow-clip text-text",
+        !embedded && "pg-public",
         !bg.css && "aura-backdrop",
         design.bgAnimate && !bg.image && "bg-pan",
         embedded ? "min-h-full" : "min-h-screen",

@@ -8,6 +8,11 @@ export async function GET(req: NextRequest) {
   const u = (req.nextUrl.searchParams.get("u") ?? "").trim().toLowerCase();
   if (!/^[a-z0-9_]{3,20}$/.test(u)) return NextResponse.json({ available: false, reason: "format" });
   if (RESERVED_USERNAMES.has(u)) return NextResponse.json({ available: false, reason: "reserved" });
+  const t0 = performance.now();
   const taken = await prisma.user.findUnique({ where: { username: u }, select: { id: true } });
-  return NextResponse.json({ available: !taken, reason: taken ? "taken" : null });
+  // Server-Timing exposes the database round trip (helps pick the function region).
+  return NextResponse.json(
+    { available: !taken, reason: taken ? "taken" : null },
+    { headers: { "Server-Timing": `db;dur=${(performance.now() - t0).toFixed(1)}` } },
+  );
 }

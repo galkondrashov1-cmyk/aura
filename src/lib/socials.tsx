@@ -95,9 +95,9 @@ export const SOCIAL_OPTIONS: { value: SocialPlatform; label: string }[] = [
   { value: "patreon", label: "Patreon" },
   { value: "behance", label: "Behance" },
   { value: "dribbble", label: "Dribbble" },
-  { value: "website", label: "Website" },
-  { value: "email", label: "Email" },
-  { value: "phone", label: "Phone" },
+  { value: "website", label: "אתר" },
+  { value: "email", label: "מייל" },
+  { value: "phone", label: "טלפון" },
 ];
 
 export function SocialIcon({

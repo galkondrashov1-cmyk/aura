@@ -109,7 +109,7 @@ export function RichTextInput({
               onClick={() => applyColor(c)}
               className="h-5 w-5 rounded-full border border-border"
               style={{ background: c }}
-              aria-label={`Color ${c}`}
+              aria-label={`צבע ${c}`}
             />
           ))}
           <input
@@ -117,9 +117,9 @@ export function RichTextInput({
             value={color}
             onChange={(e) => applyColor(e.target.value)}
             className="h-6 w-7 cursor-pointer rounded border border-border bg-surface-2"
-            aria-label="Custom color"
+            aria-label="צבע מותאם"
           />
-          <span className="text-[10px] text-text-muted">select text, then pick a color</span>
+          <span className="text-[10px] text-text-muted">סמנו טקסט ובחרו צבע</span>
         </div>
       )}
       <div className="relative">
@@ -143,11 +143,11 @@ export function RichTextInput({
           type="button"
           onMouseDown={(e) => e.preventDefault()}
           onClick={() => setPalette((p) => !p)}
-          aria-label="Text color"
+          aria-label="צבע טקסט"
           aria-pressed={palette}
           className={cn(
             "absolute top-1.5 end-1.5 grid h-7 w-7 place-items-center rounded-lg transition-colors",
-            palette ? "bg-bg text-primary" : "text-text-muted hover:text-text",
+            palette ? "bg-bg text-primary-text" : "text-text-muted hover:text-text",
           )}
         >
           <Baseline className="h-4 w-4" />

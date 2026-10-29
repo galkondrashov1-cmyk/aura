@@ -34,7 +34,7 @@ export async function unlockAdminAction(
   const entered = String(formData.get("code") ?? "").trim();
   if (!codeMatches(entered)) {
     await new Promise((r) => setTimeout(r, 800)); // slow down guessing
-    return { error: "Incorrect code" };
+    return { error: "קוד שגוי" };
   }
   const jar = await cookies();
   jar.set(ADMIN_COOKIE, adminToken(), {

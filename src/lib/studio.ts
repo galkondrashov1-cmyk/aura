@@ -14,6 +14,7 @@ import {
   shapeTier,
   cardCategoryTier,
   bgFxCategoryTier,
+  catLabel,
 } from "@/lib/design";
 import { FONTS } from "@/lib/fonts";
 import { caps, PLAN_RANK, type Plan } from "@/lib/plans";
@@ -24,64 +25,64 @@ export const allowed = (tier: Plan, plan: Plan) => PLAN_RANK[tier] <= PLAN_RANK[
 
 // ---------- Structure ----------
 export const PAGE_LAYOUTS: Choice[] = [
-  { id: "stack", name: "Classic", tier: "FREE", hint: "One centered column" },
-  { id: "card", name: "Floating card", tier: "FREE", hint: "Content on a card above your background" },
-  { id: "split", name: "Split screen", tier: "PLUS", hint: "Profile pinned left, content right (wide screens)" },
+  { id: "stack", name: "קלאסי", tier: "FREE", hint: "עמודה אחת ממורכזת" },
+  { id: "card", name: "כרטיס צף", tier: "FREE", hint: "התוכן על כרטיס מעל הרקע" },
+  { id: "split", name: "מסך מפוצל", tier: "PLUS", hint: "פרופיל קבוע בצד, התוכן לידו (מסכים רחבים)" },
 ];
 
 export const HERO_LAYOUTS: Choice[] = [
-  { id: "center", name: "Centered", tier: "FREE" },
-  { id: "left", name: "Aligned", tier: "FREE" },
-  { id: "split", name: "Side by side", tier: "PLUS" },
-  { id: "cover", name: "Cover", tier: "PLUS", hint: "Full-bleed banner with your name over it" },
-  { id: "big", name: "Poster", tier: "PLUS", hint: "Oversized statement type" },
+  { id: "center", name: "ממורכז", tier: "FREE" },
+  { id: "left", name: "מיושר", tier: "FREE" },
+  { id: "split", name: "זה לצד זה", tier: "PLUS" },
+  { id: "cover", name: "שער", tier: "PLUS", hint: "באנר ברוחב מלא עם השם שלכם עליו" },
+  { id: "big", name: "פוסטר", tier: "PLUS", hint: "טיפוגרפיה ענקית ומצהירה" },
 ];
 
 // ---------- Typography ----------
 export const TITLE_FX: Choice[] = [
-  { id: "none", name: "None", tier: "FREE" },
-  { id: "gradient", name: "Gradient", tier: "FREE" },
-  { id: "glow", name: "Glow", tier: "FREE" },
-  { id: "outline", name: "Outline", tier: "FREE" },
-  { id: "highlight", name: "Marker", tier: "FREE" },
-  { id: "retro", name: "Retro shadow", tier: "FREE" },
-  { id: "chrome", name: "Chrome", tier: "PLUS" },
-  { id: "neon", name: "Neon", tier: "PLUS" },
-  { id: "shimmer", name: "Shimmer", tier: "PLUS" },
-  { id: "aurora", name: "Aurora", tier: "PLUS" },
-  { id: "fire", name: "Molten", tier: "PLUS" },
-  { id: "extrude", name: "3D", tier: "PLUS" },
-  { id: "glitch", name: "Glitch", tier: "PRO" },
-  { id: "holo", name: "Holographic", tier: "PRO" },
+  { id: "none", name: "ללא", tier: "FREE" },
+  { id: "gradient", name: "גרדיאנט", tier: "FREE" },
+  { id: "glow", name: "זוהר", tier: "FREE" },
+  { id: "outline", name: "קו מתאר", tier: "FREE" },
+  { id: "highlight", name: "מרקר", tier: "FREE" },
+  { id: "retro", name: "צל רטרו", tier: "FREE" },
+  { id: "chrome", name: "כרום", tier: "PLUS" },
+  { id: "neon", name: "ניאון", tier: "PLUS" },
+  { id: "shimmer", name: "נצנוץ", tier: "PLUS" },
+  { id: "aurora", name: "זוהר צפוני", tier: "PLUS" },
+  { id: "fire", name: "מותך", tier: "PLUS" },
+  { id: "extrude", name: "תלת־ממד", tier: "PLUS" },
+  { id: "glitch", name: "גליץ׳", tier: "PRO" },
+  { id: "holo", name: "הולוגרפי", tier: "PRO" },
 ];
 
 export const HEADING_WEIGHTS = [
-  { id: "normal", name: "Regular", value: "500" },
-  { id: "semibold", name: "Semibold", value: "600" },
-  { id: "bold", name: "Bold", value: "700" },
-  { id: "black", name: "Black", value: "800" },
+  { id: "normal", name: "רגיל", value: "500" },
+  { id: "semibold", name: "חצי מודגש", value: "600" },
+  { id: "bold", name: "מודגש", value: "700" },
+  { id: "black", name: "שחור", value: "800" },
 ];
 export const HEADING_CASES = [
   { id: "none", name: "Aa", value: "none" },
   { id: "upper", name: "AA", value: "uppercase" },
 ];
 export const HEADING_TRACKING = [
-  { id: "tight", name: "Tight", value: "-0.035em" },
-  { id: "normal", name: "Normal", value: "-0.01em" },
-  { id: "wide", name: "Wide", value: "0.08em" },
+  { id: "tight", name: "צפוף", value: "-0.035em" },
+  { id: "normal", name: "רגיל", value: "-0.01em" },
+  { id: "wide", name: "רחב", value: "0.08em" },
 ];
 
 /** Curated heading/body pairings shown as one-tap chips. */
 export const FONT_PAIRS: { id: string; name: string; head: string; body: string }[] = [
-  { id: "editorial", name: "Editorial", head: "instrument", body: "inter" },
-  { id: "luxe", name: "Luxe", head: "playfair", body: "dmsans" },
-  { id: "statement", name: "Statement", head: "unbounded", body: "manrope" },
-  { id: "studio", name: "Studio", head: "syne", body: "inter" },
-  { id: "warm", name: "Warm", head: "fraunces", body: "outfit" },
-  { id: "poster", name: "Poster", head: "bebas", body: "dmsans" },
-  { id: "fashion", name: "Fashion", head: "abril", body: "poppins" },
-  { id: "tech", name: "Tech", head: "grotesk", body: "spacemono" },
-  { id: "playful", name: "Playful", head: "righteous", body: "nunito" },
+  { id: "editorial", name: "מגזיני", head: "instrument", body: "inter" },
+  { id: "luxe", name: "יוקרתי", head: "playfair", body: "dmsans" },
+  { id: "statement", name: "הצהרה", head: "unbounded", body: "manrope" },
+  { id: "studio", name: "סטודיו", head: "syne", body: "inter" },
+  { id: "warm", name: "חמים", head: "fraunces", body: "outfit" },
+  { id: "poster", name: "פוסטר", head: "bebas", body: "dmsans" },
+  { id: "fashion", name: "אופנה", head: "abril", body: "poppins" },
+  { id: "tech", name: "טכנולוגי", head: "grotesk", body: "spacemono" },
+  { id: "playful", name: "שובב", head: "righteous", body: "nunito" },
   { id: "hebrew-modern", name: "עברית מודרני", head: "secular", body: "heebo" },
   { id: "hebrew-classic", name: "עברית קלאסי", head: "frankruhl", body: "assistant" },
   { id: "hebrew-soft", name: "עברית רך", head: "fredoka", body: "rubik" },
@@ -89,60 +90,60 @@ export const FONT_PAIRS: { id: string; name: string; head: string; body: string 
 
 // ---------- Containers & motion ----------
 export const SECTION_STYLES: Choice[] = [
-  { id: "none", name: "None", tier: "FREE" },
-  { id: "glass", name: "Glass", tier: "FREE" },
-  { id: "solid", name: "Solid", tier: "FREE" },
-  { id: "outline", name: "Outline", tier: "FREE" },
-  { id: "soft", name: "Soft shadow", tier: "FREE" },
-  { id: "paper", name: "Paper", tier: "PLUS" },
-  { id: "gradient", name: "Gradient edge", tier: "PLUS" },
-  { id: "neon", name: "Neon", tier: "PLUS" },
-  { id: "brutal", name: "Brutal", tier: "PLUS" },
+  { id: "none", name: "ללא", tier: "FREE" },
+  { id: "glass", name: "זכוכית", tier: "FREE" },
+  { id: "solid", name: "מלא", tier: "FREE" },
+  { id: "outline", name: "קו מתאר", tier: "FREE" },
+  { id: "soft", name: "צל רך", tier: "FREE" },
+  { id: "paper", name: "נייר", tier: "PLUS" },
+  { id: "gradient", name: "קצה גרדיאנט", tier: "PLUS" },
+  { id: "neon", name: "ניאון", tier: "PLUS" },
+  { id: "brutal", name: "ברוטלי", tier: "PLUS" },
 ];
 
 export const REVEALS: Choice[] = [
-  { id: "none", name: "None", tier: "FREE" },
-  { id: "rise", name: "Rise", tier: "FREE" },
-  { id: "fade", name: "Fade", tier: "FREE" },
-  { id: "zoom", name: "Zoom", tier: "PLUS" },
-  { id: "blur", name: "Blur in", tier: "PLUS" },
-  { id: "slide", name: "Slide", tier: "PLUS" },
-  { id: "flip", name: "Flip", tier: "PLUS" },
-  { id: "tilt", name: "Tilt", tier: "PLUS" },
+  { id: "none", name: "ללא", tier: "FREE" },
+  { id: "rise", name: "עלייה", tier: "FREE" },
+  { id: "fade", name: "דהייה", tier: "FREE" },
+  { id: "zoom", name: "זום", tier: "PLUS" },
+  { id: "blur", name: "מטושטש פנימה", tier: "PLUS" },
+  { id: "slide", name: "החלקה", tier: "PLUS" },
+  { id: "flip", name: "היפוך", tier: "PLUS" },
+  { id: "tilt", name: "הטיה", tier: "PLUS" },
 ];
 
 export const LIVE_BGS: Choice[] = [
-  { id: "none", name: "None", tier: "FREE" },
-  { id: "particles", name: "Constellation", tier: "PLUS", hint: "Connected particles that react to the cursor" },
-  { id: "fireflies", name: "Fireflies", tier: "PLUS" },
-  { id: "snow", name: "Snowfall", tier: "PLUS" },
-  { id: "bubbles", name: "Bubbles", tier: "PLUS" },
-  { id: "waves", name: "Waves", tier: "PLUS" },
-  { id: "confetti", name: "Confetti", tier: "PLUS" },
-  { id: "warp", name: "Hyperspace", tier: "PRO" },
-  { id: "liquid", name: "Liquid mesh", tier: "PRO", hint: "Real-time flowing gradient (WebGL)" },
-  { id: "silk", name: "Silk", tier: "PRO", hint: "Rippling light silk (WebGL)" },
+  { id: "none", name: "ללא", tier: "FREE" },
+  { id: "particles", name: "קונסטלציה", tier: "PLUS", hint: "חלקיקים מחוברים שמגיבים לעכבר" },
+  { id: "fireflies", name: "גחליליות", tier: "PLUS" },
+  { id: "snow", name: "שלג", tier: "PLUS" },
+  { id: "bubbles", name: "בועות", tier: "PLUS" },
+  { id: "waves", name: "גלים", tier: "PLUS" },
+  { id: "confetti", name: "קונפטי", tier: "PLUS" },
+  { id: "warp", name: "חלל־על", tier: "PRO" },
+  { id: "liquid", name: "רשת נוזלית", tier: "PRO", hint: "גרדיאנט זורם בזמן אמת (WebGL)" },
+  { id: "silk", name: "משי", tier: "PRO", hint: "משי אור גלי (WebGL)" },
 ];
 
 export const CURSORS: Choice[] = [
-  { id: "none", name: "System", tier: "FREE" },
-  { id: "ring", name: "Ring", tier: "PRO" },
-  { id: "glow", name: "Glow orb", tier: "PRO" },
-  { id: "trail", name: "Sparkle trail", tier: "PRO" },
-  { id: "blend", name: "Invert", tier: "PRO" },
+  { id: "none", name: "מערכת", tier: "FREE" },
+  { id: "ring", name: "טבעת", tier: "PRO" },
+  { id: "glow", name: "כדור זוהר", tier: "PRO" },
+  { id: "trail", name: "שובל ניצוצות", tier: "PRO" },
+  { id: "blend", name: "היפוך צבעים", tier: "PRO" },
 ];
 
 export const INTROS = [
-  { id: "aura", name: "AURA reveal" },
-  { id: "fade", name: "Quick fade" },
-  { id: "none", name: "Instant" },
+  { id: "aura", name: "פתיח לוגו" },
+  { id: "fade", name: "דהייה מהירה" },
+  { id: "none", name: "מיידי" },
 ];
 
 export const GRADIENT_TYPES: { id: CustomBackground["type"]; name: string }[] = [
-  { id: "mesh", name: "Mesh" },
-  { id: "linear", name: "Linear" },
-  { id: "radial", name: "Radial" },
-  { id: "conic", name: "Conic" },
+  { id: "mesh", name: "רשת צבעים" },
+  { id: "linear", name: "ליניארי" },
+  { id: "radial", name: "רדיאלי" },
+  { id: "conic", name: "קוני" },
 ];
 
 // ---------- Color helpers ----------
@@ -404,6 +405,12 @@ const nameOf = (list: Choice[], id?: string) => list.find((c) => c.id === id)?.n
 
 export type LockedFeature = { label: string; tier: Plan };
 
+/** Hebrew block names for the "what your live page skips" list. */
+const BLOCK_LABEL: Partial<Record<BlockType, string>> = {
+  features: "שירותים", testimonials: "המלצות", stats: "מספרים", pricing: "מחירון", form: "טופס",
+  map: "מפה", marquee: "טקסט רץ", embed: "הטמעה", music: "מוזיקה", countdown: "ספירה לאחור",
+};
+
 const PREMIUM_DIVIDERS = new Set(["shimmer", "march", "pulse"]);
 
 /**
@@ -427,7 +434,7 @@ export function fitToPlanReport(content: PageContent, plan: Plan): { content: Pa
   for (const key of ["font", "headingFont"] as const) {
     const f = font(d[key]);
     if (f && !ok(fontCategoryTier(f.category))) {
-      lock(`Font: ${f.name}`, fontCategoryTier(f.category));
+      lock(`פונט: ${f.name}`, fontCategoryTier(f.category));
       d[key] = key === "font" ? (rtl ? "heebo" : "inter") : rtl ? "secular" : undefined;
     }
   }
@@ -438,60 +445,60 @@ export function fitToPlanReport(content: PageContent, plan: Plan): { content: Pa
       d[key] = fallback;
     }
   };
-  choice("titleFx", TITLE_FX, "gradient", "Title effect");
-  choice("layout", PAGE_LAYOUTS, "card", "Layout");
-  choice("reveal", REVEALS, "rise", "Scroll animation");
-  choice("section", SECTION_STYLES, "glass", "Section style");
-  choice("liveBg", LIVE_BGS, "none", "Live background");
-  choice("cursor", CURSORS, "none", "Cursor");
+  choice("titleFx", TITLE_FX, "gradient", "אפקט כותרת");
+  choice("layout", PAGE_LAYOUTS, "card", "פריסה");
+  choice("reveal", REVEALS, "rise", "אנימציית גלילה");
+  choice("section", SECTION_STYLES, "glass", "סגנון מקטעים");
+  choice("liveBg", LIVE_BGS, "none", "רקע חי");
+  choice("cursor", CURSORS, "none", "סמן עכבר");
 
   if (!c.customBackgrounds && (d.bgCustom || d.bgImage)) {
-    lock(d.bgImage ? "Photo background" : "Custom gradient", "PLUS");
+    lock(d.bgImage ? "רקע תמונה" : "גרדיאנט מותאם", "PLUS");
     d.background = d.bgCustom && customBgIsLight(d.bgCustom) ? undefined : "mesh-5";
     d.bgCustom = undefined;
     d.bgImage = undefined;
   }
   if (!c.customBackgrounds && d.bgAnimate) {
-    lock("Flowing gradient", "PLUS");
+    lock("גרדיאנט זורם", "PLUS");
     d.bgAnimate = undefined;
   }
   if (d.background) {
     const bg = BACKGROUNDS.find((b) => b.id === d.background);
     if (bg && !ok(bgCategoryTier(bg.category))) {
-      lock(`Background: ${bg.category}`, bgCategoryTier(bg.category));
+      lock(`רקע: ${catLabel(bg.category)}`, bgCategoryTier(bg.category));
       d.background = "mesh-5";
     }
   }
   if (!c.floatingButton && d.fab) {
-    lock("Floating button", "PLUS");
+    lock("כפתור צף", "PLUS");
     d.fab = undefined;
   }
   if (!c.creativeEffects && d.motionSpeed && d.motionSpeed !== "normal") {
-    lock("Animation speed", "PLUS");
+    lock("מהירות אנימציה", "PLUS");
     d.motionSpeed = undefined;
   }
   if (!c.customSeo && (d.seoTitle || d.seoDescription)) {
-    lock("Custom SEO", "PLUS");
+    lock("SEO מותאם", "PLUS");
     d.seoTitle = undefined;
     d.seoDescription = undefined;
   }
   if (d.buttonShape && !ok(shapeTier(d.buttonShape))) {
-    lock(`Button shape: ${d.buttonShape}`, shapeTier(d.buttonShape));
+    lock(`צורת כפתור: ${d.buttonShape}`, shapeTier(d.buttonShape));
     d.buttonShape = "rounded";
   }
   const card = CARD_STYLES.find((x) => x.id === d.card);
   if (card && !ok(cardCategoryTier(card.category))) {
-    lock(`Button style: ${card.name}`, cardCategoryTier(card.category));
+    lock(`סגנון כפתור: ${card.name}`, cardCategoryTier(card.category));
     d.card = "glass-frost";
   }
   const fx = BG_FX.find((e) => e.id === d.bgFx);
   if (fx && !ok(bgFxCategoryTier(fx.category))) {
-    lock(`Background effect: ${fx.name}`, bgFxCategoryTier(fx.category));
+    lock(`אפקט רקע: ${fx.name}`, bgFxCategoryTier(fx.category));
     d.bgFx = "topglow";
   }
   const creative = (id?: string) => BUTTON_FX.find((e) => e.id === id)?.category === "Creative";
   if (!c.creativeEffects && creative(d.buttonFx)) {
-    lock("Creative hover effects", "PLUS");
+    lock("אפקטי מעבר יצירתיים", "PLUS");
     d.buttonFx = "growglow";
   }
 
@@ -499,47 +506,47 @@ export function fitToPlanReport(content: PageContent, plan: Plan): { content: Pa
   for (const b0 of content.blocks) {
     const tier = BLOCK_TIER[b0.type];
     if (!ok(tier)) {
-      lock(`${b0.type[0].toUpperCase()}${b0.type.slice(1)} block`, tier);
+      lock(`בלוק ${BLOCK_LABEL[b0.type] ?? b0.type}`, tier);
       continue;
     }
     let b: Block = b0;
     const set = (patch: Record<string, unknown>) => (b = { ...b, ...patch } as Block);
     if (b.box && b.box !== "inherit" && !ok(tierOf(SECTION_STYLES, b.box))) {
-      lock(`Section style: ${nameOf(SECTION_STYLES, b.box)}`, tierOf(SECTION_STYLES, b.box));
+      lock(`סגנון מקטע: ${nameOf(SECTION_STYLES, b.box)}`, tierOf(SECTION_STYLES, b.box));
       set({ box: undefined });
     }
     if (b.anim && !ok(tierOf(REVEALS, b.anim))) {
-      lock(`Scroll animation: ${nameOf(REVEALS, b.anim)}`, tierOf(REVEALS, b.anim));
+      lock(`אנימציית גלילה: ${nameOf(REVEALS, b.anim)}`, tierOf(REVEALS, b.anim));
       set({ anim: undefined });
     }
     if (b.type === "hero" && b.layout && !ok(tierOf(HERO_LAYOUTS, b.layout))) {
-      lock(`Header layout: ${nameOf(HERO_LAYOUTS, b.layout)}`, tierOf(HERO_LAYOUTS, b.layout));
+      lock(`פריסת כותרת: ${nameOf(HERO_LAYOUTS, b.layout)}`, tierOf(HERO_LAYOUTS, b.layout));
       set({ layout: "center" });
     }
     if (!c.perElement) {
       if (b.type === "links" && b.items.some((l) => l.color || l.fx)) {
-        lock("Per-button colors & effects", "PLUS");
+        lock("צבעים ואפקטים לכל כפתור", "PLUS");
         set({ items: b.items.map((l) => ({ ...l, color: undefined, fx: undefined })) });
       }
       if ((b.type === "text" || b.type === "divider") && b.color) {
-        lock("Block colors", "PLUS");
+        lock("צבעי בלוקים", "PLUS");
         set({ color: undefined });
       }
       if (b.type === "socials" && b.iconColor) {
-        lock("Block colors", "PLUS");
+        lock("צבעי בלוקים", "PLUS");
         set({ iconColor: undefined });
       }
       if (b.type === "divider" && b.style && PREMIUM_DIVIDERS.has(b.style)) {
-        lock("Animated dividers", "PLUS");
+        lock("מפרידים מונפשים", "PLUS");
         set({ style: "line" });
       }
     }
     if (!c.creativeEffects && b.type === "links" && creative(b.buttonFx)) {
-      lock("Creative hover effects", "PLUS");
+      lock("אפקטי מעבר יצירתיים", "PLUS");
       set({ buttonFx: undefined });
     }
     if (!c.gallerySlideshow && b.type === "gallery" && b.layout === "carousel") {
-      lock("Gallery slideshow", "PLUS");
+      lock("גלריה כמצגת", "PLUS");
       set({ layout: "grid" });
     }
     blocks.push(b);

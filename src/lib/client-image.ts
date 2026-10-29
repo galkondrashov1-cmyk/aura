@@ -38,7 +38,7 @@ export async function uploadImage(file: File, maxDim?: number): Promise<string> 
   fd.append("file", small);
   const res = await fetch("/api/upload", { method: "POST", body: fd });
   const json = (await res.json().catch(() => ({}))) as { url?: string; error?: string };
-  if (!res.ok || !json.url) throw new Error(json.error || "Upload failed");
+  if (!res.ok || !json.url) throw new Error(json.error || "ההעלאה נכשלה");
   return json.url;
 }
 

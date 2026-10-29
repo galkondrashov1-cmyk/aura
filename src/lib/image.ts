@@ -45,10 +45,10 @@ export const SIZE_OPTS: { id: ImageSize; label: string }[] = [
   { id: "sm", label: "S" },
   { id: "md", label: "M" },
   { id: "lg", label: "L" },
-  { id: "full", label: "Full" },
+  { id: "full", label: "מלא" },
 ];
 export const ASPECT_OPTS: { id: ImageAspect; label: string }[] = [
-  { id: "auto", label: "Auto" },
+  { id: "auto", label: "אוטומטי" },
   { id: "square", label: "1:1" },
   { id: "landscape", label: "4:3" },
   { id: "wide", label: "16:9" },
@@ -56,11 +56,11 @@ export const ASPECT_OPTS: { id: ImageAspect; label: string }[] = [
   { id: "tall", label: "9:16" },
 ];
 export const RADIUS_OPTS: { id: ImageRadius; label: string }[] = [
-  { id: "none", label: "None" },
+  { id: "none", label: "ללא" },
   { id: "sm", label: "S" },
   { id: "md", label: "M" },
   { id: "lg", label: "L" },
-  { id: "full", label: "Round" },
+  { id: "full", label: "עגול" },
 ];
 
 type ResolveOpts = {

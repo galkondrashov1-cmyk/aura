@@ -1,3 +1,4 @@
+import { BRAND } from "@/lib/brand";
 import { ImageResponse } from "next/og";
 import type { PublicPage } from "@/lib/public-page";
 import { heroOf } from "@/lib/blocks";
@@ -33,7 +34,7 @@ async function hebrewFont(text: string): Promise<ArrayBuffer | null> {
 /** The share card for a public page: photo, name, tagline, address — in the page's own colors. */
 export async function ogImage(data: PublicPage | null, path: string) {
   const hero = data ? heroOf(data.content) : undefined;
-  const name = (hero ? toPlain(hero.name) : "") || data?.username || "AURA";
+  const name = (hero ? toPlain(hero.name) : "") || data?.username || BRAND.name;
   const tagline = hero ? [toPlain(hero.tagline), hero.words?.[0]].filter(Boolean).join(" ") : "";
   const accent = data?.content.design?.accent ?? "#00E5A0";
   const c2 = secondaryAccent(accent) ?? "#A855F7";
@@ -96,7 +97,7 @@ export async function ogImage(data: PublicPage | null, path: string) {
               <circle cx="24" cy="24" r="8.5" strokeWidth="2.4" />
               <circle cx="24" cy="24" r="3" fill={accent} />
             </svg>
-            useaura.me{path}
+            {BRAND.domain}{path}
           </div>
           <div style={{ display: "flex", padding: "12px 28px", borderRadius: 999, background: accent, color: "#04120c", fontWeight: 700 }}>
             Visit page →

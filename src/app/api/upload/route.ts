@@ -21,17 +21,17 @@ export async function POST(req: NextRequest) {
   const form = await req.formData();
   const file = form.get("file");
   if (!(file instanceof File)) {
-    return NextResponse.json({ error: "No file provided" }, { status: 400 });
+    return NextResponse.json({ error: "לא נבחר קובץ" }, { status: 400 });
   }
 
   if (file.size > MAX_BYTES) {
-    return NextResponse.json({ error: "File too large (max 5MB)" }, { status: 400 });
+    return NextResponse.json({ error: "הקובץ גדול מדי (עד 5MB)" }, { status: 400 });
   }
   const bytes = new Uint8Array(await file.arrayBuffer());
   const type = sniffImage(bytes.subarray(0, 16));
   const ext = type && MIME_EXT[type];
   if (!type || !ext) {
-    return NextResponse.json({ error: "Use a JPG, PNG, WebP, GIF or AVIF image." }, { status: 400 });
+    return NextResponse.json({ error: "השתמשו בתמונה מסוג JPG, PNG, WebP, GIF או AVIF." }, { status: 400 });
   }
 
   // Flood control: plenty for designing a page, useless for abuse.
@@ -40,7 +40,7 @@ export async function POST(req: NextRequest) {
     prisma.mediaAsset.count({ where: { userId: user.id, createdAt: { gte: new Date(Date.now() - 86_400_000) } } }),
   ]);
   if (lastHour >= 60 || lastDay >= 300) {
-    return NextResponse.json({ error: "Upload limit reached — try again a little later." }, { status: 429 });
+    return NextResponse.json({ error: "הגעתם למגבלת ההעלאות — נסו שוב מעט מאוחר יותר." }, { status: 429 });
   }
 
   const name = `${randomUUID()}.${ext}`;

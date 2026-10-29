@@ -1,8 +1,7 @@
 // Block components for PageRenderer. Server-renderable; interactive bits are
 // small client islands (gallery, countdown, typewriter, count-up, forms,
 // video facade).
-import { ArrowUpRight, Check, ChevronDown, MapPin, Navigation, Star } from "lucide-react";
-import { AuraMark } from "@/components/aura-logo";
+import { ArrowUpRight, Check, ChevronDown, MapPin, Navigation, Star, UserRound } from "lucide-react";
 import { RichTextView } from "@/components/rich-text-view";
 import { GalleryView } from "./gallery-view";
 import { CountdownView } from "./countdown-view";
@@ -127,7 +126,7 @@ function Initials({ name }: { name: string }) {
       {letters ? (
         <span className="text-[38cqi] leading-none drop-shadow-sm">{letters}</span>
       ) : (
-        <AuraMark className="h-1/2 w-1/2" />
+        <UserRound className="h-1/2 w-1/2" />
       )}
     </span>
   );
@@ -580,7 +579,7 @@ const EMBED_H = { sm: "h-60", md: "h-80", lg: "h-[480px]" };
 
 export function EmbedBlock({ b }: { b: BlockOf<"embed"> }) {
   if (!/^https:\/\//i.test(b.url)) {
-    return <p className="text-center text-sm text-text-muted">Add an https:// URL to embed…</p>;
+    return <p className="text-center text-sm text-text-muted">הוסיפו כתובת https להטמעה…</p>;
   }
   return (
     <div className="overflow-hidden rounded-2xl border border-border">
@@ -625,7 +624,7 @@ function musicEmbed(url: string): { src: string; height: number } | null {
 export function MusicBlock({ b }: { b: BlockOf<"music"> }) {
   const embed = musicEmbed(b.url);
   if (!embed) {
-    return <p className="text-center text-sm text-text-muted">Paste a Spotify, SoundCloud or Apple Music link…</p>;
+    return <p className="text-center text-sm text-text-muted">הדביקו קישור מ־Spotify, ‏SoundCloud או Apple Music…</p>;
   }
   return (
     <div className="overflow-hidden rounded-2xl">
@@ -719,7 +718,7 @@ export function FeaturesBlock({ b }: { b: BlockOf<"features"> }) {
 
 function Stars({ n }: { n: number }) {
   return (
-    <span className="flex gap-0.5 text-amber-400" aria-label={`${n} out of 5 stars`}>
+    <span role="img" className="flex gap-0.5 text-amber-400" aria-label={`${n}/5 ★`}>
       {Array.from({ length: 5 }, (_, i) => (
         <Star key={i} className={cn("h-3.5 w-3.5", i < n ? "fill-current" : "opacity-30")} />
       ))}
@@ -858,7 +857,7 @@ const MAP_H = { sm: "h-48", md: "h-64", lg: "h-96" };
 
 export function MapBlock({ b, ctx }: { b: BlockOf<"map">; ctx: RenderCtx }) {
   const q = b.query.trim();
-  if (!q) return <p className="text-center text-sm text-text-muted">Add an address or place name…</p>;
+  if (!q) return <p className="text-center text-sm text-text-muted">הוסיפו כתובת או שם מקום…</p>;
   return (
     <div className="overflow-hidden rounded-2xl border border-border bg-surface/60">
       <iframe

@@ -16,7 +16,7 @@ export function PasswordInput({
         {...props}
         type={show ? "text" : "password"}
         className={cn(
-          "h-11 w-full rounded-xl border border-border bg-surface-2 pl-4 pr-11 text-sm text-text placeholder:text-text-muted transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50",
+          "h-12 w-full rounded-[4px] border border-border bg-surface ps-4 pe-11 text-[0.95rem] text-text placeholder:text-text-muted transition-colors focus-visible:border-text focus-visible:outline-none",
           className,
         )}
       />
@@ -24,8 +24,8 @@ export function PasswordInput({
         type="button"
         onClick={() => setShow((s) => !s)}
         tabIndex={-1}
-        aria-label={show ? "Hide password" : "Show password"}
-        className="absolute right-1 top-1/2 grid h-9 w-9 -translate-y-1/2 place-items-center rounded-lg text-text-muted transition-colors hover:text-text"
+        aria-label={show ? "הסתרת סיסמה" : "הצגת סיסמה"}
+        className="absolute end-1 top-1/2 grid h-9 w-9 -translate-y-1/2 place-items-center rounded-lg text-text-muted transition-colors hover:text-text"
       >
         {show ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
       </button>

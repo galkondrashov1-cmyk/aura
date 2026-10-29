@@ -2,7 +2,7 @@
    two read as one continuous animation. */
 export default function Loading() {
   return (
-    <div className="aura-backdrop aura-page-loading">
+    <div data-mode="vivid" className="pg-public aura-backdrop aura-page-loading">
       <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
         <circle className="ring r1" cx="24" cy="24" r="21" stroke="currentColor" strokeWidth="1.6" />
         <circle className="ring r2" cx="24" cy="24" r="14.5" stroke="currentColor" strokeWidth="1.7" />

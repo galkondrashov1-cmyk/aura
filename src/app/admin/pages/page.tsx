@@ -1,3 +1,4 @@
+import { BRAND } from "@/lib/brand";
 import Link from "next/link";
 import { ExternalLink, Eye } from "lucide-react";
 import { prisma } from "@/lib/prisma";
@@ -13,7 +14,7 @@ export default async function AdminPages() {
 
   return (
     <div>
-      <h1 className="font-display text-2xl font-medium tracking-tight">Pages</h1>
+      <h1 className="font-display text-[2rem] leading-tight font-black tracking-tight">עמודים</h1>
       <p className="mt-1 text-sm text-text-muted">{pages.length} shown</p>
 
       {/* Mobile: stacked cards */}
@@ -21,25 +22,25 @@ export default async function AdminPages() {
         {pages.map((p) => {
           const published = p.status === "PUBLISHED";
           return (
-            <div key={p.id} className="rounded-2xl border border-border bg-surface p-4">
+            <div key={p.id} className="rounded-lg border border-border bg-surface p-4">
               <div className="flex items-start justify-between gap-2">
                 <div className="min-w-0">
                   <p className="truncate text-sm font-medium">{p.title}</p>
                   <p className="truncate text-xs text-text-muted">
-                    useaura.me/{p.user.username}
+                    {BRAND.domain}/{p.user.username}
                   </p>
                 </div>
                 <span
                   className={cn(
                     "shrink-0 rounded-full px-2.5 py-1 text-xs font-medium",
-                    published ? "bg-primary/15 text-primary" : "bg-surface-2 text-text-muted",
+                    published ? "bg-primary/15 text-primary-text" : "bg-surface-2 text-text-muted",
                   )}
                 >
-                  {published ? "Published" : "Draft"}
+                  {published ? "פורסם" : "טיוטה"}
                 </span>
               </div>
               <p className="mt-2 text-xs text-text-muted">
-                Updated {new Date(p.updatedAt).toLocaleDateString()}
+                עודכן {new Date(p.updatedAt).toLocaleDateString("he-IL")}
               </p>
               <div className="mt-3 flex items-center gap-2">
                 <Link
@@ -48,7 +49,7 @@ export default async function AdminPages() {
                   className="flex flex-1 items-center justify-center gap-1.5 rounded-lg border border-border py-2 text-xs text-text-muted transition-colors hover:text-text"
                 >
                   <Eye className="h-3.5 w-3.5" />
-                  Draft
+                  טיוטה
                 </Link>
                 {published && (
                   <Link
@@ -57,7 +58,7 @@ export default async function AdminPages() {
                     className="flex flex-1 items-center justify-center gap-1.5 rounded-lg border border-border py-2 text-xs text-text-muted transition-colors hover:text-text"
                   >
                     <ExternalLink className="h-3.5 w-3.5" />
-                    Live
+                    באוויר
                   </Link>
                 )}
               </div>
@@ -65,22 +66,22 @@ export default async function AdminPages() {
           );
         })}
         {pages.length === 0 && (
-          <p className="rounded-2xl border border-dashed border-border p-8 text-center text-sm text-text-muted">
-            No pages yet.
+          <p className="rounded-lg border border-dashed border-border p-8 text-center text-sm text-text-muted">
+            עוד אין עמודים.
           </p>
         )}
       </div>
 
       {/* Desktop: table */}
-      <div className="mt-6 hidden overflow-x-auto rounded-2xl border border-border md:block">
+      <div className="mt-6 hidden overflow-x-auto rounded-lg border border-border md:block">
         <table className="w-full text-sm">
           <thead>
-            <tr className="border-b border-border text-left text-xs text-text-muted">
-              <th className="px-4 py-3 font-medium">Title</th>
-              <th className="px-4 py-3 font-medium">Owner</th>
-              <th className="px-4 py-3 font-medium">Status</th>
-              <th className="px-4 py-3 font-medium">Updated</th>
-              <th className="px-4 py-3 text-right font-medium"></th>
+            <tr className="border-b border-border text-start text-xs text-text-muted">
+              <th className="px-4 py-3 font-medium">כותרת</th>
+              <th className="px-4 py-3 font-medium">בעלים</th>
+              <th className="px-4 py-3 font-medium">סטטוס</th>
+              <th className="px-4 py-3 font-medium">עודכן</th>
+              <th className="px-4 py-3 text-end font-medium"></th>
             </tr>
           </thead>
           <tbody>
@@ -90,22 +91,22 @@ export default async function AdminPages() {
                 <tr key={p.id} className="border-b border-border last:border-0">
                   <td className="px-4 py-3">{p.title}</td>
                   <td className="px-4 py-3 text-text-muted">
-                    useaura.me/{p.user.username}
+                    {BRAND.domain}/{p.user.username}
                   </td>
                   <td className="px-4 py-3">
                     <span
                       className={cn(
                         "rounded-full px-2.5 py-1 text-xs font-medium",
                         published
-                          ? "bg-primary/15 text-primary"
+                          ? "bg-primary/15 text-primary-text"
                           : "bg-surface-2 text-text-muted",
                       )}
                     >
-                      {published ? "Published" : "Draft"}
+                      {published ? "פורסם" : "טיוטה"}
                     </span>
                   </td>
                   <td className="px-4 py-3 text-text-muted">
-                    {new Date(p.updatedAt).toLocaleDateString()}
+                    {new Date(p.updatedAt).toLocaleDateString("he-IL")}
                   </td>
                   <td className="px-4 py-3">
                     <div className="flex items-center justify-end gap-3">
@@ -113,10 +114,10 @@ export default async function AdminPages() {
                         href={`/d/${signDraft(p.id)}`}
                         target="_blank"
                         className="inline-flex items-center gap-1 text-xs text-text-muted hover:text-text"
-                        title="View this user's draft"
+                        title="צפייה בטיוטה של המשתמש"
                       >
                         <Eye className="h-3.5 w-3.5" />
-                        Draft
+                        טיוטה
                       </Link>
                       {published && (
                         <Link
@@ -125,7 +126,7 @@ export default async function AdminPages() {
                           className="inline-flex items-center gap-1 text-xs text-text-muted hover:text-text"
                         >
                           <ExternalLink className="h-3.5 w-3.5" />
-                          Live
+                          באוויר
                         </Link>
                       )}
                     </div>
@@ -136,7 +137,7 @@ export default async function AdminPages() {
             {pages.length === 0 && (
               <tr>
                 <td colSpan={5} className="px-4 py-10 text-center text-sm text-text-muted">
-                  No pages yet.
+                  עוד אין עמודים.
                 </td>
               </tr>
             )}

@@ -18,6 +18,9 @@ export type SessionUser = {
   name: string | null;
   role: string;
   plan?: string;
+  /** Present on sessions read from the database (getSession). */
+  planExpiresAt?: string | null;
+  paypalSubId?: string | null;
 };
 
 /** Fingerprint of the password hash: changing the password ends every other session. */
@@ -36,7 +39,8 @@ async function signSession(user: SessionUser & { pv: string }): Promise<string> 
 
 export async function createSession(user: SessionUser, remember = true) {
   const row = await prisma.user.findUnique({ where: { id: user.id }, select: { passwordHash: true } });
-  const token = await signSession({ ...user, pv: passwordVersion(row?.passwordHash ?? null) });
+  const { id, email, username, name, role, plan } = user;
+  const token = await signSession({ id, email, username, name, role, plan, pv: passwordVersion(row?.passwordHash ?? null) });
   const jar = await cookies();
   jar.set(SESSION_COOKIE, token, {
     httpOnly: true,
@@ -66,13 +70,17 @@ export const getSession = cache(async (): Promise<SessionUser | null> => {
   if (!claim?.id) return null;
   const row = await prisma.user.findUnique({
     where: { id: claim.id },
-    select: { id: true, email: true, username: true, name: true, role: true, plan: true, status: true, passwordHash: true },
+    select: {
+      id: true, email: true, username: true, name: true, role: true, plan: true,
+      planExpiresAt: true, paypalSubId: true, status: true, passwordHash: true,
+    },
   });
   if (!row || row.status !== "ACTIVE") return null;
   // Sessions minted before this check existed carry no pv — accept those once
   // they match an account; every new login carries one.
   if (claim.pv && claim.pv !== passwordVersion(row.passwordHash)) return null;
-  return { id: row.id, email: row.email, username: row.username, name: row.name, role: row.role, plan: row.plan };
+  const { id, email, username, name, role, plan, planExpiresAt, paypalSubId } = row;
+  return { id, email, username, name, role, plan, planExpiresAt, paypalSubId };
 });
 
 export async function destroySession() {

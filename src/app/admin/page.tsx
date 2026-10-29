@@ -27,26 +27,26 @@ export default async function AdminOverview() {
 
   return (
     <div>
-      <h1 className="font-display text-2xl font-medium tracking-tight">Overview</h1>
-      <p className="mt-1 text-sm text-text-muted">Platform health at a glance.</p>
+      <h1 className="font-display text-[2rem] leading-tight font-black tracking-tight">סקירה</h1>
+      <p className="mt-1 text-sm text-text-muted">מצב הפלטפורמה במבט אחד.</p>
 
       <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
-        <Metric label="Users" value={users} />
-        <Metric label="Pages" value={pages} />
-        <Metric label="Published" value={published} />
-        <Metric label="Total views" value={views} />
-        <Metric label="Total clicks" value={clicks} />
+        <Metric label="משתמשים" value={users} />
+        <Metric label="עמודים" value={pages} />
+        <Metric label="פורסמו" value={published} />
+        <Metric label="סך צפיות" value={views} />
+        <Metric label="סך קליקים" value={clicks} />
       </div>
 
-      <div className="mt-6 rounded-2xl border border-border bg-surface p-5">
-        <p className="text-sm font-medium">Early access</p>
+      <div className="mt-6 rounded-lg border border-border bg-surface p-5">
+        <p className="text-sm font-medium">גישה מוקדמת</p>
         <p className="mt-1 text-sm text-text-muted">
-          {open} user{open === 1 ? "" : "s"} on a free Plus/Pro ({count((r) => !r.ending && r.plan === "PLUS")} Plus ·{" "}
-          {count((r) => !r.ending && r.plan === "PRO")} Pro){ending > 0 ? ` · ${ending} already counting down` : ""}.
+          {open} משתמשים ב־Plus/Pro בחינם ({count((r) => !r.ending && r.plan === "PLUS")} Plus ·{" "}
+          {count((r) => !r.ending && r.plan === "PRO")} Pro){ending > 0 ? ` · ${ending} כבר בספירה לאחור` : ""}.
         </p>
         {payments ? (
           <form action={endEarlyAccess} className="mt-4 flex flex-wrap items-center gap-2 text-sm">
-            <span className="text-text-muted">End it in</span>
+            <span className="text-text-muted">לסיים בעוד</span>
             <input
               name="days"
               type="number"
@@ -55,29 +55,29 @@ export default async function AdminOverview() {
               defaultValue={14}
               className="h-9 w-20 rounded-xl border border-border bg-surface-2 px-3"
             />
-            <span className="text-text-muted">days</span>
+            <span className="text-text-muted">ימים</span>
             <button
               type="submit"
               disabled={open === 0}
               className="h-9 rounded-full bg-primary px-4 font-medium text-primary-ink disabled:opacity-40"
             >
-              Start the countdown
+              התחלת ספירה לאחור
             </button>
             <span className="basis-full text-xs text-text-muted">
-              Each user sees the end date in their dashboard and can subscribe to keep their plan. Afterwards they move to
-              Free — nothing is deleted. Plans you granted by hand are included; re-grant them from Users afterwards.
+              כל משתמש יראה את תאריך הסיום בלוח הבקרה ויוכל להירשם למנוי כדי להישאר בחבילה. אחר כך הם עוברים
+              לחינם — שום דבר לא נמחק. חבילות שהענקתם ידנית כלולות; הענקו אותן מחדש ממסך המשתמשים.
             </span>
           </form>
         ) : (
           <p className="mt-3 text-xs text-text-muted">
-            Payments aren&apos;t configured yet, so early access can&apos;t end (people would simply claim the plan again).
-            Add the PayPal variables first — see scripts/paypal-setup.mjs.
+            תשלומים עוד לא הוגדרו, ולכן אי אפשר לסיים את הגישה המוקדמת (אנשים פשוט יבקשו את החבילה שוב).
+            הוסיפו קודם את משתני PayPal — ראו scripts/paypal-setup.mjs.
           </p>
         )}
       </div>
 
-      <div className="mt-6 rounded-2xl border border-border bg-surface p-5">
-        <p className="mb-4 text-sm font-medium">Newest users</p>
+      <div className="mt-6 rounded-lg border border-border bg-surface p-5">
+        <p className="mb-4 text-sm font-medium">משתמשים חדשים</p>
         <div className="space-y-2">
           {recent.map((u) => (
             <div
@@ -86,10 +86,10 @@ export default async function AdminOverview() {
             >
               <div className="min-w-0">
                 <span className="truncate">@{u.username}</span>
-                <span className="ml-2 text-text-muted">{u.email}</span>
+                <span className="ms-2 text-text-muted">{u.email}</span>
               </div>
               <span className="shrink-0 text-xs text-text-muted">
-                {new Date(u.createdAt).toLocaleDateString()}
+                {new Date(u.createdAt).toLocaleDateString("he-IL")}
               </span>
             </div>
           ))}
@@ -101,7 +101,7 @@ export default async function AdminOverview() {
 
 function Metric({ label, value }: { label: string; value: number }) {
   return (
-    <div className="rounded-2xl bg-surface p-4">
+    <div className="rounded-lg bg-surface p-4">
       <p className="text-xs text-text-muted">{label}</p>
       <p className="mt-1 font-display text-2xl font-medium">{value.toLocaleString()}</p>
     </div>

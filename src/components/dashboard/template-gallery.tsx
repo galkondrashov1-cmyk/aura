@@ -1,3 +1,4 @@
+import { catLabel } from "@/lib/design";
 import { ArrowRight, Plus } from "lucide-react";
 import { createPage } from "@/lib/actions/pages";
 import { TEMPLATES, templateContent } from "@/lib/templates";
@@ -12,13 +13,13 @@ export function TemplateGallery({ plan }: { plan: Plan }) {
         <input type="hidden" name="template" value="blank" />
         <button
           type="submit"
-          className="group flex h-full min-h-[340px] w-full flex-col items-center justify-center gap-3 rounded-3xl border border-dashed border-border bg-surface/40 p-6 text-center transition-colors hover:border-primary/60"
+          className="group flex h-full min-h-[340px] w-full flex-col items-center justify-center gap-3 rounded-xl border border-dashed border-border bg-surface/40 p-6 text-center transition-colors hover:border-primary/60"
         >
-          <span className="grid h-12 w-12 place-items-center rounded-2xl bg-surface-2 text-primary transition-transform group-hover:scale-110">
+          <span className="grid h-12 w-12 place-items-center rounded-lg bg-surface-2 text-primary-text transition-transform group-hover:scale-110">
             <Plus className="h-6 w-6" />
           </span>
-          <span className="font-display text-base font-medium">Start from scratch</span>
-          <span className="max-w-[16rem] text-sm text-text-muted">A clean page with just your name — build it block by block.</span>
+          <span className="font-display text-base font-medium">להתחיל מאפס</span>
+          <span className="max-w-[16rem] text-sm text-text-muted">עמוד נקי עם השם שלכם בלבד — בונים אותו בלוק אחרי בלוק.</span>
         </button>
       </form>
       {TEMPLATES.map((t) => {
@@ -28,29 +29,29 @@ export function TemplateGallery({ plan }: { plan: Plan }) {
         return (
           <div
             key={t.id}
-            className="group relative overflow-hidden rounded-3xl border border-border bg-surface text-start transition-all hover:-translate-y-0.5 hover:border-primary/50 hover:shadow-2xl"
+            className="group relative overflow-hidden rounded-xl border border-border bg-surface text-start transition-all hover:-translate-y-0.5 hover:border-primary/50 hover:shadow-2xl"
           >
             <PageThumb content={templateContent(t.id)} className="h-64" />
             <div className="flex items-start justify-between gap-3 p-4">
               <div className="min-w-0">
                 <p className="flex items-center gap-2">
                   <span className="font-display text-base font-medium text-text">{t.name}</span>
-                  <span className="text-[11px] text-text-muted">{t.category}</span>
+                  <span className="text-[11px] text-text-muted">{catLabel(t.category)}</span>
                 </p>
                 <p className="mt-0.5 text-xs text-text-muted">{t.description}</p>
                 {premium && (
-                  <p className="mt-1.5 text-[11px] text-primary">
-                    Uses {t.tier === "PRO" ? "Pro" : "Plus"} effects — try them free in the editor
+                  <p className="mt-1.5 text-[11px] text-primary-text">
+                    כולל אפקטים של {t.tier === "PRO" ? "Pro" : "Plus"} — נסו אותם בחינם בעורך
                   </p>
                 )}
               </div>
               <span className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-surface-2 text-text-muted transition-colors group-hover:bg-primary group-hover:text-primary-ink">
-                <ArrowRight className="h-4 w-4 rtl:-scale-x-100" />
+                <ArrowRight className="h-4 w-4" />
               </span>
             </div>
             <form action={createPage} className="absolute inset-0">
               <input type="hidden" name="template" value={t.id} />
-              <button type="submit" aria-label={`Use the ${t.name} template`} className="absolute inset-0 cursor-pointer" />
+              <button type="submit" aria-label={`שימוש בתבנית ${t.name}`} className="absolute inset-0 cursor-pointer" />
             </form>
           </div>
         );

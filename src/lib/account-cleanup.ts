@@ -11,7 +11,7 @@ export async function stopBilling(userId: string) {
   `;
   const sub = rows[0];
   if (sub?.paypalSubId && !sub.planExpiresAt && paypalConfigured()) {
-    await cancelSubscription(sub.paypalSubId, "AURA account deleted").catch(() => {});
+    await cancelSubscription(sub.paypalSubId, "Account deleted").catch(() => {});
   }
 }
 

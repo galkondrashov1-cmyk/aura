@@ -8,7 +8,7 @@ import { PLAN_RANK, type Plan } from "@/lib/plans";
 import { uploadImage } from "@/lib/client-image";
 
 export const fieldCls =
-  "h-10 w-full rounded-xl border border-border bg-surface-2 px-3 text-sm text-text placeholder:text-text-muted focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:outline-none";
+  "h-10 w-full rounded-md border border-border bg-surface px-3 text-sm text-text placeholder:text-text-muted focus-visible:border-text focus-visible:outline-none";
 
 export function Label({ children, hint }: { children: React.ReactNode; hint?: React.ReactNode }) {
   return (
@@ -22,7 +22,7 @@ export function Label({ children, hint }: { children: React.ReactNode; hint?: Re
 export function TierPill({ tier }: { tier: Plan }) {
   if (tier === "FREE") return null;
   return (
-    <span className="inline-flex items-center gap-0.5 rounded-full bg-primary/15 px-1.5 py-px text-[9px] font-semibold tracking-wide text-primary uppercase">
+    <span className="inline-flex items-center gap-0.5 rounded-full bg-primary/15 px-1.5 py-px text-[9px] font-semibold tracking-wide text-primary-text uppercase">
       <Lock className="h-2 w-2" />
       {tier === "PRO" ? "Pro" : "Plus"}
     </span>
@@ -108,7 +108,7 @@ export function Chips({
           >
             {render ? render(o) : <span className="leading-tight">{o.name}</span>}
             {o.tier && o.tier !== "FREE" && locked && (
-              <span className="absolute top-1 right-1">
+              <span className="absolute top-1 end-1">
                 <TierPill tier={o.tier} />
               </span>
             )}
@@ -139,7 +139,7 @@ export function ColorField({
         value={value || fallback}
         onChange={(e) => onChange(e.target.value)}
         className="h-9 w-11 shrink-0 cursor-pointer rounded-lg border border-border bg-surface-2"
-        aria-label={label ?? "Pick a color"}
+        aria-label={label ?? "בחירת צבע"}
       />
       <input
         type="text"
@@ -151,11 +151,11 @@ export function ColorField({
           if (/^#[0-9a-fA-F]{6}$/.test(v)) onChange(v);
         }}
         className="h-9 w-24 rounded-lg border border-border bg-surface-2 px-2.5 font-mono text-xs text-text placeholder:text-text-muted focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:outline-none"
-        aria-label={`${label ?? "Color"} hex code`}
+        aria-label={`קוד hex של ${label ?? "הצבע"}`}
       />
       {value && onReset && (
         <button type="button" onClick={onReset} className="text-xs text-text-muted hover:text-text">
-          Reset
+          איפוס
         </button>
       )}
     </div>
@@ -191,7 +191,7 @@ export function Slider({
         onChange={(e) => onChange(Number(e.target.value))}
         className="flex-1 accent-primary"
       />
-      <span className="w-12 text-right tabular-nums">
+      <span className="w-12 text-end tabular-nums">
         {value}
         {suffix}
       </span>
@@ -221,7 +221,7 @@ export function Toggle({
         <span
           className={cn(
             "absolute top-0.5 h-4 w-4 rounded-full bg-white shadow transition-all",
-            checked ? "left-[18px]" : "left-0.5",
+            checked ? "start-[18px]" : "start-0.5",
           )}
         />
       </span>
@@ -233,7 +233,7 @@ export function Toggle({
 export function ImageField({
   value,
   onChange,
-  placeholder = "Paste an image URL or upload",
+  placeholder = "הדביקו קישור לתמונה או העלו",
   maxDim,
 }: {
   value?: string | null;
@@ -253,7 +253,7 @@ export function ImageField({
     try {
       onChange(await uploadImage(file, maxDim));
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Upload failed");
+      setError(err instanceof Error ? err.message : "ההעלאה נכשלה");
     } finally {
       setBusy(false);
       if (ref.current) ref.current.value = "";
@@ -284,20 +284,20 @@ export function ImageField({
           disabled={busy}
           className="grid h-10 shrink-0 place-items-center rounded-xl border border-border px-3 text-sm text-text-muted transition-colors hover:text-text disabled:opacity-50"
         >
-          {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : "Upload"}
+          {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : "העלאה"}
         </button>
         {value && (
           <button
             type="button"
             onClick={() => onChange(undefined)}
-            aria-label="Remove image"
-            className="grid h-10 w-8 shrink-0 place-items-center text-text-muted hover:text-red-400"
+            aria-label="הסרת תמונה"
+            className="grid h-10 w-8 shrink-0 place-items-center text-text-muted hover:text-red-700"
           >
             <X className="h-4 w-4" />
           </button>
         )}
       </div>
-      {error && <p className="mt-1 text-xs text-red-400">{error}</p>}
+      {error && <p className="mt-1 text-xs text-red-700">{error}</p>}
     </div>
   );
 }
@@ -309,8 +309,8 @@ export function ItemCard({ children, onRemove }: { children: React.ReactNode; on
         <button
           type="button"
           onClick={onRemove}
-          aria-label="Remove item"
-          className="absolute top-2 right-2 grid h-7 w-7 place-items-center rounded-lg text-text-muted transition-colors hover:bg-bg hover:text-red-400"
+          aria-label="הסרת פריט"
+          className="absolute top-2 end-2 grid h-7 w-7 place-items-center rounded-lg text-text-muted transition-colors hover:bg-bg hover:text-red-700"
         >
           <Trash2 className="h-3.5 w-3.5" />
         </button>
@@ -320,7 +320,7 @@ export function ItemCard({ children, onRemove }: { children: React.ReactNode; on
   );
 }
 
-export function AddItem({ onClick, label = "Add item" }: { onClick: () => void; label?: string }) {
+export function AddItem({ onClick, label = "הוספת פריט" }: { onClick: () => void; label?: string }) {
   return (
     <button
       type="button"
@@ -360,11 +360,11 @@ export function Modal({
     >
       <div
         onClick={(e) => e.stopPropagation()}
-        className="flex max-h-[85dvh] w-full max-w-2xl flex-col rounded-t-3xl border border-border bg-bg shadow-2xl sm:rounded-3xl"
+        className="flex max-h-[85dvh] w-full max-w-2xl flex-col rounded-t-xl border border-border bg-bg shadow-2xl sm:rounded-xl"
       >
         <div className="flex items-center justify-between border-b border-border px-5 py-3.5">
           <p className="font-display text-base font-medium">{title}</p>
-          <button onClick={onClose} aria-label="Close" className="text-text-muted hover:text-text">
+          <button onClick={onClose} aria-label="סגירה" className="text-text-muted hover:text-text">
             <X className="h-5 w-5" />
           </button>
         </div>

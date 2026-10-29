@@ -30,7 +30,7 @@ export function CountdownView({ target, label, t }: { target: string; label?: st
   const targetMs = new Date(target).getTime();
   if (Number.isNaN(targetMs)) {
     return (
-      <p className="text-center text-sm text-text-muted">Set a countdown date…</p>
+      <p className="text-center text-sm text-text-muted">בחרו תאריך לספירה לאחור…</p>
     );
   }
   const left = now === null ? Number.POSITIVE_INFINITY : targetMs - now;

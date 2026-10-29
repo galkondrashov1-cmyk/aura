@@ -1,23 +1,14 @@
 import Link from "next/link";
-import {
-  Sparkles,
-  Wand2,
-  Zap,
-  Languages,
-  LayoutTemplate,
-  BarChart3,
-  Inbox,
-  MousePointer2,
-  Check,
-} from "lucide-react";
 import { buttonClasses } from "@/components/ui/button";
-import { SiteNav, HowItWorks, CtaBand, Footer } from "@/components/marketing";
+import { SiteNav, CtaBand, Footer, ClaimField } from "@/components/marketing";
 import { Showcase } from "@/components/marketing/showcase";
 import { PageRenderer } from "@/components/renderer/page-renderer";
 import { templateContent } from "@/lib/templates";
 import { TITLE_FX } from "@/lib/studio";
+import { BACKGROUNDS } from "@/lib/design";
 import { FONTS } from "@/lib/fonts";
 import { PLANS, formatPrice } from "@/lib/plans";
+import { BRAND } from "@/lib/brand";
 import type { PageContent, PageDesign } from "@/lib/blocks";
 
 // Static marketing page: rendered once at build time, served from the CDN.
@@ -25,7 +16,7 @@ export const dynamic = "force-static";
 
 function Phone({ content, className }: { content: PageContent; className?: string }) {
   return (
-    <div data-mode="vivid" className={className}>
+    <div data-mode="vivid" dir="ltr" className={className}>
       <div className="pointer-events-none flex min-h-[1180px] w-[390px] origin-top-left scale-[0.728] flex-col select-none *:flex-1">
         <PageRenderer content={content} embedded thumbnail hideBadge />
       </div>
@@ -34,29 +25,29 @@ function Phone({ content, className }: { content: PageContent; className?: strin
 }
 
 const SHOWCASE = [
-  { id: "creator", name: "Creator" },
-  { id: "portfolio", name: "Portfolio" },
-  { id: "cafe", name: "Café" },
-  { id: "coach", name: "Coach" },
-  { id: "musician", name: "Musician" },
-  { id: "hebrew", name: "עברית" },
+  { id: "hebrew", name: "סטודיו" },
+  { id: "cafe", name: "בית קפה" },
+  { id: "creator", name: "יוצרים" },
+  { id: "portfolio", name: "תיק עבודות" },
+  { id: "coach", name: "מאמנת" },
+  { id: "musician", name: "מוזיקה" },
 ];
 
-// Same words, four different Remix results — hand-picked so the page is stable.
+// Same words, four Remix results — hand-picked so the page is stable.
 const REMIX_LOOKS: Partial<PageDesign>[] = [
-  { accent: "#F472B6", bgCustom: { type: "mesh", colors: ["#5b21b6", "#9d174d", "#1e1b4b"] }, titleFx: "aurora", headingFont: "syne", font: "inter", headingWeight: "bold", card: "glass-frost", buttonShape: "pill", section: "none" },
-  { accent: "#FBBF24", bgCustom: { type: "linear", colors: ["#1c1917", "#422006"], angle: 160 }, titleFx: "chrome", headingFont: "playfair", font: "dmsans", card: "solid-deep", buttonShape: "soft", section: "glass" },
-  { accent: "#22D3EE", bgCustom: { type: "radial", colors: ["#083344", "#020617"] }, titleFx: "neon", headingFont: "grotesk", font: "grotesk", headingCase: "upper", headingTracking: "wide", card: "neon-cyber", buttonShape: "sharp", section: "none" },
-  { accent: "#B45309", bgCustom: { type: "linear", colors: ["#fdf6ec", "#f1e4cf"], angle: 160 }, titleFx: "highlight", headingFont: "fraunces", font: "outfit", headingWeight: "semibold", card: "solid-surface", buttonShape: "rounded", section: "solid" },
+  { accent: "#F472B6", bgCustom: { type: "mesh", colors: ["#5b21b6", "#9d174d", "#1e1b4b"] }, titleFx: "aurora", headingFont: "rubik", font: "heebo", headingWeight: "bold", card: "glass-frost", buttonShape: "pill", section: "none" },
+  { accent: "#FBBF24", bgCustom: { type: "linear", colors: ["#1c1917", "#422006"], angle: 160 }, titleFx: "chrome", headingFont: "frankruhl", font: "assistant", card: "solid-deep", buttonShape: "soft", section: "glass" },
+  { accent: "#22D3EE", bgCustom: { type: "radial", colors: ["#083344", "#020617"] }, titleFx: "neon", headingFont: "karantina", font: "rubik", card: "neon-cyber", buttonShape: "sharp", section: "none" },
+  { accent: "#B45309", bgCustom: { type: "linear", colors: ["#fdf6ec", "#f1e4cf"], angle: 160 }, titleFx: "highlight", headingFont: "suez", font: "assistant", headingWeight: "semibold", card: "solid-surface", buttonShape: "rounded", section: "solid" },
 ];
 
 const remixContent = (design: Partial<PageDesign>): PageContent => ({
   design: { reveal: "none", ...design },
   blocks: [
-    { id: "h", type: "hero", name: "Noa Levi", tagline: "Photographer · Tel Aviv", badge: "Booking 2027" },
+    { id: "h", type: "hero", name: "נועה לוי", tagline: "צלמת · תל אביב", badge: "פנויה ל־2027" },
     { id: "l", type: "links", items: [
-      { label: "Book a shoot", url: "#", highlighted: true, icon: "📸" },
-      { label: "Portfolio", url: "#", icon: "auto" },
+      { label: "הזמנת צילומים", url: "#", highlighted: true, icon: "📸" },
+      { label: "תיק עבודות", url: "#", icon: "auto" },
     ] },
     { id: "s", type: "socials", iconStyle: "chip", items: [
       { platform: "instagram", url: "#" },
@@ -66,15 +57,21 @@ const remixContent = (design: Partial<PageDesign>): PageContent => ({
   ],
 });
 
+const STEPS = [
+  { n: "01", title: "בוחרים תבנית", body: "תשע תבניות שהן עמודי נחיתה אמיתיים — לבית קפה, למאמנת, לסטודיו, ליוצרים." },
+  { n: "02", title: "מעצבים בזמן אמת", body: "כל צבע, פונט, כפתור ותנועה משתנים מול העיניים. Remix ממציא מראה שלם בלחיצה." },
+  { n: "03", title: "משתפים קישור אחד", body: `${BRAND.domain}/השם-שלכם — בביו, בסטורי, בחתימה, על כרטיס ביקור עם QR.` },
+];
+
 const FEATURES = [
-  { icon: Wand2, title: "Remix", body: "One tap generates a complete, coherent look — palette, fonts, buttons, motion. Tap again. And again." },
-  { icon: Sparkles, title: "Live backgrounds", body: "Real-time WebGL liquid mesh and silk, constellations that follow the cursor, fireflies, hyperspace." },
-  { icon: LayoutTemplate, title: "Real layouts", body: "Floating card, split screen, cover headers, poster type — a landing page, not just a list of links." },
-  { icon: Inbox, title: "Business blocks", body: "Pricing, testimonials, stats that count up, maps with Waze, newsletter & contact forms with an inbox." },
-  { icon: Languages, title: "עברית, from day one", body: "Ten Hebrew fonts and automatic right-to-left pages — your visitors' UI text switches to Hebrew too." },
-  { icon: MousePointer2, title: "Motion with taste", body: "Scroll-driven reveals, typewriter intros, custom cursors and a floating WhatsApp button." },
-  { icon: BarChart3, title: "Analytics that matter", body: "Views, clicks, click-rate per link, where visitors come from and their countries — bots excluded." },
-  { icon: Zap, title: "Instant pages", body: "Published pages are pre-rendered and served from the edge. Heavy effects load only when they're used." },
+  { title: "Remix", body: "מראה שלם ומדויק בלחיצה — צבעים, פונטים, כפתורים ותנועה. לא אהבתם? ביטול מחזיר." },
+  { title: "עברית מהשורה הראשונה", body: "עמודים מימין לשמאל אוטומטית, פונטים בעברית, וטפסים וכפתורים שמדברים עברית למבקרים." },
+  { title: "בלוקים לעסקים", body: "מחירון, המלצות עם כוכבים, מספרים שסופרים, מפה עם Waze, טפסים שנכנסים לתיבת פניות." },
+  { title: "כפתור וואטסאפ צף", body: "נשאר בפינה כל הגלילה. לעסק קטן — זה הליד." },
+  { title: "רקעים חיים", body: "משי ונוזל בזמן אמת, קונסטלציות שעוקבות אחרי העכבר, גחליליות ושלג." },
+  { title: "פריסות של עמוד אמיתי", body: "כרטיס צף, מסך מפוצל, שער, פוסטר — לא רק רשימת קישורים." },
+  { title: "נתונים בלי רעש", body: "צפיות, קליקים ואחוז הקלקה לכל קישור, מאיפה הגיעו ומאיזו מדינה. בוטים לא נספרים." },
+  { title: "עמודים מהירים", body: "כל עמוד נבנה מראש ומוגש מהשרת הקרוב. אפקטים כבדים נטענים רק כשמשתמשים בהם." },
 ];
 
 export default function Home() {
@@ -86,141 +83,143 @@ export default function Home() {
 
   return (
     <div className="min-h-screen overflow-x-clip">
-      <div className="aura-backdrop">
-        <SiteNav />
+      <SiteNav />
 
-        <main className="mx-auto max-w-6xl px-6">
-          <section className="grid items-center gap-14 pt-10 pb-16 md:pt-16 lg:grid-cols-[1.1fr_1fr]">
-            <div className="text-center lg:text-left">
-              <span className="mb-6 inline-flex items-center gap-2 rounded-full border border-border bg-surface/60 px-3 py-1 text-xs text-text-muted">
-                <span className="aura-glow h-1.5 w-1.5 rounded-full bg-primary" />
-                Early access — every plan is free while we grow
-              </span>
-
-              <h1 className="font-display text-4xl leading-[1.04] font-medium tracking-tight md:text-6xl">
-                A page that looks like{" "}
-                <span
-                  style={{
-                    backgroundImage: "linear-gradient(100deg, var(--primary), var(--accent))",
-                    WebkitBackgroundClip: "text",
-                    backgroundClip: "text",
-                    color: "transparent",
-                  }}
-                >
-                  nobody else&apos;s.
-                </span>
-              </h1>
-
-              <p className="mx-auto mt-6 max-w-xl text-base text-text-muted md:text-lg lg:mx-0">
-                AURA is a design studio in your pocket. Templates that are real landing pages, live animated
-                backgrounds, {TITLE_FX.length - 1} title effects, {FONTS.length} fonts (Hebrew included) — and Remix, which
-                invents a brand-new look every time you tap it.
-              </p>
-
-              <div className="mt-9 flex flex-col items-center gap-3 sm:flex-row lg:justify-start">
-                <Link href="/signup" className={buttonClasses("primary", "lg")}>
-                  Claim your page
-                </Link>
-                <p className="text-sm text-text-muted">
-                  useaura.me/<span className="text-text">yourname</span> · no card, no code
-                </p>
-              </div>
-            </div>
-
-            <Showcase slides={slides} />
-          </section>
-        </main>
-      </div>
-
-      {/* Same words, infinite looks */}
-      <section className="mx-auto max-w-6xl px-6 py-16">
-        <div className="max-w-2xl">
-          <p className="text-sm font-medium text-primary">Remix</p>
-          <h2 className="mt-2 font-display text-3xl font-medium tracking-tight md:text-4xl">Same words. Infinite looks.</h2>
-          <p className="mt-3 text-text-muted">
-            These four pages have identical content. Each look is one tap of Remix — every color, font and button
-            stays fully editable afterwards.
+      {/* ── Hero: the oversized type moment ── */}
+      <section className="mx-auto grid max-w-7xl gap-12 px-5 pt-10 pb-20 sm:px-8 lg:grid-cols-12 lg:pt-16">
+        <div className="lg:col-span-7">
+          <p className="kicker">עמודי נחיתה אישיים · בעברית</p>
+          <h1 className="display-xl mt-5">
+            <span className="wipe block">עמוד נחיתה אישי,</span>
+            <span className="wipe wipe-2 block">
+              בעיצוב <span className="hl">שאין לאף אחד</span>.
+            </span>
+          </h1>
+          <p className="wipe wipe-3 mt-8 max-w-xl text-lg leading-relaxed text-text-muted">
+            בוחרים תבנית, משנים כל צבע, פונט ותנועה, ומפרסמים. {FONTS.length} פונטים, {BACKGROUNDS.length} רקעים,{" "}
+            {TITLE_FX.length - 1} אפקטים לכותרות — ובלי שורת קוד אחת.
           </p>
+          <div className="mt-10 max-w-xl">
+            <ClaimField />
+            <p className="mt-3 text-sm text-text-muted">חינם לתמיד בחבילה הבסיסית · בלי כרטיס אשראי</p>
+          </div>
         </div>
-        <div className="mt-10 flex gap-4 overflow-x-auto px-1 pb-4 [scrollbar-width:none] md:grid md:grid-cols-4 md:justify-items-center md:overflow-visible">
-          {REMIX_LOOKS.map((d, i) => (
-            <div
-              key={i}
-              className="h-[420px] w-[226px] shrink-0 overflow-hidden rounded-[30px] border-[6px] border-[#1a1d24] shadow-2xl ring-1 ring-white/10"
-              style={{ transform: `rotate(${[-2, 1.5, -1, 2][i]}deg)` }}
-            >
-              <div data-mode="vivid" className="h-full w-full overflow-hidden">
-                <div className="pointer-events-none flex min-h-[760px] w-[390px] origin-top-left scale-[0.55] flex-col select-none *:flex-1">
-                  <PageRenderer content={remixContent(d)} embedded thumbnail hideBadge />
-                </div>
-              </div>
+
+        <figure className="lg:col-span-5 lg:-mt-4">
+          <Showcase slides={slides} />
+          <figcaption className="mt-4 border-t border-text pt-2 text-xs text-text-muted">
+            עמודים אמיתיים מתוך התבניות — לא צילומי מסך.
+          </figcaption>
+        </figure>
+      </section>
+
+      {/* ── Index: three steps as a table of contents ── */}
+      <section className="mx-auto max-w-7xl px-5 pb-24 sm:px-8">
+        <div className="grid gap-10 md:grid-cols-3 md:gap-8">
+          {STEPS.map((s) => (
+            <div key={s.n}>
+              <div className="rule rule-in" />
+              <p className="mt-4 font-display text-5xl font-black text-primary">{s.n}</p>
+              <h2 className="mt-3 text-xl font-bold">{s.title}</h2>
+              <p className="mt-2 leading-relaxed text-text-muted">{s.body}</p>
             </div>
           ))}
         </div>
       </section>
 
-      {/* Title effects, rendered for real */}
-      <section className="mx-auto max-w-6xl px-6 py-12">
-        <h2 className="font-display text-3xl font-medium tracking-tight md:text-4xl">Headlines with personality</h2>
-        <p className="mt-3 max-w-xl text-text-muted">
-          {TITLE_FX.length - 1} title effects. These are live — the same CSS your page ships with.
-        </p>
-        <div className="mt-8 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
+      {/* ── Remix: full-bleed ink band breaks the page ── */}
+      <section className="bg-text py-20 text-bg">
+        <div className="mx-auto max-w-7xl px-5 sm:px-8">
+          <p className="kicker !text-primary">Remix</p>
+          <h2 className="display-l wipe-in mt-4 max-w-3xl">אותן מילים. ארבעה עמודים אחרים לגמרי.</h2>
+          <p className="mt-5 max-w-2xl text-lg text-bg/70">
+            לארבעת העמודים כאן יש בדיוק אותו תוכן. כל מראה הוא לחיצה אחת על Remix — וכל צבע, פונט וכפתור נשארים פתוחים
+            לעריכה.
+          </p>
+        </div>
+        <div className="mt-14 flex gap-6 overflow-x-auto px-5 pb-4 [scrollbar-width:none] sm:px-8 lg:mx-auto lg:max-w-7xl lg:justify-between lg:overflow-visible">
+          {REMIX_LOOKS.map((d, i) => (
+            <figure key={i} className="shrink-0">
+              <div className="h-[420px] w-[226px] overflow-hidden rounded-[22px] border-[5px] border-[#2b2824]">
+                <div data-mode="vivid" dir="ltr" className="h-full w-full overflow-hidden">
+                  <div className="pointer-events-none flex min-h-[760px] w-[390px] origin-top-left scale-[0.55] flex-col select-none *:flex-1">
+                    <PageRenderer content={remixContent(d)} embedded thumbnail hideBadge />
+                  </div>
+                </div>
+              </div>
+              <figcaption className="mt-3 font-display text-sm text-bg/60">Remix · {String(i + 1).padStart(2, "0")}</figcaption>
+            </figure>
+          ))}
+        </div>
+      </section>
+
+      {/* ── Type specimen: title effects on a ruled sheet ── */}
+      <section className="mx-auto max-w-7xl px-5 py-24 sm:px-8">
+        <div className="flex flex-wrap items-end justify-between gap-6">
+          <h2 className="display-l wipe-in max-w-2xl">כותרות עם אופי.</h2>
+          <p className="max-w-sm text-text-muted">{TITLE_FX.length - 1} אפקטים לכותרות, חיים — אותו קוד שהעמוד שלכם מקבל.</p>
+        </div>
+        <div className="mt-10 grid grid-cols-2 border-t border-s border-text sm:grid-cols-3 lg:grid-cols-4">
           {TITLE_FX.filter((f) => f.id !== "none").map((f, i) => (
             <div
               key={f.id}
+              data-mode="vivid"
               data-tfx={f.id}
-              className="flex h-28 flex-col items-center justify-center rounded-2xl border border-border bg-surface"
-              style={{ ["--primary" as string]: ["#00E5A0", "#F472B6", "#38BDF8", "#FBBF24", "#A78BFA", "#FB7185"][i % 6] }}
+              className="flex h-36 flex-col justify-between border-e border-b border-text bg-[#0d0d0f] p-4 text-text"
+              style={{ ["--primary" as string]: ["#FF5A1F", "#F472B6", "#38BDF8", "#FBBF24", "#A3E635", "#FB7185"][i % 6] }}
             >
-              <span className="pg-title [--h1:2rem]">
-                <span className="tfx" data-text="Aura">
-                  Aura
+              <span className="text-[11px] text-white/50">{String(i + 1).padStart(2, "0")}</span>
+              <span className="pg-title text-center [--h1:2.1rem]">
+                <span className="tfx" data-text="שלום">
+                  שלום
                 </span>
               </span>
-              <span className="mt-2 text-[11px] text-text-muted">{f.name}</span>
+              <span className="text-[11px] text-white/60">{f.name}</span>
             </div>
           ))}
         </div>
       </section>
 
-      <section className="mx-auto max-w-6xl px-6 py-16">
-        <h2 className="font-display text-3xl font-medium tracking-tight md:text-4xl">Everything a landing page needs</h2>
-        <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          {FEATURES.map((f) => (
-            <div key={f.title} className="rounded-3xl border border-border bg-surface p-5">
-              <span className="grid h-10 w-10 place-items-center rounded-xl bg-primary/12 text-primary">
-                <f.icon className="h-5 w-5" />
-              </span>
-              <h3 className="mt-4 font-display text-lg font-medium">{f.title}</h3>
-              <p className="mt-1.5 text-sm leading-relaxed text-text-muted">{f.body}</p>
-            </div>
-          ))}
+      {/* ── What's inside: an editorial list, not an icon grid ── */}
+      <section className="mx-auto grid max-w-7xl gap-10 px-5 pb-24 sm:px-8 lg:grid-cols-12">
+        <div className="lg:col-span-4">
+          <h2 className="display-l wipe-in lg:sticky lg:top-10">מה יש בפנים.</h2>
         </div>
-      </section>
-
-      <HowItWorks />
-
-      <section className="mx-auto max-w-6xl px-6 py-16">
-        <h2 className="font-display text-3xl font-medium tracking-tight md:text-4xl">The price of one coffee a month</h2>
-        <p className="mt-3 text-text-muted">
-          Every plan is free during early access. Prices below are what paid plans will cost, billed yearly.
-        </p>
-        <div className="mt-8 grid gap-4 lg:grid-cols-3">
-          {PLANS.map((p) => (
-            <div key={p.id} className={`flex flex-col rounded-3xl border bg-surface p-6 ${p.popular ? "aura-glow border-primary/50" : "border-border"}`}>
-              <div className="flex items-baseline justify-between">
-                <h3 className="font-display text-lg font-medium">{p.name}</h3>
-                <p className="font-display text-2xl font-medium">
-                  {p.yearlyPerMonth === 0 ? "Free" : formatPrice(p.yearlyPerMonth)}
-                  {p.yearlyPerMonth > 0 && <span className="text-sm text-text-muted">/mo</span>}
-                </p>
+        <ol className="lg:col-span-8">
+          {FEATURES.map((f, i) => (
+            <li key={f.title} className="grid grid-cols-[3.5rem_1fr] gap-4 border-t border-text py-6 last:border-b">
+              <span className="font-display text-2xl font-black text-primary">{String(i + 1).padStart(2, "0")}</span>
+              <div>
+                <h3 className="text-xl font-bold">{f.title}</h3>
+                <p className="mt-1.5 max-w-2xl leading-relaxed text-text-muted">{f.body}</p>
               </div>
-              <p className="mt-1 text-sm text-text-muted">{p.tagline}</p>
-              <ul className="mt-5 flex-1 space-y-2">
+            </li>
+          ))}
+        </ol>
+      </section>
+
+      {/* ── Pricing teaser: three ruled columns ── */}
+      <section className="mx-auto max-w-7xl px-5 pb-24 sm:px-8">
+        <div className="flex flex-wrap items-end justify-between gap-6">
+          <h2 className="display-l wipe-in">במחיר של כוס קפה בחודש.</h2>
+          <p className="max-w-sm text-text-muted">בתקופת הגישה המוקדמת כל החבילות בחינם. כאן המחירים העתידיים, בחיוב שנתי.</p>
+        </div>
+        <div className="mt-10 grid border-t border-text md:grid-cols-3">
+          {PLANS.map((p) => (
+            <div key={p.id} className="flex flex-col border-b border-text py-8 md:border-b-0 md:px-8 md:first:ps-0 md:[&:not(:last-child)]:border-e">
+              <div className="flex items-baseline justify-between gap-3">
+                <h3 className="font-display text-3xl font-black">{p.name}</h3>
+                {p.popular && <span className="bg-primary px-2 py-0.5 text-xs font-medium text-primary-ink">הכי נבחר</span>}
+              </div>
+              <p className="mt-6 font-display text-5xl font-black">
+                {p.yearlyPerMonth === 0 ? "₪0" : formatPrice(p.yearlyPerMonth)}
+                <span className="ms-1 font-sans text-base font-normal text-text-muted">{p.yearlyPerMonth ? "לחודש" : "לתמיד"}</span>
+              </p>
+              <p className="mt-2 text-text-muted">{p.tagline}</p>
+              <ul className="mt-6 flex-1 space-y-2 text-[0.95rem]">
                 {p.highlights.slice(0, 5).map((f) => (
-                  <li key={f} className="flex items-start gap-2 text-sm text-text-muted">
-                    <Check className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
+                  <li key={f} className="flex gap-2">
+                    <span className="mt-2.5 size-1.5 shrink-0 bg-primary" />
                     {f}
                   </li>
                 ))}
@@ -228,8 +227,8 @@ export default function Home() {
             </div>
           ))}
         </div>
-        <Link href="/pricing" className={`${buttonClasses("secondary", "md")} mt-6`}>
-          Compare every feature
+        <Link href="/pricing" className={`${buttonClasses("secondary", "md")} mt-8`}>
+          השוו את כל היכולות ←
         </Link>
       </section>
 

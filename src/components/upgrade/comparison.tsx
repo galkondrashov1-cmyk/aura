@@ -4,8 +4,8 @@ import { PLANS, type Plan } from "@/lib/plans";
 import { cn } from "@/lib/utils";
 
 function CellView({ value }: { value: Cell }) {
-  if (value === true) return <Check className="mx-auto h-4 w-4 text-primary" aria-label="Included" />;
-  if (value === false) return <Minus className="mx-auto h-4 w-4 text-text-muted/40" aria-label="Not included" />;
+  if (value === true) return <Check className="mx-auto h-4 w-4 text-primary-text" aria-label="כלול" />;
+  if (value === false) return <Minus className="mx-auto h-4 w-4 text-text-muted/40" aria-label="לא כלול" />;
   return <span className="text-xs text-text sm:text-sm">{value}</span>;
 }
 
@@ -13,9 +13,9 @@ function CellView({ value }: { value: Cell }) {
 export function PlanComparison({ highlight }: { highlight?: Plan }) {
   const groups = planMatrix();
   return (
-    <div className="overflow-hidden rounded-3xl border border-border bg-surface">
-      <table className="w-full table-fixed border-collapse text-left">
-        <caption className="sr-only">What each AURA plan includes</caption>
+    <div className="overflow-hidden rounded-xl border border-border bg-surface">
+      <table className="w-full table-fixed border-collapse text-start">
+        <caption className="sr-only">מה כוללת כל חבילה</caption>
         <colgroup>
           <col className="w-[43%] sm:w-[52%]" />
           <col />
@@ -25,13 +25,13 @@ export function PlanComparison({ highlight }: { highlight?: Plan }) {
         <thead className="sticky top-0 z-10 bg-surface/95 backdrop-blur">
           <tr className="border-b border-border">
             <th scope="col" className="px-3 py-3 text-xs font-medium text-text-muted sm:px-5">
-              Feature
+              יכולת
             </th>
             {PLANS.map((p) => (
               <th
                 key={p.id}
                 scope="col"
-                className={cn("px-1 py-3 text-center font-display text-sm font-medium", highlight === p.id && "text-primary")}
+                className={cn("px-1 py-3 text-center font-display text-sm font-medium", highlight === p.id && "text-primary-text")}
               >
                 {p.name}
               </th>
@@ -67,34 +67,34 @@ export function PlanComparison({ highlight }: { highlight?: Plan }) {
 
 const FAQ: { q: string; a: string }[] = [
   {
-    q: "Is it really free right now?",
-    a: "Yes. During early access every plan — including Plus and Pro — is free. Nothing is ever charged unless you subscribe yourself.",
+    q: "זה באמת בחינם עכשיו?",
+    a: "כן. בתקופת הגישה המוקדמת כל החבילות — כולל Plus ו־Pro — בחינם. לא תחויבו אף פעם אלא אם תירשמו למנוי בעצמכם.",
   },
   {
-    q: "What happens when paid plans start?",
-    a: "We'll announce it in the app well in advance. Early-access plans get a grace period, and you choose whether to subscribe. If you don't, your page simply moves to the Free plan — it stays online.",
+    q: "מה יקרה כשהחבילות בתשלום יתחילו?",
+    a: "נודיע על כך באפליקציה הרבה מראש. מי שבגישה מוקדמת יקבל תקופת מעבר, ותבחרו אם להירשם למנוי. אם לא — העמוד פשוט יעבור לחבילה החינמית ויישאר באוויר.",
   },
   {
-    q: "What happens to my page if I move to a smaller plan?",
-    a: "Nothing is deleted. Premium touches (say, a live background or a pricing block) stop showing on your public page and switch to their closest free look, and pages beyond your plan's limit go offline — your main page always stays up. Upgrade again and everything is back exactly as you designed it.",
+    q: "מה קורה לעמוד שלי אם אעבור לחבילה קטנה יותר?",
+    a: "שום דבר לא נמחק. נגיעות פרימיום (למשל רקע חי או בלוק מחירון) מפסיקות להופיע בעמוד הציבורי ומתחלפות במראה החינמי הקרוב, ועמודים מעבר למגבלת החבילה יורדים מהאוויר — העמוד הראשי נשאר תמיד. משדרגים שוב, והכל חוזר בדיוק כמו שעיצבתם.",
   },
   {
-    q: "Can I try premium features before deciding?",
-    a: "Yes — every effect works in the editor on any plan. The editor tells you clearly which ones will only appear on your live page with Plus or Pro.",
+    q: "אפשר לנסות יכולות פרימיום לפני שמחליטים?",
+    a: "כן — כל אפקט עובד בעורך בכל חבילה. העורך מראה בבירור אילו מהם יופיעו בעמוד החי רק עם Plus או Pro.",
   },
   {
-    q: "Yearly or monthly?",
-    a: "Same features. Yearly costs less per month; monthly lets you cancel any time. Either way you keep access until the end of the period you paid for.",
+    q: "שנתי או חודשי?",
+    a: "אותן יכולות. בשנתי המחיר החודשי נמוך יותר; בחודשי אפשר לבטל מתי שרוצים. בשני המקרים הגישה נשמרת עד סוף התקופה ששולמה.",
   },
   {
-    q: "Do you support Hebrew?",
-    a: "On every plan: ten Hebrew fonts, automatic right-to-left pages, and visitor-facing text (forms, buttons, countdowns) in Hebrew.",
+    q: "יש תמיכה בעברית?",
+    a: "בכל החבילות: פונטים בעברית, עמודים מימין לשמאל אוטומטית, וגם הטקסטים למבקרים (טפסים, כפתורים, ספירה לאחור) בעברית.",
   },
 ];
 
 export function PricingFaq() {
   return (
-    <div className="divide-y divide-border overflow-hidden rounded-3xl border border-border bg-surface">
+    <div className="divide-y divide-border overflow-hidden rounded-xl border border-border bg-surface">
       {FAQ.map((f) => (
         <details key={f.q} className="group px-5 py-4">
           <summary className="flex cursor-pointer list-none items-center justify-between gap-4 text-sm font-medium">

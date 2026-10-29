@@ -12,7 +12,7 @@ export function PlanSelect({ userId, plan }: { userId: string; plan: string }) {
         defaultValue={plan}
         onChange={(e) => e.currentTarget.form?.requestSubmit()}
         className="rounded-lg border border-border bg-surface-2 px-2 py-1.5 text-xs text-text focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50"
-        aria-label="User plan"
+        aria-label="חבילת המשתמש"
       >
         {PLANS.map((p) => (
           <option key={p} value={p}>

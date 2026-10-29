@@ -1,25 +1,24 @@
+import { titled } from "@/lib/brand";
 import { notFound, redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { getSession } from "@/lib/session";
 import { asPageContent } from "@/lib/blocks";
-import { getEffectivePlan } from "@/lib/plan-source";
+import { effectivePlanFrom } from "@/lib/plan-source";
 import { signDraft } from "@/lib/draft-token";
 import { Editor } from "@/components/builder/editor";
 import { paypalConfigured } from "@/lib/paypal";
 
 type Params = { params: Promise<{ pageId: string }> };
 
-export const metadata = { title: "Editor · AURA" };
+export const metadata = { title: titled("עורך") };
 
 export default async function BuilderPage({ params }: Params) {
   const { pageId } = await params;
   const user = await getSession();
   if (!user) redirect("/login");
 
-  const [page, plan] = await Promise.all([
-    prisma.page.findFirst({ where: { id: pageId, userId: user.id } }),
-    getEffectivePlan(user.id),
-  ]);
+  const plan = effectivePlanFrom(user);
+  const page = await prisma.page.findFirst({ where: { id: pageId, userId: user.id } });
   if (!page) notFound();
 
   return (

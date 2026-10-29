@@ -1,10 +1,11 @@
+import { BRAND } from "@/lib/brand";
 import type { MetadataRoute } from "next";
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: "AURA",
-    short_name: "AURA",
-    description: "The most beautiful way to build a personal page.",
+    name: BRAND.name,
+    short_name: BRAND.name,
+    description: "הדרך היפה ביותר לבנות עמוד אישי.",
     start_url: "/dashboard",
     scope: "/",
     display: "standalone",

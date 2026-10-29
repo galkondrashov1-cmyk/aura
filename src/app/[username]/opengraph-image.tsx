@@ -1,7 +1,7 @@
 import { getPublicPage } from "@/lib/public-page";
 import { ogImage, OG_SIZE } from "@/lib/og";
 
-export const alt = "AURA page";
+export const alt = "Page preview";
 export const size = OG_SIZE;
 export const contentType = "image/png";
 export const revalidate = 3600;

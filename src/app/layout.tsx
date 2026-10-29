@@ -1,32 +1,25 @@
+import { BRAND } from "@/lib/brand";
 import type { Metadata, Viewport } from "next";
-import { Inter, Plus_Jakarta_Sans } from "next/font/google";
+import { Frank_Ruhl_Libre, Heebo } from "next/font/google";
 import "./globals.css";
 import { SITE_URL } from "@/lib/site";
 
-const inter = Inter({
-  subsets: ["latin"],
-  variable: "--font-inter",
-  display: "swap",
-});
-
-const jakarta = Plus_Jakarta_Sans({
-  subsets: ["latin"],
-  variable: "--font-jakarta",
-  display: "swap",
-});
+// Hebrew-first type: Frank Ruhl Libre (the classic Israeli newspaper serif)
+// for headlines, Heebo for everything else. Both cover Latin.
+const body = Heebo({ subsets: ["hebrew", "latin"], variable: "--font-body", display: "swap" });
+const display = Frank_Ruhl_Libre({ subsets: ["hebrew", "latin"], variable: "--font-head", display: "swap" });
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   // Config (not file-based) icons, so a Pro page can swap in its own.
   icons: { icon: { url: "/icon.png", sizes: "64x64", type: "image/png" }, apple: "/apple-icon.png" },
-  title: "AURA — Create your aura",
-  description:
-    "The most beautiful way to build a personal landing page. Stunning, premium mini-sites in minutes — no code.",
-  appleWebApp: { capable: true, statusBarStyle: "black-translucent", title: "AURA" },
+  title: `${BRAND.name} — עמוד נחיתה שלא דומה לאף אחד אחר`,
+  description: "הדרך היפה ביותר לבנות עמוד נחיתה אישי: מיני־אתרים מעוצבים ומרשימים בכמה דקות, בלי קוד.",
+  appleWebApp: { capable: true, statusBarStyle: "black-translucent", title: BRAND.name },
 };
 
 export const viewport: Viewport = {
-  themeColor: "#08090c",
+  themeColor: "#f4f1ea",
 };
 
 export default function RootLayout({
@@ -39,11 +32,7 @@ export default function RootLayout({
     // proxies) inject attributes onto <html> before React hydrates, which would
     // otherwise surface a harmless attribute-mismatch warning. This only relaxes
     // the check for <html>'s own attributes, not the rest of the tree.
-    <html
-      lang="en"
-      className={`${inter.variable} ${jakarta.variable}`}
-      suppressHydrationWarning
-    >
+    <html lang="he" dir="rtl" className={`${body.variable} ${display.variable}`} suppressHydrationWarning>
       {/* The PWA launch splash is pure CSS (body::before/::after, installed
           app only — see globals.css). It used to be a <div> injected by an
           inline script, which landed in <body> ahead of React's streamed

@@ -24,35 +24,35 @@ export async function activateSubscription(
 ): Promise<ActivateState> {
   const user = await getSession();
   if (!user) redirect("/login");
-  if (!paypalConfigured()) return { error: "Payments aren't enabled yet." };
+  if (!paypalConfigured()) return { error: "תשלומים עוד לא הופעלו." };
 
   const subId = String(formData.get("subscriptionId") ?? "").trim();
-  if (!/^[A-Z0-9-]{10,30}$/i.test(subId)) return { error: "Invalid subscription." };
+  if (!/^[A-Z0-9-]{10,30}$/i.test(subId)) return { error: "מנוי לא תקין." };
 
   let sub;
   try {
     sub = await getSubscription(subId);
   } catch {
-    return { error: "Could not verify the subscription with PayPal." };
+    return { error: "לא הצלחנו לאמת את המנוי מול PayPal." };
   }
   if (!["ACTIVE", "APPROVED"].includes(sub.status)) {
-    return { error: `Subscription is ${sub.status.toLowerCase()} — payment not completed.` };
+    return { error: `סטטוס המנוי: ${sub.status.toLowerCase()} — התשלום לא הושלם.` };
   }
   const plan = planFromPaypalPlanId(sub.plan_id);
-  if (!plan) return { error: "Unknown PayPal plan." };
+  if (!plan) return { error: "חבילת PayPal לא מוכרת." };
   // A subscription id alone proves nothing: it must have been created for
   // THIS account and must not already back someone else's plan.
-  if (sub.custom_id !== user.id) return { error: "This subscription belongs to a different account." };
+  if (sub.custom_id !== user.id) return { error: "המנוי הזה שייך לחשבון אחר." };
   const holders = await prisma.$queryRaw<{ id: string; paypalSubId: string | null }[]>`
     SELECT id, "paypalSubId" FROM "User" WHERE "paypalSubId" = ${subId} OR id = ${user.id}
   `;
-  if (holders.some((h) => h.id !== user.id)) return { error: "This subscription is already in use." };
+  if (holders.some((h) => h.id !== user.id)) return { error: "המנוי הזה כבר בשימוש." };
 
   await prisma.$executeRaw`UPDATE "User" SET plan = ${plan}, "paypalSubId" = ${subId}, "planExpiresAt" = NULL WHERE id = ${user.id}`;
   // Switching plans starts a new subscription — stop billing the old one.
   const previous = holders.find((h) => h.id === user.id)?.paypalSubId;
   if (previous && previous !== subId) {
-    await cancelSubscription(previous, "Replaced by a new AURA plan").catch(() => {});
+    await cancelSubscription(previous, "Replaced by a new plan").catch(() => {});
   }
   await revalidateUser(user.id);
   await createSession({ ...user, plan });
@@ -82,7 +82,7 @@ export async function cancelSubscriptionAction() {
   } catch {
     /* fall back to immediate expiry */
   }
-  await cancelSubscription(subId, "User cancelled from the AURA dashboard");
+  await cancelSubscription(subId, "User cancelled from the dashboard");
   await prisma.$executeRaw`UPDATE "User" SET "planExpiresAt" = ${expires} WHERE id = ${user.id}`;
 
   redirect("/dashboard/upgrade?cancelled=1");

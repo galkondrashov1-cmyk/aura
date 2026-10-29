@@ -4,9 +4,10 @@ import { getSession } from "@/lib/session";
 import { prisma } from "@/lib/prisma";
 import { cn } from "@/lib/utils";
 import { caps, PLANS } from "@/lib/plans";
-import { getEffectivePlan } from "@/lib/plan-source";
+import { effectivePlanFrom } from "@/lib/plan-source";
 
 const RANGES = [7, 30, 90, 365] as const;
+const DEVICE: Record<string, string> = { desktop: "מחשב", mobile: "נייד", tablet: "טאבלט" };
 
 function dayKey(d: Date) {
   return d.toISOString().slice(0, 10);
@@ -26,7 +27,7 @@ export default async function AnalyticsPage({
   const session = await getSession();
   if (!session) return null;
   const sp = await searchParams;
-  const allowed = caps(await getEffectivePlan(session.id)).analyticsDays;
+  const allowed = caps(effectivePlanFrom(session)).analyticsDays;
   const wanted = RANGES.find((r) => String(r) === sp.range) ?? 30;
   // History beyond the plan is clamped (and explained), never silently empty.
   const days = Math.min(wanted, allowed);
@@ -130,10 +131,10 @@ export default async function AnalyticsPage({
     <div>
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
-          <h1 className="font-display text-2xl font-medium tracking-tight">Analytics</h1>
+          <h1 className="font-display text-[2rem] leading-tight font-black tracking-tight">נתונים</h1>
           <p className="mt-1 text-sm text-text-muted">
-            {selected ? selected.title : "All pages"} · last {days} days{step > 1 ? " by week" : ""} · bots &amp; your own visits
-            excluded
+            {selected ? selected.title : "כל העמודים"} · {days} הימים האחרונים{step > 1 ? " לפי שבועות" : ""} · בלי בוטים ובלי
+            הביקורים שלכם
           </p>
         </div>
         <div className="flex rounded-xl border border-border bg-surface-2 p-0.5 text-sm">
@@ -145,25 +146,25 @@ export default async function AnalyticsPage({
                 "rounded-[10px] px-3 py-1.5",
                 r === wanted ? "bg-bg text-text shadow-sm" : "text-text-muted hover:text-text",
               )}
-              title={r > allowed ? "Needs a bigger plan" : undefined}
+              title={r > allowed ? "דורש חבילה גדולה יותר" : undefined}
             >
-              {r === 365 ? "1y" : `${r}d`}
-              {r > allowed && <Lock className="ms-1 inline h-3 w-3 align-[-1px]" aria-label="Locked" />}
+              {r === 365 ? "שנה" : `${r} יום`}
+              {r > allowed && <Lock className="ms-1 inline h-3 w-3 align-[-1px]" aria-label="נעול" />}
             </Link>
           ))}
         </div>
       </div>
 
       {wanted > allowed && (
-        <div className="mt-4 flex flex-wrap items-center gap-3 rounded-2xl border border-primary/40 bg-primary/10 px-4 py-3 text-sm">
+        <div className="mt-4 flex flex-wrap items-center gap-3 rounded-lg border border-primary/40 bg-primary/10 px-4 py-3 text-sm">
           <p className="min-w-0 flex-1">
-            Your plan keeps {allowed} days of history, so you&apos;re seeing the last {allowed}.{" "}
+            החבילה שלכם שומרת היסטוריה של {allowed} ימים, אז מוצגים {allowed} הימים האחרונים.{" "}
             <span className="text-text-muted">
-              {unlocksAt ? `${unlocksAt.name} shows ${wanted === 365 ? "a full year" : `${wanted} days`} of trends.` : ""}
+              {unlocksAt ? `ב־${unlocksAt.name} רואים ${wanted === 365 ? "שנה שלמה" : `${wanted} ימים`} של מגמות.` : ""}
             </span>
           </p>
           <Link href="/dashboard/upgrade" className="rounded-full bg-primary px-3.5 py-1.5 text-xs font-medium text-primary-ink">
-            See plans
+            לחבילות
           </Link>
         </div>
       )}
@@ -171,7 +172,7 @@ export default async function AnalyticsPage({
       {pages.length > 1 && (
         <div className="mt-4 flex gap-1.5 overflow-x-auto pb-1 [scrollbar-width:none]">
           <Pill href={href({ page: null })} active={!selected}>
-            All pages
+            כל העמודים
           </Pill>
           {pages.map((p) => (
             <Pill key={p.id} href={href({ page: p.id })} active={selected?.id === p.id}>
@@ -182,11 +183,11 @@ export default async function AnalyticsPage({
       )}
 
       {!hasData ? (
-        <div className="mt-10 rounded-3xl border border-dashed border-border bg-surface/50 px-6 py-16 text-center">
+        <div className="mt-10 rounded-xl border border-dashed border-border bg-surface/50 px-6 py-16 text-center">
           <p className="text-sm text-text-muted">
-            No visits in this period yet. Share your link and check back —{" "}
+            עוד אין ביקורים בתקופה הזו. שתפו את הקישור ובדקו שוב —{" "}
             <Link href="/dashboard" className="text-text underline underline-offset-4">
-              go to my pages
+              לעמודים שלי
             </Link>
             .
           </p>
@@ -194,12 +195,12 @@ export default async function AnalyticsPage({
       ) : (
         <>
           <div className="mt-6 grid grid-cols-3 gap-2 sm:gap-3">
-            <Metric label="Views" value={totalViews} prev={prevViews} />
-            <Metric label="Clicks" value={totalClicks} prev={prevClicks} />
-            <Metric label="Click rate" value={ctr} suffix="%" />
+            <Metric label="צפיות" value={totalViews} prev={prevViews} />
+            <Metric label="קליקים" value={totalClicks} prev={prevClicks} />
+            <Metric label="אחוז הקלקה" value={ctr} suffix="%" />
           </div>
 
-          <div className="mt-5 rounded-2xl border border-border bg-surface p-4 sm:p-5">
+          <div className="mt-5 rounded-lg border border-border bg-surface p-4 sm:p-5">
             <div className="mb-4 flex items-center gap-4 text-xs text-text-muted">
               <span className="flex items-center gap-1.5">
                 <span className="h-2 w-2 rounded-full bg-primary" /> Views
@@ -208,7 +209,7 @@ export default async function AnalyticsPage({
                 <span className="h-2 w-2 rounded-full bg-accent" /> Clicks
               </span>
             </div>
-            <svg viewBox={`0 0 ${W} ${H + 26}`} className="w-full" role="img" aria-label="Views and clicks per day">
+            <svg viewBox={`0 0 ${W} ${H + 26}`} className="w-full" role="img" aria-label="צפיות וקליקים לפי יום">
               {series.map((s, i) => {
                 const hv = (s.v / max) * H;
                 const hc = (s.c / max) * H;
@@ -216,7 +217,7 @@ export default async function AnalyticsPage({
                 const labelEvery = series.length <= 7 ? 1 : series.length <= 30 ? 5 : series.length <= 60 ? 8 : 15;
                 return (
                   <g key={i}>
-                    <title>{`${step > 1 ? "Week of " : ""}${s.d.toLocaleDateString("en-GB", { day: "numeric", month: "short" })}: ${s.v} views, ${s.c} clicks`}</title>
+                    <title>{`${step > 1 ? "שבוע של " : ""}${s.d.toLocaleDateString("he-IL", { day: "numeric", month: "short" })}: ${s.v} צפיות, ${s.c} קליקים`}</title>
                     <rect x={x} y={H - hv} width={barW} height={Math.max(hv, 0)} rx={Math.min(3, barW / 2)} fill="var(--primary)" opacity={0.9} />
                     {hc > 0 && <rect x={x + barW * 0.2} y={H - hc} width={barW * 0.6} height={hc} rx={2} fill="var(--accent)" />}
                     {i % labelEvery === 0 && (
@@ -232,25 +233,25 @@ export default async function AnalyticsPage({
 
           <div className="mt-5 grid gap-5 lg:grid-cols-2">
             <Bars
-              title="Top links"
-              empty="No clicks yet."
-              rows={links.map((l) => ({ label: l.label || l.url, n: l._count._all, sub: totalViews ? `${Math.round((l._count._all / totalViews) * 100)}% of views` : undefined }))}
+              title="הקישורים המובילים"
+              empty="עוד אין קליקים."
+              rows={links.map((l) => ({ label: l.label || l.url, n: l._count._all, sub: totalViews ? `${Math.round((l._count._all / totalViews) * 100)}% מהצפיות` : undefined }))}
             />
             <Bars
-              title="Where visitors come from"
-              empty="No referrers yet."
-              rows={referrers.map((r) => ({ label: r.referrer ?? "Direct / apps", n: r._count._all }))}
+              title="מאיפה מגיעים המבקרים"
+              empty="עוד אין מקורות."
+              rows={referrers.map((r) => ({ label: r.referrer ?? "ישיר / אפליקציות", n: r._count._all }))}
             />
             <Bars
-              title="Countries"
-              empty="Country data appears on the live site."
+              title="מדינות"
+              empty="נתוני מדינות מופיעים באתר החי."
               rows={countries.map((c) => ({ label: `${flag(c.country ?? "")} ${c.country}`, n: c._count._all }))}
             />
             <Bars
-              title="Devices"
+              title="מכשירים"
               empty="—"
               rows={devices
-                .map((d) => ({ label: (d.device ?? "desktop").replace(/^./, (ch) => ch.toUpperCase()), n: d._count._all }))
+                .map((d) => ({ label: DEVICE[d.device ?? "desktop"] ?? d.device ?? "", n: d._count._all }))
                 .sort((a, b) => b.n - a.n)}
             />
           </div>
@@ -277,15 +278,15 @@ function Pill({ href, active, children }: { href: string; active: boolean; child
 function Metric({ label, value, prev, suffix = "" }: { label: string; value: number; prev?: number; suffix?: string }) {
   const delta = prev === undefined ? null : prev === 0 ? (value > 0 ? 100 : 0) : Math.round(((value - prev) / prev) * 100);
   return (
-    <div className="rounded-2xl border border-border bg-surface p-3 sm:p-5">
+    <div className="rounded-lg border border-border bg-surface p-3 sm:p-5">
       <p className="text-xs text-text-muted">{label}</p>
       <p className="mt-1 font-display text-lg font-medium sm:text-2xl">
         {value.toLocaleString()}
         {suffix}
       </p>
       {delta !== null && (
-        <p className={cn("mt-0.5 text-[11px]", delta > 0 ? "text-primary" : delta < 0 ? "text-red-400" : "text-text-muted")}>
-          {delta > 0 ? "▲" : delta < 0 ? "▼" : "•"} {Math.abs(delta)}% vs previous
+        <p className={cn("mt-0.5 text-[11px]", delta > 0 ? "text-primary-text" : delta < 0 ? "text-red-700" : "text-text-muted")}>
+          {delta > 0 ? "▲" : delta < 0 ? "▼" : "•"} {Math.abs(delta)}% לעומת התקופה הקודמת
         </p>
       )}
     </div>
@@ -295,7 +296,7 @@ function Metric({ label, value, prev, suffix = "" }: { label: string; value: num
 function Bars({ title, rows, empty }: { title: string; rows: { label: string; n: number; sub?: string }[]; empty: string }) {
   const max = Math.max(1, ...rows.map((r) => r.n));
   return (
-    <div className="min-w-0 rounded-2xl border border-border bg-surface p-4 sm:p-5">
+    <div className="min-w-0 rounded-lg border border-border bg-surface p-4 sm:p-5">
       <p className="mb-4 text-sm font-medium">{title}</p>
       {rows.length === 0 ? (
         <p className="text-sm text-text-muted">{empty}</p>
@@ -307,7 +308,7 @@ function Bars({ title, rows, empty }: { title: string; rows: { label: string; n:
                 <span className="truncate text-text-muted">{r.label}</span>
                 <span className="shrink-0">
                   {r.n.toLocaleString()}
-                  {r.sub && <span className="ml-1.5 text-[11px] text-text-muted">{r.sub}</span>}
+                  {r.sub && <span className="ms-1.5 text-[11px] text-text-muted">{r.sub}</span>}
                 </span>
               </div>
               <div className="h-2 overflow-hidden rounded-full bg-surface-2">

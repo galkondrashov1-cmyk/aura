@@ -2,6 +2,7 @@
 // and unlocks. Prices live in pricing.json (shared with the PayPal setup
 // script). During early access every plan is free; paid tiers can only be
 // bought once PayPal is configured.
+import { BRAND } from "@/lib/brand";
 import pricing from "./pricing.json";
 
 export type Plan = "FREE" | "PLUS" | "PRO";
@@ -23,7 +24,7 @@ export type Caps = {
   creativeEffects: boolean; // glitch/rainbow/liquid/neon hover + creative bg effects + motion speed
   perElement: boolean; // per-block / per-button colors & effects
   gallerySlideshow: boolean;
-  removeBadge: boolean; // hide "Made with AURA"
+  removeBadge: boolean; // hide the brand badge
   proAssets: boolean; // Pro-exclusive backgrounds, themes, button styles, cursors, WebGL
   advancedBlocks: boolean; // embed / music / countdown
   businessBlocks: boolean; // marquee / stats / pricing / forms
@@ -77,52 +78,52 @@ export type PlanInfo = {
 export const PLANS: PlanInfo[] = [
   {
     id: "FREE",
-    name: "Free",
-    tagline: "A beautiful page, free forever.",
-    forWho: "Your first link-in-bio",
+    name: "חינם",
+    tagline: "עמוד יפהפה, בחינם לתמיד.",
+    forWho: "הלינק־בביו הראשון שלכם",
     yearlyPerMonth: 0,
     monthly: 0,
-    accent: "#9aa3af",
+    accent: "#8a8378",
     highlights: [
-      "1 page at useaura.me/you",
-      "Every template, Remix & essential blocks",
-      "Hebrew fonts & right-to-left pages",
-      "30 days of analytics",
+      `עמוד אחד בכתובת ${BRAND.domain}/noa`,
+      "כל התבניות, Remix ובלוקים בסיסיים",
+      "פונטים בעברית ועמודים מימין לשמאל",
+      "נתונים של 30 יום",
     ],
   },
   {
     id: "PLUS",
     name: "Plus",
-    tagline: "Everything a small business needs.",
-    forWho: "Creators, freelancers & local businesses",
+    tagline: "כל מה שעסק קטן צריך.",
+    forWho: "יוצרים, פרילנסרים ועסקים מקומיים",
     yearlyPerMonth: pricing.plans.PLUS.yearlyPerMonth,
     monthly: pricing.plans.PLUS.monthly,
-    accent: "#00e5a0",
+    accent: "#ff5a1f",
     popular: true,
     highlights: [
-      "5 pages",
-      "Lead forms with Inbox & CSV, pricing, stats",
-      "Floating WhatsApp / call button",
-      "Gradient & photo backgrounds, live backgrounds",
-      "All fonts, themes, layouts & animations",
-      "Custom SEO & a full year of analytics",
+      "5 עמודים",
+      "טפסי לידים עם תיבת פניות ו־CSV, מחירון, מספרים",
+      "כפתור וואטסאפ / חיוג צף",
+      "רקעי גרדיאנט ותמונה, רקעים חיים",
+      "כל הפונטים, הערכות, הפריסות והאנימציות",
+      "SEO מותאם ונתונים של שנה שלמה",
     ],
   },
   {
     id: "PRO",
     name: "Pro",
-    tagline: "Your brand, nobody else's.",
-    forWho: "Brands, studios & power users",
+    tagline: "המותג שלכם, של אף אחד אחר.",
+    forWho: "מותגים, סטודיואים ומשתמשים מתקדמים",
     yearlyPerMonth: pricing.plans.PRO.yearlyPerMonth,
     monthly: pricing.plans.PRO.monthly,
-    accent: "#a855f7",
+    accent: "#141210",
     highlights: [
-      "Everything in Plus",
-      "Unlimited pages",
-      "No “Made with AURA” badge",
-      "Your photo as the browser-tab icon",
-      "WebGL backgrounds, custom cursors, Pro themes",
-      "Embeds, music players & countdowns",
+      "כל מה שיש ב־Plus",
+      "עמודים ללא הגבלה",
+      `בלי התג “${BRAND.name}”`,
+      "התמונה שלכם כאייקון בלשונית",
+      "רקעי WebGL, סמני עכבר וערכות Pro",
+      "הטמעות, נגני מוזיקה וספירה לאחור",
     ],
   },
 ];

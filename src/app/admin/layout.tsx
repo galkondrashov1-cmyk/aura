@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
-import { AuraLogo } from "@/components/aura-logo";
+import { Logo } from "@/components/logo";
 import { getSession } from "@/lib/session";
 import { isAdminUnlocked } from "@/lib/admin-gate";
 import { AdminUnlock } from "@/components/admin/admin-unlock";
@@ -26,12 +26,12 @@ export default async function AdminLayout({
     <div data-mode="muted" className="min-h-screen bg-bg text-text">
       <div className="mx-auto flex min-h-screen max-w-7xl">
         {/* Desktop sidebar */}
-        <aside className="hidden w-60 shrink-0 flex-col border-r border-border px-4 py-5 md:flex">
+        <aside className="hidden w-60 shrink-0 flex-col border-e border-border px-4 py-5 md:flex">
           <Link href="/" className="px-2">
-            <AuraLogo />
+            <Logo />
           </Link>
-          <span className="mt-3 px-2 text-xs font-medium tracking-wide text-primary uppercase">
-            Admin
+          <span className="mt-3 px-2 text-xs font-medium tracking-wide text-primary-text uppercase">
+            ניהול
           </span>
 
           <AdminNav />
@@ -41,7 +41,7 @@ export default async function AdminLayout({
             className="mt-auto flex items-center gap-3 rounded-xl px-3 py-2 text-sm text-text-muted transition-colors hover:bg-surface hover:text-text"
           >
             <ArrowLeft className="h-[18px] w-[18px]" />
-            Back to app
+            חזרה לאפליקציה
           </Link>
         </aside>
 
@@ -50,14 +50,14 @@ export default async function AdminLayout({
           <header className="sticky top-0 z-20 flex flex-col gap-3 border-b border-border bg-bg/90 px-4 py-3 backdrop-blur md:hidden">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <AuraLogo />
-                <span className="rounded-full bg-primary/15 px-2 py-0.5 text-[10px] font-medium tracking-wide text-primary uppercase">
-                  Admin
+                <Logo />
+                <span className="rounded-full bg-primary/15 px-2 py-0.5 text-[10px] font-medium tracking-wide text-primary-text uppercase">
+                  ניהול
                 </span>
               </div>
               <Link
                 href="/dashboard"
-                aria-label="Back to app"
+                aria-label="חזרה לאפליקציה"
                 className="grid h-9 w-9 place-items-center rounded-xl text-text-muted transition-colors hover:bg-surface hover:text-text"
               >
                 <ArrowLeft className="h-[18px] w-[18px]" />

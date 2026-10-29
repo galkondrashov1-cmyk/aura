@@ -13,21 +13,21 @@ export default async function MediaPage() {
 
   return (
     <div>
-      <h1 className="font-display text-2xl font-medium tracking-tight">Media</h1>
+      <h1 className="font-display text-[2rem] leading-tight font-black tracking-tight">מדיה</h1>
       <p className="mt-1 text-sm text-text-muted">
-        Images you upload in the builder appear here.
+        תמונות שהעליתם בעורך מופיעות כאן.
       </p>
 
       {assets.length === 0 ? (
-        <div className="mt-10 rounded-3xl border border-dashed border-border bg-surface/50 px-6 py-16 text-center text-sm text-text-muted">
-          No uploads yet. Add an Image block in the builder and upload a file.
+        <div className="mt-10 rounded-xl border border-dashed border-border bg-surface/50 px-6 py-16 text-center text-sm text-text-muted">
+          עוד אין העלאות. הוסיפו בלוק תמונה בעורך והעלו קובץ.
         </div>
       ) : (
         <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
           {assets.map((a) => (
             <div
               key={a.id}
-              className="overflow-hidden rounded-2xl border border-border bg-surface"
+              className="overflow-hidden rounded-lg border border-border bg-surface"
             >
               <div className="aspect-square bg-surface-2">
                 {/* eslint-disable-next-line @next/next/no-img-element */}

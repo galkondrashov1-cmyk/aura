@@ -1,5 +1,6 @@
 "use client";
 
+import { BRAND } from "@/lib/brand";
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { Check, Loader2, Sparkles, X } from "lucide-react";
@@ -60,28 +61,23 @@ export function Upsell({
     <div className="fixed inset-0 z-[95] grid place-items-end bg-black/60 backdrop-blur-sm sm:place-items-center sm:p-6" onClick={onClose}>
       <div
         onClick={(e) => e.stopPropagation()}
-        className="publish-pop relative w-full max-w-md overflow-hidden rounded-t-3xl border border-border bg-bg p-6 shadow-2xl sm:rounded-3xl"
+        className="publish-pop relative w-full max-w-md overflow-hidden rounded-t-xl border border-border bg-bg p-6 shadow-2xl sm:rounded-xl"
       >
-        <span
-          aria-hidden
-          className="pointer-events-none absolute inset-x-0 -top-28 h-56 opacity-35"
-          style={{ background: `radial-gradient(50% 60% at 50% 100%, ${info.accent}, transparent 70%)` }}
-        />
-        <button onClick={onClose} aria-label="Close" className="absolute top-4 right-4 text-text-muted hover:text-text">
+        <button onClick={onClose} aria-label="סגירה" className="absolute top-4 end-4 text-text-muted hover:text-text">
           <X className="h-5 w-5" />
         </button>
 
-        <p className="relative flex items-center gap-2 text-xs font-medium tracking-wide uppercase" style={{ color: info.accent }}>
-          <Sparkles className="h-3.5 w-3.5" /> AURA {info.name}
+        <p className="relative flex items-center gap-2 text-xs font-medium tracking-wide uppercase" style={{ color: "var(--ink-soft)" }}>
+          <Sparkles className="h-3.5 w-3.5" /> {BRAND.name} {info.name}
         </p>
         <h2 className="relative mt-1.5 font-display text-xl font-medium">
-          {mode === "publish" ? "Some touches need " + info.name : info.tagline}
+          {mode === "publish" ? `חלק מהנגיעות דורשות ${info.name}` : info.tagline}
         </h2>
 
         {relevant.length > 0 && (
-          <div className="relative mt-3 rounded-2xl border border-border bg-surface-2/60 p-3">
+          <div className="relative mt-3 rounded-lg border border-border bg-surface-2/60 p-3">
             <p className="text-xs text-text-muted">
-              {mode === "publish" ? "Your live page will skip:" : "On your page right now, waiting to go live:"}
+              {mode === "publish" ? "העמוד החי ידלג על:" : "כבר בעמוד שלכם, מחכים לעלות לאוויר:"}
             </p>
             <div className="mt-2 flex flex-wrap gap-1.5">
               {relevant.slice(0, 10).map((f) => (
@@ -89,7 +85,7 @@ export function Upsell({
                   {f.label}
                 </span>
               ))}
-              {relevant.length > 10 && <span className="px-1 py-1 text-[11px] text-text-muted">+{relevant.length - 10} more</span>}
+              {relevant.length > 10 && <span className="px-1 py-1 text-[11px] text-text-muted">ועוד {relevant.length - 10}</span>}
             </div>
           </div>
         )}
@@ -97,31 +93,31 @@ export function Upsell({
         <ul className="relative mt-4 space-y-2">
           {info.highlights.map((h) => (
             <li key={h} className="flex items-start gap-2 text-sm text-text-muted">
-              <Check className="mt-0.5 h-4 w-4 shrink-0" style={{ color: info.accent }} />
+              <Check className="mt-0.5 h-4 w-4 shrink-0" style={{ color: "var(--ink-soft)" }} />
               {h}
             </li>
           ))}
         </ul>
 
-        <div className="relative mt-5 rounded-2xl border border-border p-3 text-sm">
+        <div className="relative mt-5 rounded-lg border border-border p-3 text-sm">
           {payments ? (
             <p className="text-text">
               {formatPrice(info.yearlyPerMonth)}
-              <span className="text-text-muted">/month billed yearly · or {formatPrice(info.monthly)} monthly</span>
+              <span className="text-text-muted"> לחודש בחיוב שנתי · או {formatPrice(info.monthly)} בחודשי</span>
             </p>
           ) : (
             <p className="text-text">
-              <span className="font-medium" style={{ color: info.accent }}>
-                Free during early access.
+              <span className="font-medium" style={{ color: "var(--ink-soft)" }}>
+                בחינם בגישה המוקדמת.
               </span>{" "}
               <span className="text-text-muted">
-                Later {formatPrice(info.yearlyPerMonth)}/month (billed yearly). Nothing is ever charged unless you subscribe yourself.
+                בהמשך {formatPrice(info.yearlyPerMonth)} לחודש (בחיוב שנתי). לא תחויבו אף פעם אלא אם תירשמו למנוי בעצמכם.
               </span>
             </p>
           )}
         </div>
 
-        {error && <p className="relative mt-3 text-sm text-red-400">{error}</p>}
+        {error && <p className="relative mt-3 text-sm text-red-700">{error}</p>}
 
         <div className="relative mt-5 flex flex-col gap-2">
           <button
@@ -130,19 +126,19 @@ export function Upsell({
             className={cn(
               "inline-flex h-11 items-center justify-center gap-2 rounded-full text-sm font-medium text-[#04120c] transition hover:brightness-110 disabled:opacity-60",
             )}
-            style={{ background: info.accent }}
+            style={{ background: "var(--primary)" }}
           >
             {pending && <Loader2 className="h-4 w-4 animate-spin" />}
-            {payments ? `Get ${info.name}` : `Unlock ${info.name} free`}
-            {mode === "publish" && !payments ? " & publish" : ""}
+            {payments ? `לשדרוג ל־${info.name}` : `${info.name} בחינם`}
+            {mode === "publish" && !payments ? " ופרסום" : ""}
           </button>
           {mode === "publish" && onPublishAnyway ? (
             <button onClick={onPublishAnyway} className="h-10 rounded-full text-sm text-text-muted hover:text-text">
-              Publish without them
+              לפרסם בלעדיהן
             </button>
           ) : (
             <a href="/pricing" target="_blank" rel="noopener noreferrer" className="h-10 text-center text-sm leading-10 text-text-muted hover:text-text">
-              Compare all plans
+              להשוואת כל החבילות
             </a>
           )}
         </div>

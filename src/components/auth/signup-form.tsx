@@ -1,5 +1,6 @@
 "use client";
 
+import { BRAND } from "@/lib/brand";
 import { useActionState, useEffect, useState } from "react";
 import { Check, Loader2, X } from "lucide-react";
 import { signupAction, type AuthState } from "@/lib/actions/auth";
@@ -11,14 +12,14 @@ import { cn } from "@/lib/utils";
 type NameCheck = { name: string; status: "checking" | "free" | "taken" | "reserved" | "format" };
 
 const HINT: Record<Exclude<NameCheck["status"], "checking" | "free">, string> = {
-  taken: "Taken — try another",
-  reserved: "Reserved",
-  format: "3–20 letters, numbers or _",
+  taken: "תפוס — נסו שם אחר",
+  reserved: "שמור למערכת",
+  format: "3–20 אותיות באנגלית, ספרות או _",
 };
 
-export function SignupForm() {
+export function SignupForm({ initialName = "" }: { initialName?: string }) {
   const [state, action, pending] = useActionState<AuthState, FormData>(signupAction, undefined);
-  const [name, setName] = useState(state?.values?.username ?? "");
+  const [name, setName] = useState(state?.values?.username ?? initialName);
   const [check, setCheck] = useState<NameCheck | null>(null);
 
   // Debounced availability check while typing.
@@ -47,11 +48,11 @@ export function SignupForm() {
             current && current !== "free" && current !== "checking" ? "border-red-400/60" : "border-border",
           )}
         >
-          <span className="text-text-muted">useaura.me/</span>
+          <span className="text-text-muted">{BRAND.domain}/</span>
           <input
             name="username"
             placeholder="yourname"
-            aria-label="Username"
+            aria-label="שם משתמש"
             autoComplete="username"
             autoCapitalize="none"
             autoCorrect="off"
@@ -60,30 +61,30 @@ export function SignupForm() {
             required
             value={name}
             onChange={(e) => setName(e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, ""))}
-            className="ml-0.5 min-w-0 flex-1 bg-transparent text-text placeholder:text-text-muted focus:outline-none"
+            className="ms-0.5 min-w-0 flex-1 bg-transparent text-text placeholder:text-text-muted focus:outline-none"
           />
           {current === "checking" && <Loader2 className="h-4 w-4 animate-spin text-text-muted" />}
-          {current === "free" && <Check className="h-4 w-4 text-primary" aria-label="Available" />}
-          {current && current !== "free" && current !== "checking" && <X className="h-4 w-4 text-red-400" />}
+          {current === "free" && <Check className="h-4 w-4 text-primary-text" aria-label="פנוי" />}
+          {current && current !== "free" && current !== "checking" && <X className="h-4 w-4 text-red-700" />}
         </div>
         {current && current !== "free" && current !== "checking" && (
-          <p className="mt-1.5 text-xs text-red-400">{HINT[current]}</p>
+          <p className="mt-1.5 text-xs text-red-700">{HINT[current]}</p>
         )}
       </div>
       <Input
         name="email"
         type="email"
-        placeholder="you@email.com"
+        placeholder="you@email.com" dir="ltr"
         autoComplete="email"
         defaultValue={state?.values?.email}
         required
       />
-      <PasswordInput name="password" placeholder="Choose a password (8+ characters)" autoComplete="new-password" minLength={8} required />
-      {state?.error && <p className="text-sm text-red-400">{state.error}</p>}
+      <PasswordInput name="password" placeholder="בחרו סיסמה (8 תווים לפחות)" autoComplete="new-password" minLength={8} required />
+      {state?.error && <p className="text-sm text-red-700">{state.error}</p>}
       <button type="submit" disabled={pending} className={buttonClasses("primary", "md", "w-full")}>
-        {pending ? "Creating…" : "Create your AURA"}
+        {pending ? "יוצרים…" : "צרו עמוד משלכם"}
       </button>
-      <p className="text-center text-[11px] leading-relaxed text-text-muted">Free forever plan · no credit card</p>
+      <p className="text-center text-[11px] leading-relaxed text-text-muted">חבילה חינמית לתמיד · בלי כרטיס אשראי</p>
     </form>
   );
 }

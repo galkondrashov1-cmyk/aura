@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { Clock } from "lucide-react";
-import { prisma } from "@/lib/prisma";
+import type { SessionUser } from "@/lib/session";
 import { asPlan, planInfo } from "@/lib/plans";
 
 /** Whole days left until `iso`, or null once it has passed. */
@@ -13,29 +13,26 @@ function daysLeft(iso: string): number | null {
  * Tells people well in advance when their paid plan is about to end — the
  * end of early access, or a cancelled subscription running out.
  */
-export async function PlanNotice({ userId }: { userId: string }) {
-  const rows = await prisma.$queryRaw<{ plan: string; paypalSubId: string | null; planExpiresAt: string | null }[]>`
-    SELECT plan, "paypalSubId", "planExpiresAt" FROM "User" WHERE id = ${userId} LIMIT 1
-  `;
-  const row = rows[0];
-  const plan = asPlan(row?.plan);
-  if (!row?.planExpiresAt || plan === "FREE") return null;
+export function PlanNotice({ user }: { user: SessionUser }) {
+  const plan = asPlan(user.plan);
+  const row = { planExpiresAt: user.planExpiresAt, paypalSubId: user.paypalSubId };
+  if (!row.planExpiresAt || plan === "FREE") return null;
   const days = daysLeft(row.planExpiresAt);
   if (days === null) return null;
-  const date = new Date(row.planExpiresAt).toLocaleDateString(undefined, { day: "numeric", month: "long", year: "numeric" });
+  const date = new Date(row.planExpiresAt).toLocaleDateString("he-IL", { day: "numeric", month: "long", year: "numeric" });
   const name = planInfo(plan).name;
 
   return (
-    <div className="mb-6 flex flex-wrap items-center gap-x-4 gap-y-2 rounded-2xl border border-primary/40 bg-primary/10 px-4 py-3 text-sm">
-      <Clock className="h-4 w-4 shrink-0 text-primary" />
+    <div className="mb-6 flex flex-wrap items-center gap-x-4 gap-y-2 rounded-lg border border-primary/40 bg-primary/10 px-4 py-3 text-sm">
+      <Clock className="h-4 w-4 shrink-0 text-primary-text" />
       <p className="min-w-0 flex-1">
-        {row.paypalSubId ? `Your ${name} plan ends on ${date}` : `Early access to ${name} ends on ${date}`}{" "}
+        {row.paypalSubId ? `חבילת ${name} שלכם מסתיימת ב־${date}` : `הגישה המוקדמת ל־${name} מסתיימת ב־${date}`}{" "}
         <span className="text-text-muted">
-          ({days} day{days === 1 ? "" : "s"}). After that your page moves to Free — nothing is deleted.
+          ({days === 1 ? "יום אחד" : `${days} ימים`}). אחר כך העמוד יעבור לחבילה החינמית — שום דבר לא נמחק.
         </span>
       </p>
       <Link href="/dashboard/upgrade" className="rounded-full bg-primary px-3.5 py-1.5 text-xs font-medium text-primary-ink">
-        Keep {name}
+        להישאר ב־{name}
       </Link>
     </div>
   );

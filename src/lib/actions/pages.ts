@@ -24,7 +24,7 @@ const MAX_CONTENT_BYTES = 400_000;
 
 function personalize(content: PageContent, name: string): PageContent {
   const blocks = content.blocks.map((b): Block =>
-    b.type === "hero" && toPlain(b.name) === "Your Name" ? { ...b, name } : b,
+    b.type === "hero" && ["השם שלכם", "Your Name"].includes(toPlain(b.name)) ? { ...b, name } : b,
   );
   return { ...content, blocks };
 }
@@ -41,13 +41,13 @@ function displayName(user: { name: string | null; username: string }): string {
 
 function heroName(content: PageContent): string {
   const hero = heroOf(content);
-  return (hero && toPlain(hero.name).slice(0, 80)) || "Untitled";
+  return (hero && toPlain(hero.name).slice(0, 80)) || "ללא שם";
 }
 
 function checked(content: PageContent): PageContent {
   const safe = asPageContent(content);
   if (JSON.stringify(safe).length > MAX_CONTENT_BYTES) {
-    throw new Error("This page is too large to save.");
+    throw new Error("העמוד גדול מדי לשמירה.");
   }
   return safe;
 }
@@ -174,7 +174,7 @@ export async function duplicatePage(pageId: string) {
     data: {
       userId: user.id,
       slug: await uniqueSlug(user.id, `${src.slug}-copy`),
-      title: `${src.title} (copy)`.slice(0, 90),
+      title: `${src.title} (עותק)`.slice(0, 90),
       status: "DRAFT",
       isPrimary: false,
       theme: src.theme,
@@ -202,12 +202,12 @@ export type SlugState = { ok?: boolean; error?: string; slug?: string } | undefi
 export async function updatePageSlug(pageId: string, _prev: SlugState, formData: FormData): Promise<SlugState> {
   const user = await requireUser();
   const slug = toSlug(String(formData.get("slug") ?? ""));
-  if (!SLUG_RE.test(slug)) return { error: "Use letters, numbers and dashes." };
+  if (!SLUG_RE.test(slug)) return { error: "רק אותיות באנגלית, ספרות ומקפים." };
   const clash = await prisma.page.findFirst({
     where: { userId: user.id, slug, NOT: { id: pageId } },
     select: { id: true },
   });
-  if (clash) return { error: "You already have a page with that address." };
+  if (clash) return { error: "כבר יש לכם עמוד בכתובת הזו." };
   await prisma.page.updateMany({ where: { id: pageId, userId: user.id }, data: { slug } });
   await revalidateUser(user.id);
   revalidatePath("/dashboard");
