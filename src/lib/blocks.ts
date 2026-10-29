@@ -1,6 +1,6 @@
 // AURA page block schema.
 // A published/draft page is a JSON document of this shape. The same schema is
-// rendered by PublicPageRenderer (public pages) and the builder canvas.
+// rendered by PageRenderer (public pages) and the builder canvas.
 import type { ImageConfig } from "@/lib/image";
 import type { RichValue } from "@/lib/richtext";
 
@@ -38,6 +38,12 @@ export type LinkItem = {
   label: RichValue;
   url: string;
   highlighted?: boolean;
+  /** Small second line under the label. */
+  sub?: string;
+  /** Leading icon: an emoji, "auto" (brand icon detected from the URL) or none. */
+  icon?: string;
+  /** Leading thumbnail image (wins over icon). */
+  thumb?: string;
   /** Per-button overrides (override the page's global button styling). */
   color?: string;
   fx?: string;
@@ -48,76 +54,133 @@ export type DividerStyle =
   | "line" | "dashed" | "dotted" | "glow" | "double" | "wave"
   | "shimmer" | "march" | "pulse";
 export type BannerHeight = "sm" | "md" | "lg";
+export type Align = "left" | "center" | "right";
+export type HeroLayout = "center" | "left" | "cover" | "big" | "split";
+export type LinksLayout = "list" | "grid" | "cards";
+export type Height3 = "sm" | "md" | "lg";
 
-export type Block =
-  | {
-      id: string;
-      type: "hero";
-      name: RichValue;
-      tagline?: RichValue;
-      avatarUrl?: string | null;
-      avatarShape?: AvatarShape;
-      avatarIdle?: string;
-      /** Avatar size as a free scale (px width). Overrides preset sizes. */
-      avatarScale?: number;
-      avatar?: ImageConfig;
-      bannerUrl?: string | null;
-      bannerHeight?: BannerHeight;
-      banner?: ImageConfig;
-    }
-  | {
-      id: string;
-      type: "links";
-      items: LinkItem[];
-      /** Per-block animation overrides (win over the page-wide defaults). */
-      buttonIdle?: string;
-      buttonFx?: string;
-    }
-  | {
-      id: string;
-      type: "text";
-      heading?: RichValue;
-      body: RichValue;
-      align?: "left" | "center" | "right";
-      color?: string;
-      size?: "sm" | "md" | "lg";
-      spoiler?: boolean;
-    }
-  | {
-      id: string;
-      type: "socials";
-      items: { platform: SocialPlatform; url: string }[];
-      iconColor?: string;
-      iconFx?: string;
-      iconIdle?: string;
-    }
-  | { id: string; type: "image"; url: string; alt?: string; caption?: RichValue; img?: ImageConfig }
-  | {
-      id: string;
-      type: "gallery";
-      images: { url: string; alt?: string }[];
-      img?: ImageConfig;
-      layout?: "grid" | "carousel";
-    }
-  | { id: string; type: "video"; url: string; title?: RichValue }
-  | {
-      id: string;
-      type: "divider";
-      color?: string;
-      style?: DividerStyle;
-    }
-  | {
-      id: string;
-      type: "faq";
-      items: { question: RichValue; answer: RichValue }[];
-      align?: "left" | "center" | "right";
-    }
-  // ── Advanced blocks (Pro) ──
-  | { id: string; type: "embed"; url: string; height?: "sm" | "md" | "lg" }
-  | { id: string; type: "music"; url: string }
-  | { id: string; type: "countdown"; target: string; label?: string };
+/** Fields every block may carry: its container and entrance animation. */
+type BlockBase = {
+  id: string;
+  /** Container behind the block (overrides the page default). */
+  box?: string;
+  /** Entrance animation (overrides the page default). */
+  anim?: string;
+};
+
+export type FeatureItem = { icon?: string; title: string; text?: string };
+export type TestimonialItem = { quote: string; name: string; role?: string; avatar?: string; rating?: number };
+export type StatItem = { value: string; label: string };
+export type PriceItem = {
+  name: string;
+  price: string;
+  period?: string;
+  features?: string;
+  cta?: string;
+  url?: string;
+  featured?: boolean;
+};
+
+export type Block = BlockBase &
+  (
+    | {
+        type: "hero";
+        name: RichValue;
+        tagline?: RichValue;
+        /** Rotating words typed after the tagline ("designer", "creator"…). */
+        words?: string[];
+        /** Small status pill above the name ("Available for work"). */
+        badge?: string;
+        layout?: HeroLayout;
+        avatarUrl?: string | null;
+        avatarShape?: AvatarShape;
+        avatarIdle?: string;
+        /** Avatar size as a free scale (px width). Overrides preset sizes. */
+        avatarScale?: number;
+        avatar?: ImageConfig;
+        bannerUrl?: string | null;
+        bannerHeight?: BannerHeight;
+        banner?: ImageConfig;
+      }
+    | {
+        type: "links";
+        items: LinkItem[];
+        layout?: LinksLayout;
+        /** Per-block animation overrides (win over the page-wide defaults). */
+        buttonIdle?: string;
+        buttonFx?: string;
+      }
+    | {
+        type: "text";
+        heading?: RichValue;
+        body: RichValue;
+        align?: Align;
+        color?: string;
+        size?: "sm" | "md" | "lg";
+        spoiler?: boolean;
+      }
+    | {
+        type: "socials";
+        items: { platform: SocialPlatform; url: string }[];
+        iconColor?: string;
+        iconFx?: string;
+        iconIdle?: string;
+        /** Icon presentation: bare glyphs or filled chips. */
+        iconStyle?: "plain" | "chip" | "brand";
+        size?: "sm" | "md" | "lg";
+      }
+    | { type: "image"; url: string; alt?: string; caption?: RichValue; img?: ImageConfig }
+    | {
+        type: "gallery";
+        images: { url: string; alt?: string }[];
+        img?: ImageConfig;
+        layout?: "grid" | "carousel" | "masonry";
+      }
+    | { type: "video"; url: string; title?: RichValue }
+    | { type: "divider"; color?: string; style?: DividerStyle }
+    | { type: "faq"; items: { question: RichValue; answer: RichValue }[]; align?: Align }
+    // ── Landing-page blocks ──
+    | {
+        type: "marquee";
+        text: string;
+        speed?: "slow" | "normal" | "fast";
+        reverse?: boolean;
+        style?: "plain" | "band" | "outline" | "tilt";
+      }
+    | { type: "features"; heading?: string; items: FeatureItem[]; cols?: 1 | 2 | 3 }
+    | { type: "testimonials"; heading?: string; items: TestimonialItem[]; layout?: "stack" | "carousel" }
+    | { type: "stats"; items: StatItem[] }
+    | { type: "pricing"; heading?: string; items: PriceItem[] }
+    | {
+        type: "form";
+        kind: "newsletter" | "contact";
+        heading?: string;
+        text?: string;
+        button?: string;
+        success?: string;
+      }
+    | { type: "map"; query: string; height?: Height3 }
+    | { type: "spacer"; size?: "sm" | "md" | "lg" | "xl" }
+    // ── Advanced blocks (Pro) ──
+    | { type: "embed"; url: string; height?: Height3 }
+    | { type: "music"; url: string }
+    | { type: "countdown"; target: string; label?: string }
+  );
 
 export type BlockType = Block["type"];
+export type BlockOf<T extends BlockType> = Extract<Block, { type: T }>;
+
+export type CustomBackground = {
+  type: "linear" | "radial" | "conic" | "mesh";
+  colors: string[];
+  angle?: number;
+};
+
+export type FloatingButton = {
+  kind: "whatsapp" | "phone" | "email" | "link";
+  value: string;
+  label?: string;
+};
 
 /** Per-page design overrides applied on top of the base (dark) theme. */
 export type PageDesign = {
@@ -129,6 +192,7 @@ export type PageDesign = {
   buttonFx?: string;
   iconIdle?: string;
   iconFx?: string;
+  /** Body font (and headings too, unless headingFont is set). */
   font?: string;
   textColor?: string;
   // Layout & shape controls (max-customization dimensions).
@@ -141,6 +205,34 @@ export type PageDesign = {
   // Custom SEO (Pro) — override the public page's <title> / description.
   seoTitle?: string;
   seoDescription?: string;
+
+  // ── Design studio 2.0 ──
+  /** Page structure: classic stack, floating card, or desktop split. */
+  layout?: string;
+  headingFont?: string;
+  /** Text effect on the hero name and section headings. */
+  titleFx?: string;
+  headingWeight?: string;
+  headingCase?: string;
+  headingTracking?: string;
+  /** Hand-built gradient — wins over the preset background. */
+  bgCustom?: CustomBackground;
+  /** Photo background — wins over everything else. */
+  bgImage?: string;
+  bgImageDim?: number;
+  bgImageBlur?: number;
+  /** Slowly pan the background gradient. */
+  bgAnimate?: boolean;
+  /** Animated canvas/WebGL background layer. */
+  liveBg?: string;
+  /** Scroll-entrance animation for blocks. */
+  reveal?: string;
+  /** Default container behind every block. */
+  section?: string;
+  cursor?: string;
+  dir?: "auto" | "ltr" | "rtl";
+  intro?: "aura" | "fade" | "none";
+  fab?: FloatingButton;
 };
 
 export type PageContent = {
@@ -150,42 +242,120 @@ export type PageContent = {
 
 export const EMPTY_PAGE: PageContent = { blocks: [] };
 
-/** Narrow unknown JSON (Prisma Json column) into PageContent with a safe fallback. */
-export function asPageContent(value: unknown): PageContent {
-  if (
-    value &&
-    typeof value === "object" &&
-    Array.isArray((value as PageContent).blocks)
-  ) {
-    const v = value as PageContent;
-    const str = (x: unknown) => (typeof x === "string" ? x : undefined);
-    const design =
-      v.design && typeof v.design === "object"
-        ? {
-            accent: str(v.design.accent),
-            background: str(v.design.background),
-            bgFx: str(v.design.bgFx),
-            card: str(v.design.card),
-            buttonIdle: str(v.design.buttonIdle),
-            buttonFx: str(v.design.buttonFx),
-            iconIdle: str(v.design.iconIdle),
-            iconFx: str(v.design.iconFx),
-            font: str(v.design.font),
-            textColor: str(v.design.textColor),
-            buttonShape: str(v.design.buttonShape),
-            buttonSize: str(v.design.buttonSize),
-            contentWidth: str(v.design.contentWidth),
-            spacing: str(v.design.spacing),
-            textScale: str(v.design.textScale),
-            motionSpeed: str(v.design.motionSpeed),
-            seoTitle: str(v.design.seoTitle),
-            seoDescription: str(v.design.seoDescription),
-          }
-        : undefined;
-    return {
-      blocks: v.blocks,
-      design,
-    };
+export const BLOCK_TYPES: BlockType[] = [
+  "hero", "links", "text", "socials", "image", "gallery", "video", "divider", "faq",
+  "marquee", "features", "testimonials", "stats", "pricing", "form", "map", "spacer",
+  "embed", "music", "countdown",
+];
+
+const MAX_BLOCKS = 80;
+
+const isObj = (x: unknown): x is Record<string, unknown> =>
+  !!x && typeof x === "object" && !Array.isArray(x);
+const str = (x: unknown, max = 2000) => (typeof x === "string" ? x.slice(0, max) : undefined);
+const num = (x: unknown, min: number, max: number) =>
+  typeof x === "number" && Number.isFinite(x) ? Math.min(max, Math.max(min, x)) : undefined;
+const HEX = /^#[0-9a-fA-F]{6}$/;
+
+/** http(s) or same-origin media URL, with characters that could break a CSS url() removed. */
+export function safeImageUrl(x: unknown): string | undefined {
+  if (typeof x !== "string") return undefined;
+  const v = x.trim();
+  if (!/^(https:\/\/|http:\/\/|\/api\/media\/)/i.test(v)) return undefined;
+  return v.replace(/["'()\\\s]/g, "").slice(0, 1000);
+}
+
+function sanitizeDesign(d: unknown): PageDesign | undefined {
+  if (!isObj(d)) return undefined;
+  const out: PageDesign = {};
+  const strKeys = [
+    "accent", "background", "bgFx", "card", "buttonIdle", "buttonFx", "iconIdle", "iconFx",
+    "font", "textColor", "buttonShape", "buttonSize", "contentWidth", "spacing", "textScale",
+    "motionSpeed", "seoTitle", "seoDescription", "layout", "headingFont", "titleFx",
+    "headingWeight", "headingCase", "headingTracking", "liveBg", "reveal", "section", "cursor",
+  ] as const;
+  for (const k of strKeys) {
+    const v = str(d[k], k.startsWith("seo") ? 300 : 120);
+    if (v !== undefined) out[k] = v;
   }
-  return EMPTY_PAGE;
+  if (isObj(d.bgCustom)) {
+    const c = d.bgCustom;
+    const colors = Array.isArray(c.colors)
+      ? c.colors.filter((x): x is string => typeof x === "string" && HEX.test(x)).slice(0, 4)
+      : [];
+    const type = ["linear", "radial", "conic", "mesh"].includes(c.type as string)
+      ? (c.type as CustomBackground["type"])
+      : "linear";
+    if (colors.length >= 2) out.bgCustom = { type, colors, angle: num(c.angle, 0, 360) ?? 150 };
+  }
+  const img = safeImageUrl(d.bgImage);
+  if (img) out.bgImage = img;
+  const dim = num(d.bgImageDim, 0, 90);
+  if (dim !== undefined) out.bgImageDim = dim;
+  const blur = num(d.bgImageBlur, 0, 30);
+  if (blur !== undefined) out.bgImageBlur = blur;
+  if (d.bgAnimate === true) out.bgAnimate = true;
+  if (d.dir === "ltr" || d.dir === "rtl" || d.dir === "auto") out.dir = d.dir;
+  if (d.intro === "aura" || d.intro === "fade" || d.intro === "none") out.intro = d.intro;
+  if (isObj(d.fab) && ["whatsapp", "phone", "email", "link"].includes(d.fab.kind as string)) {
+    const value = str(d.fab.value, 300);
+    if (value) {
+      out.fab = {
+        kind: d.fab.kind as FloatingButton["kind"],
+        value,
+        label: str(d.fab.label, 40),
+      };
+    }
+  }
+  return out;
+}
+
+/**
+ * Narrow unknown JSON (Prisma Json column, or a client payload) into
+ * PageContent. Unknown block types are dropped and the design is rebuilt from
+ * a whitelist, so nothing unexpected ever reaches the renderer or the DB.
+ */
+export function asPageContent(value: unknown): PageContent {
+  if (!isObj(value) || !Array.isArray(value.blocks)) return EMPTY_PAGE;
+  const seen = new Set<string>();
+  const blocks = value.blocks
+    .filter(
+      (b): b is Block =>
+        isObj(b) &&
+        typeof b.id === "string" &&
+        BLOCK_TYPES.includes(b.type as BlockType),
+    )
+    .filter((b) => (seen.has(b.id) ? false : (seen.add(b.id), true)))
+    .slice(0, MAX_BLOCKS)
+    .map(fixBlock);
+  return { blocks, design: sanitizeDesign(value.design) };
+}
+
+// List-bearing blocks must always carry an array, or one malformed save would
+// crash the whole public page.
+const LIST_KEY: Partial<Record<BlockType, "items" | "images">> = {
+  links: "items",
+  socials: "items",
+  faq: "items",
+  features: "items",
+  testimonials: "items",
+  stats: "items",
+  pricing: "items",
+  gallery: "images",
+};
+
+function fixBlock(b: Block): Block {
+  const key = LIST_KEY[b.type];
+  const rec = b as unknown as Record<string, unknown>;
+  if (key && !Array.isArray(rec[key])) return { ...b, [key]: [] } as Block;
+  if (key) {
+    const list = (rec[key] as unknown[]).filter(isObj).slice(0, 60);
+    return { ...b, [key]: list } as Block;
+  }
+  return b;
+}
+
+/** First hero block, if any. */
+export function heroOf(content: PageContent): BlockOf<"hero"> | undefined {
+  return content.blocks.find((b): b is BlockOf<"hero"> => b.type === "hero");
 }

@@ -6,6 +6,9 @@ import { DashboardNav } from "@/components/dashboard-nav";
 import { getSession } from "@/lib/session";
 import { logoutAction } from "@/lib/actions/auth";
 
+// Per-user, always fresh — never prerendered at build time.
+export const dynamic = "force-dynamic";
+
 export default async function DashboardLayout({
   children,
 }: {

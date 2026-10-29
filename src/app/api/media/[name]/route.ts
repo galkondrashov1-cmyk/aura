@@ -15,7 +15,7 @@ export async function GET(_req: Request, { params }: Params) {
 
   const ext = safe.split(".").pop()!.toLowerCase();
   try {
-    const buf = await readFile(path.join(UPLOAD_DIR, safe));
+    const buf = await readFile(path.join(/*turbopackIgnore: true*/ UPLOAD_DIR, safe));
     return new Response(new Uint8Array(buf), {
       headers: {
         "content-type": EXT_MIME[ext] ?? "application/octet-stream",

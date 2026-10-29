@@ -9,6 +9,7 @@ import {
   paypalConfigured,
   cancelSubscription,
 } from "@/lib/paypal";
+import { revalidateUser } from "@/lib/public-page";
 
 export type ActivateState = { error?: string } | undefined;
 
@@ -41,6 +42,7 @@ export async function activateSubscription(
   if (!plan) return { error: "Unknown PayPal plan." };
 
   await prisma.$executeRaw`UPDATE "User" SET plan = ${plan}, "paypalSubId" = ${subId}, "planExpiresAt" = NULL WHERE id = ${user.id}`;
+  await revalidateUser(user.id);
   await createSession({ ...user, plan });
   redirect("/dashboard/upgrade?changed=1");
 }

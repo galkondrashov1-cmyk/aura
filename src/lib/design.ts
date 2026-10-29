@@ -10,7 +10,7 @@ export function bgCategoryTier(category: string): Plan {
   return "PLUS";
 }
 export function fontCategoryTier(category: string): Plan {
-  return category === "Sans" ? "FREE" : "PLUS";
+  return category === "Sans" || category === "Hebrew" ? "FREE" : "PLUS";
 }
 
 export type Background = {

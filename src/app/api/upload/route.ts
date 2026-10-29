@@ -44,7 +44,7 @@ export async function POST(req: NextRequest) {
   } else {
     const buffer = Buffer.from(await file.arrayBuffer());
     await mkdir(UPLOAD_DIR, { recursive: true });
-    await writeFile(path.join(UPLOAD_DIR, name), buffer);
+    await writeFile(path.join(/*turbopackIgnore: true*/ UPLOAD_DIR, name), buffer);
     url = `/api/media/${name}`;
   }
 

@@ -1,16 +1,31 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { deviceFromUA } from "@/lib/track";
+import { getSession } from "@/lib/session";
+import { deviceFromUA, isBot, referrerHost } from "@/lib/track";
 
-// Records a PageView. Called once per public page load via a client beacon.
+// Records a PageView. Called once per visitor per 30 min via a client beacon.
+// Bots and the page's own owner (previewing their page) are not counted.
 export async function POST(req: NextRequest) {
-  const { pageId } = await req.json().catch(() => ({ pageId: null }));
+  const body = await req.json().catch(() => ({}));
+  const pageId = typeof body?.pageId === "string" ? body.pageId : "";
+  const ua = req.headers.get("user-agent");
+  if (!pageId || pageId.length > 40 || isBot(ua)) return NextResponse.json({ ok: true });
 
-  if (typeof pageId === "string" && pageId) {
-    const device = deviceFromUA(req.headers.get("user-agent"));
-    const referrer = req.headers.get("referer") ?? undefined;
-    await prisma.pageView.create({ data: { pageId, device, referrer } }).catch(() => {});
-  }
+  const page = await prisma.page.findUnique({ where: { id: pageId }, select: { userId: true } });
+  if (!page) return NextResponse.json({ ok: true });
+  const viewer = await getSession();
+  if (viewer?.id === page.userId) return NextResponse.json({ ok: true, owner: true });
+
+  await prisma.pageView
+    .create({
+      data: {
+        pageId,
+        device: deviceFromUA(ua),
+        referrer: referrerHost(body?.ref, req.headers.get("host")),
+        country: req.headers.get("x-vercel-ip-country")?.slice(0, 2) || null,
+      },
+    })
+    .catch(() => {});
 
   return NextResponse.json({ ok: true });
 }

@@ -7,6 +7,9 @@ import { isAdminUnlocked } from "@/lib/admin-gate";
 import { AdminUnlock } from "@/components/admin/admin-unlock";
 import { AdminNav } from "@/components/admin/admin-nav";
 
+// Per-user, always fresh — never prerendered at build time.
+export const dynamic = "force-dynamic";
+
 export default async function AdminLayout({
   children,
 }: {

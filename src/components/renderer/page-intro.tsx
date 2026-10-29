@@ -3,19 +3,30 @@
 import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
 
-/* Branded reveal that plays whenever a public useaura.me/<name> page opens.
-   The curtain hides itself purely in CSS (fill-mode: forwards) and never
-   captures pointer events, so the page stays usable even if this component
-   never unmounts — the state flip below is only DOM cleanup. */
-export function PageIntro({ bg }: { bg?: string }) {
+/* Branded reveal that plays when a public useaura.me/<name> page opens. The
+   curtain hides itself purely in CSS (fill-mode: forwards) and never captures
+   pointer events, so the page stays usable even if this component never
+   unmounts — the state flip below is only DOM cleanup. "fade" is a quick
+   curtain without the mark; "none" renders nothing at all. */
+export function PageIntro({ bg, variant = "aura" }: { bg?: string; variant?: "aura" | "fade" }) {
   const [gone, setGone] = useState(false);
 
   useEffect(() => {
-    const t = setTimeout(() => setGone(true), 1600);
+    const t = setTimeout(() => setGone(true), variant === "fade" ? 500 : 1100);
     return () => clearTimeout(t);
-  }, []);
+  }, [variant]);
 
   if (gone) return null;
+
+  if (variant === "fade") {
+    return (
+      <div
+        aria-hidden
+        className={cn("aura-intro-fade", !bg && "aura-backdrop")}
+        style={bg ? { background: bg } : undefined}
+      />
+    );
+  }
 
   return (
     <div

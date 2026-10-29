@@ -22,7 +22,10 @@ export type Caps = {
   removeBadge: boolean; // hide "Made with AURA"
   proAssets: boolean; // Pro-exclusive backgrounds/effects/theme packs
   advancedBlocks: boolean; // embed / music / countdown
+  businessBlocks: boolean; // marquee / stats / pricing / forms
   customSeo: boolean; // per-page SEO title + description
+  customBackgrounds: boolean; // gradient builder, photo backgrounds, palette-from-photo
+  floatingButton: boolean; // sticky WhatsApp / call / link button
 };
 
 export function caps(plan: Plan): Caps {
@@ -39,7 +42,10 @@ export function caps(plan: Plan): Caps {
     removeBadge: pro,
     proAssets: pro,
     advancedBlocks: pro,
+    businessBlocks: paid,
     customSeo: pro,
+    customBackgrounds: paid,
+    floatingButton: paid,
   };
 }
 
@@ -65,9 +71,10 @@ export const PLANS: PlanInfo[] = [
     accent: "#9aa3af",
     features: [
       "1 page",
-      "All core blocks",
-      "Essential backgrounds & fonts",
-      "Basic hover & idle animations",
+      "Core blocks + features, testimonials & map",
+      "Remix — a new look in one tap",
+      "Gradient, glow & outline title effects",
+      "Hebrew fonts & right-to-left pages",
       "Built-in analytics",
     ],
   },
@@ -80,11 +87,13 @@ export const PLANS: PlanInfo[] = [
     popular: true,
     features: [
       "Up to 5 pages",
-      "All standard backgrounds + 12 one-click themes",
-      "Creative effects, special shapes & motion speed",
-      "Per-element colors & effects",
-      "Gallery slideshow mode",
-      "All premium fonts",
+      "Gradient builder, photo backgrounds & palette-from-photo",
+      "Live animated backgrounds",
+      "Split & cover layouts, animated title effects",
+      "Scroll animations & section styles",
+      "Business blocks: pricing, stats, marquee, contact forms",
+      "Floating WhatsApp / call button",
+      "All premium fonts & one-click themes",
     ],
   },
   {
@@ -96,7 +105,9 @@ export const PLANS: PlanInfo[] = [
     features: [
       "Unlimited pages",
       "Everything in Plus",
-      "6 Pro themes, special button styles & Pro backgrounds",
+      "WebGL backgrounds: liquid mesh, silk, hyperspace",
+      "Custom cursors, holographic & glitch titles",
+      "Pro themes, special button styles & Pro backgrounds",
       "Advanced blocks: embed, music, countdown",
       "Custom SEO title & description",
       "Remove the AURA badge",

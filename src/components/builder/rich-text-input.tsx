@@ -72,6 +72,8 @@ export function RichTextInput({
 }) {
   const ref = useRef<HTMLDivElement>(null);
   const [color, setColor] = useState("#ef4444");
+  // The swatches stay tucked behind a small "A" button until needed.
+  const [palette, setPalette] = useState(false);
 
   // Initialize the editable surface once from the stored value.
   useEffect(() => {
@@ -97,44 +99,60 @@ export function RichTextInput({
 
   return (
     <div className="space-y-1.5">
-      <div className="flex flex-wrap items-center gap-1.5">
-        <span className="flex items-center gap-1 text-[11px] text-text-muted">
-          <Baseline className="h-3 w-3" /> Color
-        </span>
-        {QUICK.map((c) => (
-          <button
-            key={c}
-            type="button"
-            onClick={() => applyColor(c)}
-            className="h-5 w-5 rounded-full border border-border"
-            style={{ background: c }}
-            aria-label={`Color ${c}`}
+      {palette && (
+        <div className="flex flex-wrap items-center gap-1.5">
+          {QUICK.map((c) => (
+            <button
+              key={c}
+              type="button"
+              onMouseDown={(e) => e.preventDefault()}
+              onClick={() => applyColor(c)}
+              className="h-5 w-5 rounded-full border border-border"
+              style={{ background: c }}
+              aria-label={`Color ${c}`}
+            />
+          ))}
+          <input
+            type="color"
+            value={color}
+            onChange={(e) => applyColor(e.target.value)}
+            className="h-6 w-7 cursor-pointer rounded border border-border bg-surface-2"
+            aria-label="Custom color"
           />
-        ))}
-        <input
-          type="color"
-          value={color}
-          onChange={(e) => applyColor(e.target.value)}
-          className="h-6 w-7 cursor-pointer rounded border border-border bg-surface-2"
-          aria-label="Custom color"
+          <span className="text-[10px] text-text-muted">select text, then pick a color</span>
+        </div>
+      )}
+      <div className="relative">
+        <div
+          ref={ref}
+          contentEditable
+          suppressContentEditableWarning
+          onInput={emit}
+          onBlur={emit}
+          onKeyDown={(e) => {
+            if (!multiline && e.key === "Enter") e.preventDefault();
+          }}
+          data-placeholder={placeholder}
+          className={cn(
+            "rich-input w-full rounded-xl border border-border bg-surface-2 py-2 ps-3 pe-9 text-sm text-text outline-none focus-visible:ring-2 focus-visible:ring-primary/50",
+            multiline ? "min-h-[4.5rem]" : "min-h-10",
+            className,
+          )}
         />
+        <button
+          type="button"
+          onMouseDown={(e) => e.preventDefault()}
+          onClick={() => setPalette((p) => !p)}
+          aria-label="Text color"
+          aria-pressed={palette}
+          className={cn(
+            "absolute top-1.5 end-1.5 grid h-7 w-7 place-items-center rounded-lg transition-colors",
+            palette ? "bg-bg text-primary" : "text-text-muted hover:text-text",
+          )}
+        >
+          <Baseline className="h-4 w-4" />
+        </button>
       </div>
-      <div
-        ref={ref}
-        contentEditable
-        suppressContentEditableWarning
-        onInput={emit}
-        onBlur={emit}
-        onKeyDown={(e) => {
-          if (!multiline && e.key === "Enter") e.preventDefault();
-        }}
-        data-placeholder={placeholder}
-        className={cn(
-          "rich-input w-full rounded-xl border border-border bg-surface-2 px-3 py-2 text-sm text-text outline-none focus-visible:ring-2 focus-visible:ring-primary/50",
-          multiline ? "min-h-[4.5rem]" : "min-h-9",
-          className,
-        )}
-      />
     </div>
   );
 }

@@ -6,21 +6,10 @@ import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { createSession, destroySession } from "@/lib/session";
 import { asPlan } from "@/lib/plans";
+import { RESERVED_USERNAMES as RESERVED } from "@/lib/reserved";
 
 export type AuthState = { error?: string } | undefined;
 
-const RESERVED = new Set([
-  "login",
-  "signup",
-  "dashboard",
-  "admin",
-  "api",
-  "examples",
-  "settings",
-  "about",
-  "terms",
-  "privacy",
-]);
 
 const signupSchema = z.object({
   username: z

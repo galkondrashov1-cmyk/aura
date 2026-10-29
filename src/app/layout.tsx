@@ -41,17 +41,11 @@ export default function RootLayout({
       className={`${inter.variable} ${jakarta.variable}`}
       suppressHydrationWarning
     >
+      {/* The PWA launch splash is pure CSS (body::before/::after, installed
+          app only — see globals.css). It used to be a <div> injected by an
+          inline script, which landed in <body> ahead of React's streamed
+          markup and made hydration fail on every single page load. */}
       <body className={`min-h-screen bg-bg text-text antialiased ${fontVars}`}>
-        {/* First-paint splash. Created AND removed entirely by this inline
-            script so the node never exists in React's tree — a React-rendered
-            splash that the script later removes breaks hydration on slow
-            loads (React finds DOM that doesn't match the server HTML and
-            falls back to a full client re-render with an error flash). */}
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `(function(){try{var d=document.createElement("div");d.id="aura-splash";d.setAttribute("aria-hidden","true");d.innerHTML='<svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="24" cy="24" r="21" stroke="currentColor" stroke-width="1.6" opacity="0.55"/><circle cx="24" cy="24" r="14.5" stroke="currentColor" stroke-width="1.7" opacity="0.8"/><circle cx="24" cy="24" r="8.5" stroke="currentColor" stroke-width="1.8"/><circle cx="24" cy="24" r="2.8" fill="currentColor"/></svg><span class="splash-word">AURA</span>';document.body.appendChild(d);var t=Date.now(),done=false;function hide(){if(done)return;done=true;var w=Math.max(0,450-(Date.now()-t));setTimeout(function(){d.classList.add("done");setTimeout(function(){d.remove()},500)},w)}if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",hide);else hide();setTimeout(hide,2500)}catch(e){}})();`,
-          }}
-        />
         {children}
       </body>
     </html>

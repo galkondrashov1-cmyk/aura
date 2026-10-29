@@ -5,10 +5,14 @@ import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { getSession } from "@/lib/session";
 import type { Block, PageContent } from "@/lib/blocks";
-import { asPageContent } from "@/lib/blocks";
+import { asPageContent, heroOf } from "@/lib/blocks";
 import { toPlain } from "@/lib/richtext";
 import { caps } from "@/lib/plans";
 import { getEffectivePlan } from "@/lib/plan-source";
+import { revalidateUser } from "@/lib/public-page";
+import { SLUG_RE, toSlug } from "@/lib/reserved";
+import { TEMPLATES, templateContent } from "@/lib/templates";
+import { fitToPlan } from "@/lib/studio";
 
 async function requireUser() {
   const user = await getSession();
@@ -16,20 +20,8 @@ async function requireUser() {
   return user;
 }
 
-/** A fresh page starts from this minimal, ready-to-edit layout. */
-const DEFAULT_PAGE: PageContent = {
-  blocks: [
-    { id: "hero", type: "hero", name: "Your Name", tagline: "What you do" },
-    {
-      id: "links",
-      type: "links",
-      items: [
-        { label: "My website", url: "https://", highlighted: true },
-        { label: "Say hello", url: "mailto:you@email.com" },
-      ],
-    },
-  ],
-};
+// A page document is small JSON; anything near this is abuse, not a page.
+const MAX_CONTENT_BYTES = 400_000;
 
 function personalize(content: PageContent, name: string): PageContent {
   const blocks = content.blocks.map((b): Block =>
@@ -39,20 +31,43 @@ function personalize(content: PageContent, name: string): PageContent {
 }
 
 function heroName(content: PageContent): string {
-  const hero = content.blocks.find((b) => b.type === "hero");
-  return (hero && hero.type === "hero" && toPlain(hero.name)) || "Untitled";
+  const hero = heroOf(content);
+  return (hero && toPlain(hero.name).slice(0, 80)) || "Untitled";
 }
 
-export async function createPage() {
+function checked(content: PageContent): PageContent {
+  const safe = asPageContent(content);
+  if (JSON.stringify(safe).length > MAX_CONTENT_BYTES) {
+    throw new Error("This page is too large to save.");
+  }
+  return safe;
+}
+
+async function uniqueSlug(userId: string, base: string): Promise<string> {
+  const root = toSlug(base) || "page";
+  const taken = new Set(
+    (await prisma.page.findMany({ where: { userId }, select: { slug: true } })).map((p) => p.slug),
+  );
+  if (!taken.has(root)) return root;
+  for (let i = 2; i < 500; i++) if (!taken.has(`${root}-${i}`)) return `${root}-${i}`;
+  return `${root}-${Date.now().toString(36)}`;
+}
+
+/** New page — blank, or from a starter template (form field `template`). */
+export async function createPage(formData?: FormData) {
   const user = await requireUser();
-  const content = personalize(DEFAULT_PAGE, user.name ?? user.username);
+  const templateId = String(formData?.get("template") ?? "");
+  const template = TEMPLATES.find((t) => t.id === templateId);
+  const plan = await getEffectivePlan(user.id);
+  const recipe = templateId === "blank" ? "blank" : template?.id;
+  const content = fitToPlan(personalize(templateContent(recipe), user.name ?? user.username), plan);
 
   const count = await prisma.page.count({ where: { userId: user.id } });
   // Plan limit: Free = 1 page, Plus = 5, Pro = unlimited.
-  if (count >= caps(await getEffectivePlan(user.id)).maxPages) {
+  if (count >= caps(plan).maxPages) {
     redirect("/dashboard/upgrade?limit=pages");
   }
-  const slug = count === 0 ? "home" : `page-${count + 1}`;
+  const slug = count === 0 ? "home" : await uniqueSlug(user.id, template?.slug ?? `page-${count + 1}`);
 
   const page = await prisma.page.create({
     data: {
@@ -71,22 +86,28 @@ export async function createPage() {
 
 export async function savePage(pageId: string, content: PageContent) {
   const user = await requireUser();
-  const safe = asPageContent(content);
+  const safe = checked(content);
 
   await prisma.page.updateMany({
     where: { id: pageId, userId: user.id },
     data: { draftContent: safe, theme: "vivid", title: heroName(safe) },
   });
 
-  return { ok: true as const };
+  return { ok: true as const, savedAt: Date.now() };
 }
 
 export async function publishPage(pageId: string, content: PageContent) {
   const user = await requireUser();
-  const safe = asPageContent(content);
+  const safe = checked(content);
 
-  await prisma.page.updateMany({
+  const page = await prisma.page.findFirst({
     where: { id: pageId, userId: user.id },
+    select: { slug: true, isPrimary: true },
+  });
+  if (!page) return { ok: false as const };
+
+  await prisma.page.update({
+    where: { id: pageId },
     data: {
       draftContent: safe,
       publishedContent: safe,
@@ -97,13 +118,84 @@ export async function publishPage(pageId: string, content: PageContent) {
     },
   });
 
-  revalidatePath(`/${user.username}`);
-  return { ok: true as const, url: `/${user.username}` };
+  await revalidateUser(user.id);
+  const path = page.isPrimary ? `/${user.username}` : `/${user.username}/${page.slug}`;
+  return { ok: true as const, url: path };
+}
+
+/** Take a page offline without deleting it. */
+export async function unpublishPage(pageId: string) {
+  const user = await requireUser();
+  await prisma.page.updateMany({
+    where: { id: pageId, userId: user.id },
+    data: { status: "DRAFT" },
+  });
+  await revalidateUser(user.id);
+  revalidatePath("/dashboard");
+  return { ok: true as const };
 }
 
 export async function deletePage(pageId: string) {
   const user = await requireUser();
+  const page = await prisma.page.findFirst({ where: { id: pageId, userId: user.id }, select: { isPrimary: true } });
   await prisma.page.deleteMany({ where: { id: pageId, userId: user.id } });
-  revalidatePath(`/${user.username}`);
+  // Keep exactly one main page: promote the most recently edited survivor.
+  if (page?.isPrimary) {
+    const next = await prisma.page.findFirst({ where: { userId: user.id }, orderBy: { updatedAt: "desc" } });
+    if (next) await prisma.page.update({ where: { id: next.id }, data: { isPrimary: true } });
+  }
+  await revalidateUser(user.id);
   redirect("/dashboard");
+}
+
+export async function duplicatePage(pageId: string) {
+  const user = await requireUser();
+  const src = await prisma.page.findFirst({ where: { id: pageId, userId: user.id } });
+  if (!src) redirect("/dashboard");
+  const count = await prisma.page.count({ where: { userId: user.id } });
+  if (count >= caps(await getEffectivePlan(user.id)).maxPages) {
+    redirect("/dashboard/upgrade?limit=pages");
+  }
+  const copy = await prisma.page.create({
+    data: {
+      userId: user.id,
+      slug: await uniqueSlug(user.id, `${src.slug}-copy`),
+      title: `${src.title} (copy)`.slice(0, 90),
+      status: "DRAFT",
+      isPrimary: false,
+      theme: src.theme,
+      draftContent: src.draftContent ?? src.publishedContent ?? undefined,
+    },
+  });
+  redirect(`/builder/${copy.id}`);
+}
+
+/** Make this the page shown at useaura.me/<username>. */
+export async function setPrimaryPage(pageId: string) {
+  const user = await requireUser();
+  const page = await prisma.page.findFirst({ where: { id: pageId, userId: user.id }, select: { id: true } });
+  if (!page) return;
+  await prisma.$transaction([
+    prisma.page.updateMany({ where: { userId: user.id }, data: { isPrimary: false } }),
+    prisma.page.update({ where: { id: page.id }, data: { isPrimary: true } }),
+  ]);
+  await revalidateUser(user.id);
+  revalidatePath("/dashboard");
+}
+
+export type SlugState = { ok?: boolean; error?: string; slug?: string } | undefined;
+
+export async function updatePageSlug(pageId: string, _prev: SlugState, formData: FormData): Promise<SlugState> {
+  const user = await requireUser();
+  const slug = toSlug(String(formData.get("slug") ?? ""));
+  if (!SLUG_RE.test(slug)) return { error: "Use letters, numbers and dashes." };
+  const clash = await prisma.page.findFirst({
+    where: { userId: user.id, slug, NOT: { id: pageId } },
+    select: { id: true },
+  });
+  if (clash) return { error: "You already have a page with that address." };
+  await prisma.page.updateMany({ where: { id: pageId, userId: user.id }, data: { slug } });
+  await revalidateUser(user.id);
+  revalidatePath("/dashboard");
+  return { ok: true, slug };
 }

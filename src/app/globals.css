@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@import "./studio.css";
 
 /* ============================================================
    AURA — Deep Space design tokens (dual dark mode)
@@ -7,7 +8,10 @@
    Both share token NAMES so components are written once.
    ============================================================ */
 
-:root {
+:root,
+/* Also restores the vivid palette inside a muted subtree — the editor canvas
+   shows pages exactly as visitors see them. */
+[data-mode="vivid"] {
   --bg: #08090c;
   --surface: #121419;
   --surface-2: #1a1d24;
@@ -280,10 +284,8 @@ textarea,
 .ih-pulse:hover { animation: auraPulse 0.6s ease-in-out infinite; }
 .ih-shake:hover { animation: auraShake 0.4s ease-in-out; }
 
-/* ===== Typography scale (multiplies the renderer's text sizes) ===== */
-.aura-typescale h1 { font-size: calc(1.5rem * var(--ts, 1)); }
-.aura-typescale h2 { font-size: calc(1.125rem * var(--ts, 1)); }
-.aura-typescale p { font-size: calc(0.875rem * var(--ts, 1)); }
+/* Typography scale: see .pg-title / .pg-h2 / .pg-p in studio.css (variable
+   driven, so Tailwind size utilities inside the renderer keep working). */
 
 /* ===== Brutalist / Retro button styles ===== */
 .cs-brutal { background: var(--surface-2); color: var(--text); border: 2px solid var(--text); box-shadow: 4px 4px 0 0 var(--text); }
@@ -586,7 +588,8 @@ textarea,
 .aura-stagger > :nth-child(8) { animation-delay: calc(var(--intro-delay, 0s) + 0.52s); }
 .aura-stagger > :nth-child(n + 9) { animation-delay: calc(var(--intro-delay, 0s) + 0.58s); }
 /* Public pages: hold the cascade until the intro curtain lifts. */
-.aura-stagger-intro { --intro-delay: 0.82s; }
+.aura-stagger-intro { --intro-delay: 0.55s; }
+.aura-stagger-fade { --intro-delay: 0.15s; }
 
 /* The mark carries the app icon's neon bloom wherever it appears. */
 .aura-mark {
@@ -606,7 +609,7 @@ textarea,
   display: grid;
   place-items: center;
   pointer-events: none;
-  animation: introLift 0.62s cubic-bezier(0.4, 0, 0.2, 1) 0.78s forwards;
+  animation: introLift 0.5s cubic-bezier(0.4, 0, 0.2, 1) 0.5s forwards;
 }
 @keyframes introLift {
   to { opacity: 0; visibility: hidden; }
@@ -619,12 +622,12 @@ textarea,
 }
 .aura-intro .ring {
   transform-origin: 50% 50%;
-  animation: introRing 0.85s cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation: introRing 0.6s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 .aura-intro .r1 { animation-delay: 0s; opacity: 0.32; }
-.aura-intro .r2 { animation-delay: 0.09s; opacity: 0.6; }
-.aura-intro .r3 { animation-delay: 0.18s; }
-.aura-intro .r4 { animation-delay: 0.27s; }
+.aura-intro .r2 { animation-delay: 0.06s; opacity: 0.6; }
+.aura-intro .r3 { animation-delay: 0.12s; }
+.aura-intro .r4 { animation-delay: 0.18s; }
 @keyframes introRing {
   0% { opacity: 0; transform: scale(0.3) rotate(-25deg); }
   55% { transform: scale(1.07) rotate(0deg); }
@@ -632,7 +635,7 @@ textarea,
 }
 .aura-intro .pulse {
   transform-origin: 50% 50%;
-  animation: introPulse 1.05s ease-out 0.34s both;
+  animation: introPulse 0.8s ease-out 0.22s both;
 }
 
 /* Profile route loading UI — same mark, looping until the page arrives. */
@@ -662,54 +665,43 @@ textarea,
   100% { opacity: 0; transform: scale(2.2); }
 }
 
-/* First-paint splash: covers the PWA black window & initial load. */
-#aura-splash {
-  position: fixed;
-  inset: 0;
-  z-index: 9999;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 18px;
-  background: #08090c;
-  transition: opacity 0.45s ease, visibility 0.45s ease;
+/* PWA launch splash — CSS only, installed app only (display-mode:
+   standalone). No DOM node is ever injected, so it can't break hydration,
+   and regular browser visitors never wait behind it. */
+@media (display-mode: standalone) {
+  body::before,
+  body::after {
+    position: fixed;
+    z-index: 9999;
+    pointer-events: none;
+    animation: splashOut 0.45s ease 0.6s forwards;
+  }
+  body::before {
+    content: "";
+    inset: 0;
+    background:
+      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48' fill='none' stroke='%2300e5a0'%3E%3Ccircle cx='24' cy='24' r='21' stroke-width='1.6' opacity='.55'/%3E%3Ccircle cx='24' cy='24' r='14.5' stroke-width='1.7' opacity='.8'/%3E%3Ccircle cx='24' cy='24' r='8.5' stroke-width='1.8'/%3E%3Ccircle cx='24' cy='24' r='2.8' fill='%2300e5a0'/%3E%3C/svg%3E")
+        center calc(50% - 16px) / 76px 76px no-repeat,
+      #08090c;
+  }
+  body::after {
+    content: "AURA";
+    left: 0;
+    right: 0;
+    top: calc(50% + 40px);
+    text-align: center;
+    font: 500 13px/1 var(--font-jakarta), var(--font-inter), sans-serif;
+    letter-spacing: 0.42em;
+    text-indent: 0.42em; /* optically recenter the tracked text */
+    color: #e7e9ee;
+  }
 }
-#aura-splash.done {
-  opacity: 0;
-  visibility: hidden;
-  pointer-events: none;
+@keyframes splashOut {
+  to { opacity: 0; visibility: hidden; }
 }
-#aura-splash svg {
-  width: 76px;
-  height: 76px;
-  color: #00e5a0;
-  filter: drop-shadow(0 0 24px rgba(0, 229, 160, 0.35));
-}
-#aura-splash svg circle {
-  transform-origin: 50% 50%;
-  animation: splashRing 1.7s ease-in-out infinite;
-}
-#aura-splash svg circle:nth-child(1) { animation-delay: 0.36s; }
-#aura-splash svg circle:nth-child(2) { animation-delay: 0.24s; }
-#aura-splash svg circle:nth-child(3) { animation-delay: 0.12s; }
-#aura-splash svg circle:nth-child(4) { animation-delay: 0s; }
 @keyframes splashRing {
   0%, 100% { opacity: 0.25; transform: scale(0.9); }
   50% { opacity: 1; transform: scale(1); }
-}
-#aura-splash .splash-word {
-  font-family: var(--font-jakarta), var(--font-inter), sans-serif;
-  font-size: 13px;
-  font-weight: 500;
-  letter-spacing: 0.42em;
-  margin-left: 0.42em; /* optically recenter the tracked text */
-  color: #e7e9ee;
-  animation: splashWord 1.7s ease-in-out infinite;
-}
-@keyframes splashWord {
-  0%, 100% { opacity: 0.4; }
-  50% { opacity: 1; }
 }
 
 /* Route-level loading UI (loading.tsx) reuses the same ring animation. */
@@ -736,7 +728,6 @@ textarea,
 
 @media (prefers-reduced-motion: reduce) {
   .page-enter, .aura-stagger > *,
-  #aura-splash svg circle, #aura-splash .splash-word,
   .aura-loader svg circle { animation: none; }
   /* The intro curtain hides itself via its animation, so it must be removed
      outright here rather than merely frozen. */

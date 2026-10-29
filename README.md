@@ -1,36 +1,61 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# AURA — useaura.me
 
-## Getting Started
+A design studio for personal landing pages. Creators, freelancers and small
+businesses pick a template, make it theirs, and publish to
+`useaura.me/<username>` (plus extra pages at `useaura.me/<username>/<slug>`).
 
-First, run the development server:
+Stack: Next.js 16 (App Router, Turbopack) · React 19 · Tailwind v4 · Prisma 6 +
+Postgres · Vercel Blob · PayPal subscriptions (dormant until configured).
+Deployment notes live in [DEPLOY.md](./DEPLOY.md); planning docs in [docs/](./docs).
+
+## How it fits together
+
+- **A page is JSON** — `{ blocks, design }` (`src/lib/blocks.ts`), stored as a
+  draft and a published snapshot on `Page`. `asPageContent()` is the single
+  sanitizer for anything coming from the DB or the client.
+- **One renderer** — `src/components/renderer/page-renderer.tsx` renders the
+  public page, the editor canvas, draft previews, dashboard thumbnails and the
+  homepage showcase. Blocks live in `renderer/blocks.tsx`; interactive bits are
+  small client islands (gallery, countdown, typewriter, count-up, forms, video).
+- **Design studio** — classic presets in `src/lib/design.ts` (backgrounds,
+  button styles, effects, themes); 2.0 dimensions in `src/lib/studio.ts`
+  (layouts, title effects, typography, custom/photo backgrounds, live
+  backgrounds, reveals, sections, cursors, Remix, plan fitting). Styles are in
+  `src/app/studio.css`, keyed off CSS variables on the page wrapper.
+- **Plans** — `src/lib/plans.ts` (caps) + tiers on each studio choice and block
+  (`BLOCK_TIER`). The editor gates; `fitToPlan()` adapts templates on creation.
+- **Templates** — `src/lib/templates.ts`.
+
+## Performance model
+
+- Public pages are ISR (`revalidate = 3600`, `generateStaticParams → []`):
+  rendered once, then served from cache. Anything that changes what visitors see
+  calls `revalidateUser()` (publish, delete, rename, plan change, suspension).
+- Live canvas/WebGL backgrounds and custom cursors are separate chunks loaded
+  only by pages that use them; they pause off-screen and respect reduced motion.
+- Scroll reveals are pure CSS (`animation-timeline: view()`), zero JS.
+- Images are downscaled and re-encoded to WebP in the browser before upload.
+- YouTube/Vimeo load a poster first; the player only downloads on tap.
+
+## Tracking
+
+- Views: one beacon per visitor per 30 min; bots and the page owner are
+  skipped; the real `document.referrer` and Vercel's country header are stored.
+- Clicks: outbound links go through `/api/r`, HMAC-signed at render time
+  (`src/lib/links-server.ts`) so it can't be used as an open redirect.
+- Forms post to `/api/forms` and land in the owner's Inbox (CSV export).
+
+## Development
 
 ```bash
+cp .env.example .env   # point DATABASE_URL / DIRECT_URL at a local Postgres
+npm install
+npx prisma db push
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Checks: `npm run typecheck` · `npm run lint` · `npm run build`.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
-
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+`npm run build` runs `scripts/db-sync.mjs` first: it syncs the Prisma schema
+when `DATABASE_URL` is set and skips otherwise, so preview deployments without
+a database still build.

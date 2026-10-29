@@ -4,7 +4,7 @@ import path from "node:path";
 // regardless of the dev server's cwd. Files are served by /api/media/[name],
 // not static /public — so this works in dev no matter where the process runs.
 export const UPLOAD_DIR =
-  process.env.UPLOAD_DIR || path.join(process.cwd(), ".uploads");
+  process.env.UPLOAD_DIR || path.join(/*turbopackIgnore: true*/ process.cwd(), ".uploads");
 
 export const MIME_EXT: Record<string, string> = {
   "image/png": "png",

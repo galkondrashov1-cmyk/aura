@@ -5,21 +5,11 @@ import bcrypt from "bcryptjs";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { getSession, createSession } from "@/lib/session";
+import { RESERVED_USERNAMES as RESERVED } from "@/lib/reserved";
+import { revalidateUser } from "@/lib/public-page";
 
 export type SettingsState = { ok?: boolean; error?: string } | undefined;
 
-const RESERVED = new Set([
-  "login",
-  "signup",
-  "dashboard",
-  "admin",
-  "api",
-  "examples",
-  "settings",
-  "about",
-  "terms",
-  "privacy",
-]);
 
 async function requireUser() {
   const user = await getSession();
@@ -71,7 +61,10 @@ export async function updateProfileAction(
     username: user.username,
     name: user.name,
     role: user.role,
+    plan: session.plan,
   });
+  // The old address must stop serving the cached page.
+  if (username !== session.username) await revalidateUser(user.id, [session.username]);
   return { ok: true };
 }
 

@@ -5,6 +5,7 @@ import { prisma } from "@/lib/prisma";
 import { getSession, createSession } from "@/lib/session";
 import { asPlan, type Plan } from "@/lib/plans";
 import { paypalConfigured } from "@/lib/paypal";
+import { revalidateUser } from "@/lib/public-page";
 
 /**
  * Switch the current user's plan. Free for now — no payment. Re-issues the
@@ -24,6 +25,7 @@ export async function upgradeAction(plan: Plan) {
   }
 
   await prisma.$executeRaw`UPDATE "User" SET plan = ${next} WHERE id = ${user.id}`;
+  await revalidateUser(user.id);
 
   await createSession({
     id: user.id,

@@ -136,3 +136,77 @@ export function normalizeSocialUrl(platform: SocialPlatform, raw: string): strin
   if (/^(https?:|mailto:|tel:)/i.test(v)) return v;
   return `https://${v}`;
 }
+
+// Official brand colors (for the "brand" icon style).
+const BRAND_HEX: Partial<Record<SocialPlatform, string>> = {
+  instagram: `#${siInstagram.hex}`,
+  youtube: `#${siYoutube.hex}`,
+  tiktok: "#111111",
+  x: "#111111",
+  facebook: `#${siFacebook.hex}`,
+  linkedin: "#0A66C2",
+  github: "#181717",
+  twitch: `#${siTwitch.hex}`,
+  discord: `#${siDiscord.hex}`,
+  telegram: `#${siTelegram.hex}`,
+  whatsapp: `#${siWhatsapp.hex}`,
+  snapchat: "#F7D600",
+  pinterest: `#${siPinterest.hex}`,
+  reddit: `#${siReddit.hex}`,
+  spotify: `#${siSpotify.hex}`,
+  soundcloud: `#${siSoundcloud.hex}`,
+  threads: "#111111",
+  bluesky: `#${siBluesky.hex}`,
+  mastodon: `#${siMastodon.hex}`,
+  medium: "#111111",
+  substack: `#${siSubstack.hex}`,
+  patreon: "#F96854",
+  behance: `#${siBehance.hex}`,
+  dribbble: `#${siDribbble.hex}`,
+  vimeo: `#${siVimeo.hex}`,
+};
+
+export function brandColor(platform: SocialPlatform): string {
+  return BRAND_HEX[platform] ?? "#3f4654";
+}
+
+const HOSTS: [RegExp, SocialPlatform][] = [
+  [/(^|\.)instagram\.com$|(^|\.)instagr\.am$/, "instagram"],
+  [/(^|\.)youtube\.com$|(^|\.)youtu\.be$/, "youtube"],
+  [/(^|\.)tiktok\.com$/, "tiktok"],
+  [/(^|\.)x\.com$|(^|\.)twitter\.com$/, "x"],
+  [/(^|\.)facebook\.com$|(^|\.)fb\.me$|(^|\.)fb\.com$/, "facebook"],
+  [/(^|\.)linkedin\.com$/, "linkedin"],
+  [/(^|\.)github\.com$/, "github"],
+  [/(^|\.)twitch\.tv$/, "twitch"],
+  [/(^|\.)discord\.(gg|com)$/, "discord"],
+  [/(^|\.)t\.me$|(^|\.)telegram\.(me|org)$/, "telegram"],
+  [/(^|\.)wa\.me$|(^|\.)whatsapp\.com$/, "whatsapp"],
+  [/(^|\.)snapchat\.com$/, "snapchat"],
+  [/(^|\.)pinterest\.[a-z.]+$|(^|\.)pin\.it$/, "pinterest"],
+  [/(^|\.)reddit\.com$/, "reddit"],
+  [/(^|\.)spotify\.com$/, "spotify"],
+  [/(^|\.)soundcloud\.com$/, "soundcloud"],
+  [/(^|\.)threads\.(net|com)$/, "threads"],
+  [/(^|\.)bsky\.app$/, "bluesky"],
+  [/(^|\.)medium\.com$/, "medium"],
+  [/(^|\.)substack\.com$/, "substack"],
+  [/(^|\.)patreon\.com$/, "patreon"],
+  [/(^|\.)behance\.net$/, "behance"],
+  [/(^|\.)dribbble\.com$/, "dribbble"],
+  [/(^|\.)vimeo\.com$/, "vimeo"],
+];
+
+/** Best-guess platform for any link (drives automatic link icons). */
+export function platformFromUrl(raw: string): SocialPlatform {
+  const v = (raw ?? "").trim();
+  if (/^mailto:/i.test(v) || /^[^\s@/]+@[^\s@]+\.[^\s@]+$/.test(v)) return "email";
+  if (/^tel:/i.test(v)) return "phone";
+  try {
+    const host = new URL(/^https?:/i.test(v) ? v : `https://${v}`).hostname.toLowerCase();
+    for (const [re, p] of HOSTS) if (re.test(host)) return p;
+  } catch {
+    /* fall through */
+  }
+  return "website";
+}

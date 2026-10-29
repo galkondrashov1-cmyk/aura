@@ -14,7 +14,7 @@ export function GalleryView({
   img,
 }: {
   images: Img[];
-  layout?: "grid" | "carousel";
+  layout?: "grid" | "carousel" | "masonry";
   box: string;
   frame: string;
   img: string;
@@ -105,6 +105,7 @@ export function GalleryView({
             <img
               src={images[index].url}
               alt={images[index].alt ?? ""}
+              decoding="async"
               className={cn(img, "cursor-zoom-in")}
               onClick={() => setLightbox(index)}
             />
@@ -148,6 +149,30 @@ export function GalleryView({
     );
   }
 
+  if (layout === "masonry") {
+    return (
+      <div className="columns-2 gap-2 [&>*]:mb-2">
+        {images.map((image, i) => (
+          <button
+            key={i}
+            onClick={() => setLightbox(i)}
+            className="group block w-full cursor-zoom-in overflow-hidden rounded-xl border border-border"
+          >
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={image.url}
+              alt={image.alt ?? ""}
+              loading="lazy"
+              decoding="async"
+              className="w-full transition-transform duration-300 group-hover:scale-105"
+            />
+          </button>
+        ))}
+        {Lightbox}
+      </div>
+    );
+  }
+
   return (
     <div className="grid grid-cols-2 gap-2">
       {images.map((image, i) => (
@@ -161,6 +186,8 @@ export function GalleryView({
             <img
               src={image.url}
               alt={image.alt ?? ""}
+              loading="lazy"
+              decoding="async"
               className={cn(img, "transition-transform duration-300 group-hover:scale-105")}
             />
           </div>
