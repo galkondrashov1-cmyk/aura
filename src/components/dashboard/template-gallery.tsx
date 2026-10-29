@@ -40,7 +40,7 @@ export function TemplateGallery({ plan }: { plan: Plan }) {
                 <p className="mt-0.5 text-xs text-text-muted">{t.description}</p>
                 {premium && (
                   <p className="mt-1.5 text-[11px] text-primary">
-                    Uses {t.tier === "PRO" ? "Pro" : "Plus"} effects — we&apos;ll adapt it to your plan
+                    Uses {t.tier === "PRO" ? "Pro" : "Plus"} effects — try them free in the editor
                   </p>
                 )}
               </div>

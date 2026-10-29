@@ -62,6 +62,8 @@ export type PaypalSubscription = {
   id: string;
   status: string; // ACTIVE | APPROVED | SUSPENDED | CANCELLED | EXPIRED
   plan_id: string;
+  /** Our user id, set when the subscription is created in the browser. */
+  custom_id?: string;
   billing_info?: { next_billing_time?: string };
 };
 

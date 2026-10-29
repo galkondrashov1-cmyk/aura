@@ -27,7 +27,7 @@ function loadSdk(clientId: string): Promise<void> {
 }
 
 /** Renders a real PayPal Subscribe button for the given billing-plan id. */
-export function PayPalSubscribe({ clientId, planId }: { clientId: string; planId: string }) {
+export function PayPalSubscribe({ clientId, planId, customId }: { clientId: string; planId: string; customId: string }) {
   const host = useRef<HTMLDivElement>(null);
   const form = useRef<HTMLFormElement>(null);
   const [subId, setSubId] = useState("");
@@ -46,8 +46,12 @@ export function PayPalSubscribe({ clientId, planId }: { clientId: string; planId
         window.paypal
           .Buttons({
             style: { shape: "pill", color: "black", label: "subscribe", height: 40 },
-            createSubscription: (_d: unknown, a: { subscription: { create: (o: { plan_id: string }) => Promise<string> } }) =>
-              a.subscription.create({ plan_id: planId }),
+            // custom_id ties the subscription to this account; the server
+            // refuses to activate one created for someone else.
+            createSubscription: (
+              _d: unknown,
+              a: { subscription: { create: (o: { plan_id: string; custom_id: string }) => Promise<string> } },
+            ) => a.subscription.create({ plan_id: planId, custom_id: customId }),
             onApprove: (data: { subscriptionID?: string }) => {
               if (data.subscriptionID) {
                 setSubId(data.subscriptionID);
@@ -62,7 +66,7 @@ export function PayPalSubscribe({ clientId, planId }: { clientId: string; planId
     return () => {
       cancelled = true;
     };
-  }, [clientId, planId]);
+  }, [clientId, planId, customId]);
 
   return (
     <div>

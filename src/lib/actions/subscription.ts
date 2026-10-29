@@ -40,8 +40,20 @@ export async function activateSubscription(
   }
   const plan = planFromPaypalPlanId(sub.plan_id);
   if (!plan) return { error: "Unknown PayPal plan." };
+  // A subscription id alone proves nothing: it must have been created for
+  // THIS account and must not already back someone else's plan.
+  if (sub.custom_id !== user.id) return { error: "This subscription belongs to a different account." };
+  const holders = await prisma.$queryRaw<{ id: string; paypalSubId: string | null }[]>`
+    SELECT id, "paypalSubId" FROM "User" WHERE "paypalSubId" = ${subId} OR id = ${user.id}
+  `;
+  if (holders.some((h) => h.id !== user.id)) return { error: "This subscription is already in use." };
 
   await prisma.$executeRaw`UPDATE "User" SET plan = ${plan}, "paypalSubId" = ${subId}, "planExpiresAt" = NULL WHERE id = ${user.id}`;
+  // Switching plans starts a new subscription — stop billing the old one.
+  const previous = holders.find((h) => h.id === user.id)?.paypalSubId;
+  if (previous && previous !== subId) {
+    await cancelSubscription(previous, "Replaced by a new AURA plan").catch(() => {});
+  }
   await revalidateUser(user.id);
   await createSession({ ...user, plan });
   redirect("/dashboard/upgrade?changed=1");

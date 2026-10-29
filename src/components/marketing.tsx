@@ -9,7 +9,10 @@ export function SiteNav() {
         <AuraLogo />
       </Link>
       <nav className="flex items-center gap-1.5 sm:gap-2">
-        <Link href="/login" className={buttonClasses("ghost", "sm")}>
+        <Link href="/pricing" className={buttonClasses("ghost", "sm", "px-3 max-[359px]:hidden sm:px-4")}>
+          Pricing
+        </Link>
+        <Link href="/login" className={buttonClasses("ghost", "sm", "px-3 sm:px-4")}>
           Log in
         </Link>
         <Link href="/signup" className={buttonClasses("primary", "sm")}>
@@ -77,7 +80,10 @@ export function Footer() {
             hand-tuned, not generated.
           </p>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
+          <Link href="/pricing" className={buttonClasses("ghost", "sm")}>
+            Pricing
+          </Link>
           <Link href="/login" className={buttonClasses("ghost", "sm")}>
             Log in
           </Link>

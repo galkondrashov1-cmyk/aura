@@ -1,6 +1,6 @@
 import { createHmac, timingSafeEqual } from "node:crypto";
 import type { PageContent } from "@/lib/blocks";
-import { normalizeHref, type HrefMap } from "@/lib/links";
+import { FAB_KEY, fabHref, normalizeHref, type HrefMap } from "@/lib/links";
 import { normalizeSocialUrl } from "@/lib/socials";
 import { toPlain } from "@/lib/richtext";
 
@@ -56,7 +56,11 @@ export function buildHrefMap(content: PageContent, pageId: string): HrefMap {
         break;
     }
   }
+  // The floating button — for most businesses the WhatsApp click IS the lead.
   const fab = content.design?.fab;
-  if (fab?.kind === "link") add(fab.value, fab.label || "Floating button");
+  if (fab?.value.trim()) {
+    const label = fab.label || (fab.kind === "whatsapp" ? "WhatsApp button" : "Floating button");
+    map[FAB_KEY] = tracked(pageId, fabHref(fab), label);
+  }
   return map;
 }

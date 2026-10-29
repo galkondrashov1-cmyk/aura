@@ -7,3 +7,6 @@ schema.sql
 
 .vercel
 .env*
+
+# Local dev uploads (production uses Vercel Blob)
+/.uploads/

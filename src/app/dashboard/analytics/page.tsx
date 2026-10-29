@@ -1,9 +1,12 @@
 import Link from "next/link";
+import { Lock } from "lucide-react";
 import { getSession } from "@/lib/session";
 import { prisma } from "@/lib/prisma";
 import { cn } from "@/lib/utils";
+import { caps, PLANS } from "@/lib/plans";
+import { getEffectivePlan } from "@/lib/plan-source";
 
-const RANGES = [7, 30, 90] as const;
+const RANGES = [7, 30, 90, 365] as const;
 
 function dayKey(d: Date) {
   return d.toISOString().slice(0, 10);
@@ -23,7 +26,11 @@ export default async function AnalyticsPage({
   const session = await getSession();
   if (!session) return null;
   const sp = await searchParams;
-  const days = RANGES.find((r) => String(r) === sp.range) ?? 30;
+  const allowed = caps(await getEffectivePlan(session.id)).analyticsDays;
+  const wanted = RANGES.find((r) => String(r) === sp.range) ?? 30;
+  // History beyond the plan is clamped (and explained), never silently empty.
+  const days = Math.min(wanted, allowed);
+  const unlocksAt = PLANS.find((p) => caps(p.id).analyticsDays >= wanted);
 
   const pages = await prisma.page.findMany({
     where: { userId: session.id },
@@ -87,18 +94,29 @@ export default async function AnalyticsPage({
         ]);
 
   const ctr = totalViews ? Math.round((totalClicks / totalViews) * 100) : 0;
-  const series = Array.from({ length: days }, (_, i) => {
+  // A year is shown as weeks — 365 hairline bars say nothing.
+  const step = days > 90 ? 7 : 1;
+  const byDay = new Map(daily.map((r) => [dayKey(new Date(r.d)), r]));
+  const series = Array.from({ length: Math.ceil(days / step) }, (_, i) => {
     const d = new Date(since);
-    d.setUTCDate(since.getUTCDate() + i);
-    const row = daily.find((r) => dayKey(new Date(r.d)) === dayKey(d));
-    return { d, v: row?.v ?? 0, c: row?.c ?? 0 };
+    d.setUTCDate(since.getUTCDate() + i * step);
+    let v = 0;
+    let c = 0;
+    for (let k = 0; k < step; k++) {
+      const day = new Date(d);
+      day.setUTCDate(d.getUTCDate() + k);
+      const row = byDay.get(dayKey(day));
+      v += row?.v ?? 0;
+      c += row?.c ?? 0;
+    }
+    return { d, v, c };
   });
   const max = Math.max(1, ...series.map((s) => s.v));
   const hasData = totalViews > 0 || totalClicks > 0;
 
   const W = 640;
   const H = 180;
-  const slot = W / days;
+  const slot = W / series.length;
   const barW = Math.max(2, slot * 0.62);
   const href = (patch: { range?: number; page?: string | null }) => {
     const q = new URLSearchParams();
@@ -114,7 +132,8 @@ export default async function AnalyticsPage({
         <div>
           <h1 className="font-display text-2xl font-medium tracking-tight">Analytics</h1>
           <p className="mt-1 text-sm text-text-muted">
-            {selected ? selected.title : "All pages"} · last {days} days · bots &amp; your own visits excluded
+            {selected ? selected.title : "All pages"} · last {days} days{step > 1 ? " by week" : ""} · bots &amp; your own visits
+            excluded
           </p>
         </div>
         <div className="flex rounded-xl border border-border bg-surface-2 p-0.5 text-sm">
@@ -122,13 +141,32 @@ export default async function AnalyticsPage({
             <Link
               key={r}
               href={href({ range: r })}
-              className={cn("rounded-[10px] px-3 py-1.5", r === days ? "bg-bg text-text shadow-sm" : "text-text-muted hover:text-text")}
+              className={cn(
+                "rounded-[10px] px-3 py-1.5",
+                r === wanted ? "bg-bg text-text shadow-sm" : "text-text-muted hover:text-text",
+              )}
+              title={r > allowed ? "Needs a bigger plan" : undefined}
             >
-              {r}d
+              {r === 365 ? "1y" : `${r}d`}
+              {r > allowed && <Lock className="ms-1 inline h-3 w-3 align-[-1px]" aria-label="Locked" />}
             </Link>
           ))}
         </div>
       </div>
+
+      {wanted > allowed && (
+        <div className="mt-4 flex flex-wrap items-center gap-3 rounded-2xl border border-primary/40 bg-primary/10 px-4 py-3 text-sm">
+          <p className="min-w-0 flex-1">
+            Your plan keeps {allowed} days of history, so you&apos;re seeing the last {allowed}.{" "}
+            <span className="text-text-muted">
+              {unlocksAt ? `${unlocksAt.name} shows ${wanted === 365 ? "a full year" : `${wanted} days`} of trends.` : ""}
+            </span>
+          </p>
+          <Link href="/dashboard/upgrade" className="rounded-full bg-primary px-3.5 py-1.5 text-xs font-medium text-primary-ink">
+            See plans
+          </Link>
+        </div>
+      )}
 
       {pages.length > 1 && (
         <div className="mt-4 flex gap-1.5 overflow-x-auto pb-1 [scrollbar-width:none]">
@@ -147,7 +185,7 @@ export default async function AnalyticsPage({
         <div className="mt-10 rounded-3xl border border-dashed border-border bg-surface/50 px-6 py-16 text-center">
           <p className="text-sm text-text-muted">
             No visits in this period yet. Share your link and check back —{" "}
-            <Link href="/dashboard" className="text-text underline-offset-4 hover:underline">
+            <Link href="/dashboard" className="text-text underline underline-offset-4">
               go to my pages
             </Link>
             .
@@ -175,10 +213,10 @@ export default async function AnalyticsPage({
                 const hv = (s.v / max) * H;
                 const hc = (s.c / max) * H;
                 const x = i * slot + (slot - barW) / 2;
-                const labelEvery = days <= 7 ? 1 : days <= 30 ? 5 : 15;
+                const labelEvery = series.length <= 7 ? 1 : series.length <= 30 ? 5 : series.length <= 60 ? 8 : 15;
                 return (
                   <g key={i}>
-                    <title>{`${s.d.toLocaleDateString("en-GB", { day: "numeric", month: "short" })}: ${s.v} views, ${s.c} clicks`}</title>
+                    <title>{`${step > 1 ? "Week of " : ""}${s.d.toLocaleDateString("en-GB", { day: "numeric", month: "short" })}: ${s.v} views, ${s.c} clicks`}</title>
                     <rect x={x} y={H - hv} width={barW} height={Math.max(hv, 0)} rx={Math.min(3, barW / 2)} fill="var(--primary)" opacity={0.9} />
                     {hc > 0 && <rect x={x + barW * 0.2} y={H - hc} width={barW * 0.6} height={hc} rx={2} fill="var(--accent)" />}
                     {i % labelEvery === 0 && (

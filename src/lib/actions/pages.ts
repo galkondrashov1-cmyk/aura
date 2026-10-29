@@ -9,10 +9,9 @@ import { asPageContent, heroOf } from "@/lib/blocks";
 import { toPlain } from "@/lib/richtext";
 import { caps } from "@/lib/plans";
 import { getEffectivePlan } from "@/lib/plan-source";
-import { revalidateUser } from "@/lib/public-page";
+import { livePages, revalidateUser } from "@/lib/public-page";
 import { SLUG_RE, toSlug } from "@/lib/reserved";
 import { TEMPLATES, templateContent } from "@/lib/templates";
-import { fitToPlan } from "@/lib/studio";
 
 async function requireUser() {
   const user = await getSession();
@@ -28,6 +27,16 @@ function personalize(content: PageContent, name: string): PageContent {
     b.type === "hero" && toPlain(b.name) === "Your Name" ? { ...b, name } : b,
   );
   return { ...content, blocks };
+}
+
+/** "gal_kondrashov" → "Gal Kondrashov" — a friendlier first headline. */
+function displayName(user: { name: string | null; username: string }): string {
+  if (user.name?.trim()) return user.name.trim();
+  return user.username
+    .split("_")
+    .filter(Boolean)
+    .map((w) => w[0].toUpperCase() + w.slice(1))
+    .join(" ");
 }
 
 function heroName(content: PageContent): string {
@@ -60,7 +69,9 @@ export async function createPage(formData?: FormData) {
   const template = TEMPLATES.find((t) => t.id === templateId);
   const plan = await getEffectivePlan(user.id);
   const recipe = templateId === "blank" ? "blank" : template?.id;
-  const content = fitToPlan(personalize(templateContent(recipe), user.name ?? user.username), plan);
+  // The whole template, premium touches included: the editor previews them and
+  // says which ones the live page needs a plan for (try before you buy).
+  const content = personalize(templateContent(recipe), displayName(user));
 
   const count = await prisma.page.count({ where: { userId: user.id } });
   // Plan limit: Free = 1 page, Plus = 5, Pro = unlimited.
@@ -120,7 +131,10 @@ export async function publishPage(pageId: string, content: PageContent) {
 
   await revalidateUser(user.id);
   const path = page.isPrimary ? `/${user.username}` : `/${user.username}/${page.slug}`;
-  return { ok: true as const, url: path };
+  // Published but over the plan's page limit: saved, yet not online.
+  const plan = await getEffectivePlan(user.id);
+  const online = (await livePages(user.id, plan)).some((p) => p.id === pageId);
+  return { ok: true as const, url: path, offline: !online, maxPages: caps(plan).maxPages };
 }
 
 /** Take a page offline without deleting it. */

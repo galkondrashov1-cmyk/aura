@@ -102,3 +102,13 @@ model FormSubmission {
 
   @@index([pageId, createdAt])
 }
+
+// Sliding-window counters for abuse limits (login guesses, signups). Rows are
+// tiny and short-lived; old ones are pruned opportunistically.
+model RateLimit {
+  id        String   @id @default(cuid())
+  key       String
+  createdAt DateTime @default(now())
+
+  @@index([key, createdAt])
+}

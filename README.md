@@ -45,6 +45,33 @@ Deployment notes live in [DEPLOY.md](./DEPLOY.md); planning docs in [docs/](./do
   (`src/lib/links-server.ts`) so it can't be used as an open redirect.
 - Forms post to `/api/forms` and land in the owner's Inbox (CSV export).
 
+## Plans & pricing
+
+- One source of truth: `src/lib/pricing.json` (₪) feeds the pricing page, the
+  upgrade page, the in-editor upsell and `scripts/paypal-setup.mjs`.
+- What each plan includes lives in `caps()` (`src/lib/plans.ts`); the
+  comparison table (`src/lib/plan-matrix.ts`) is computed from the real
+  feature lists, so it can't drift from the product.
+- Try before you buy: every effect works in the editor; `fitToPlanReport()`
+  (`src/lib/studio.ts`) lists what the live page will skip, and public pages,
+  forms and the page limit are enforced on the server.
+- Early access: paid plans are claimable for free until PayPal is configured.
+  The admin overview can then start a countdown that ends early access.
+
+## Environment
+
+Required: `DATABASE_URL`, `DIRECT_URL`, `AUTH_SECRET`. Optional:
+
+| Variable | Enables |
+| --- | --- |
+| `BLOB_READ_WRITE_TOKEN` | Uploads on Vercel Blob (local disk otherwise) |
+| `PAYPAL_*`, `NEXT_PUBLIC_PAYPAL_*` | Paid subscriptions (see `src/lib/paypal.ts`) |
+| `RESEND_API_KEY`, `EMAIL_FROM` | Password-reset emails (admins can hand out reset links without it) |
+| `SUPPORT_EMAIL` | Shown on "Forgot password" while emails are off |
+| `ADMIN_PANEL_CODE` | Second factor for /admin — **set it**; the fallback is public |
+| `ADMIN_BOOTSTRAP_EMAIL` | Promotes that account to admin on login |
+| `SITE_URL` | Canonical origin (defaults to https://useaura.me) |
+
 ## Development
 
 ```bash

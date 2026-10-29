@@ -1,19 +1,28 @@
 import { getSession } from "@/lib/session";
 import { prisma } from "@/lib/prisma";
 import { getEffectivePlan } from "@/lib/plan-source";
+import { caps, planInfo } from "@/lib/plans";
 import { paypalConfigured } from "@/lib/paypal";
 import { UpgradePlans, type PaypalPublicConfig } from "@/components/upgrade/plans";
+import { PlanComparison, PricingFaq } from "@/components/upgrade/comparison";
 
 export default async function UpgradePage({
   searchParams,
 }: {
-  searchParams: Promise<{ changed?: string; cancelled?: string }>;
+  searchParams: Promise<{ changed?: string; cancelled?: string; limit?: string; error?: string }>;
 }) {
   const user = await getSession();
   const current = user ? await getEffectivePlan(user.id) : "FREE";
   const sp = await searchParams;
   const changed = sp?.changed === "1";
   const cancelled = sp?.cancelled === "1";
+  const pageLimit = sp?.limit === "pages" ? caps(current).maxPages : null;
+  const errorText =
+    sp?.error === "subscription"
+      ? "Cancel your subscription first (on the Free card) — you keep access until the end of what you paid for."
+      : sp?.error === "payment"
+        ? "Paid plans need a subscription — use the PayPal button on the plan you want."
+        : null;
   const subRows = user
     ? await prisma.$queryRaw<{ paypalSubId: string | null; planExpiresAt: string | null }[]>`
         SELECT "paypalSubId", "planExpiresAt" FROM "User" WHERE id = ${user.id} LIMIT 1
@@ -22,9 +31,10 @@ export default async function UpgradePage({
   const hasSubscription = Boolean(subRows[0]?.paypalSubId);
   const accessUntil = subRows[0]?.planExpiresAt ?? null;
   const paypal: PaypalPublicConfig | undefined =
-    paypalConfigured() && process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID
+    user && paypalConfigured() && process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID
       ? {
           clientId: process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID,
+          customId: user.id,
           plans: {
             PLUS: {
               monthly: process.env.NEXT_PUBLIC_PAYPAL_PLAN_PLUS_MONTHLY!,
@@ -48,9 +58,20 @@ export default async function UpgradePage({
             : "Every plan is free while we're in early access. Pick one to unlock its features now, no card required."}
         </p>
       </div>
+      {errorText && (
+        <p className="mt-4 inline-block rounded-xl border border-red-400/40 bg-red-400/10 px-4 py-2 text-sm text-red-300">{errorText}</p>
+      )}
+      {pageLimit !== null && (
+        <p className="mt-4 inline-block rounded-xl border border-primary/40 bg-primary/10 px-4 py-2 text-sm text-primary">
+          {planInfo(current).name} includes {pageLimit} page{pageLimit === 1 ? "" : "s"} — you&apos;re using all of them. Pick a
+          plan below for more, or delete a page you don&apos;t need.
+        </p>
+      )}
       {changed && (
         <p className="mt-4 inline-block rounded-xl border border-primary/40 bg-primary/10 px-4 py-2 text-sm text-primary">
-          Plan updated. Your new features are unlocked.
+          {current === "FREE"
+            ? "You're on Free now. Nothing was deleted — premium touches are hidden until you upgrade again."
+            : `You're on ${planInfo(current).name}. Your new features are unlocked.`}
         </p>
       )}
       {cancelled && (
@@ -66,6 +87,17 @@ export default async function UpgradePage({
           hasSubscription={hasSubscription}
           accessUntil={accessUntil}
         />
+      </div>
+      <h2 className="mt-14 font-display text-xl font-medium tracking-tight">Everything, side by side</h2>
+      <p className="mt-1 text-sm text-text-muted">
+        Every effect works in the editor on every plan — your live page shows the ones your plan includes.
+      </p>
+      <div className="mt-5">
+        <PlanComparison highlight={current} />
+      </div>
+      <h2 className="mt-14 font-display text-xl font-medium tracking-tight">Questions</h2>
+      <div className="mt-5 max-w-3xl">
+        <PricingFaq />
       </div>
     </div>
   );

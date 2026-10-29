@@ -1,28 +1,7 @@
 "use client";
 
-import {
-  AtSign,
-  ChartColumn,
-  CircleHelp,
-  CirclePlay,
-  Code,
-  Image as ImageIcon,
-  Images,
-  LayoutGrid,
-  Link2,
-  Mail,
-  MapPin,
-  Minus,
-  MoveHorizontal,
-  Music,
-  Quote,
-  SeparatorHorizontal,
-  Star,
-  Tag,
-  Timer,
-  Type,
-  UserRound,
-} from "lucide-react";
+import { Image as ImageIcon, Star } from "lucide-react";
+import { BLOCK_META } from "./block-meta";
 import { cn } from "@/lib/utils";
 import type { Block, BlockOf, BlockType, LinkItem, SocialPlatform } from "@/lib/blocks";
 import { AVATAR_IDLE, BUTTON_FX, BUTTON_IDLE, ICON_FX, ICON_IDLE } from "@/lib/design";
@@ -32,37 +11,7 @@ import { caps, type Plan } from "@/lib/plans";
 import { HERO_LAYOUTS, REVEALS, SECTION_STYLES, BLOCK_TIER } from "@/lib/studio";
 import { toPlain } from "@/lib/richtext";
 import { RichTextInput } from "./rich-text-input";
-import { AddItem, Chips, ColorField, ImageField, ItemCard, Label, Section, Seg, Slider, Toggle, TierPill, fieldCls, useLocked } from "./ui";
-
-export type BlockMeta = {
-  label: string;
-  icon: React.ComponentType<{ className?: string }>;
-  description: string;
-  group: "Essentials" | "Sections" | "Flair";
-};
-
-export const BLOCK_META: Record<BlockType, BlockMeta> = {
-  hero: { label: "Header", icon: UserRound, description: "Your name, photo & intro", group: "Essentials" },
-  links: { label: "Links", icon: Link2, description: "Buttons, tiles or cards", group: "Essentials" },
-  text: { label: "Text", icon: Type, description: "Heading & paragraph", group: "Essentials" },
-  socials: { label: "Social icons", icon: AtSign, description: "All your profiles in a row", group: "Essentials" },
-  image: { label: "Image", icon: ImageIcon, description: "A single photo", group: "Essentials" },
-  gallery: { label: "Gallery", icon: Images, description: "Grid, masonry or slideshow", group: "Essentials" },
-  video: { label: "Video", icon: CirclePlay, description: "YouTube or Vimeo", group: "Essentials" },
-  features: { label: "Features", icon: LayoutGrid, description: "Services or perks in cards", group: "Sections" },
-  testimonials: { label: "Testimonials", icon: Quote, description: "Reviews with stars", group: "Sections" },
-  stats: { label: "Stats", icon: ChartColumn, description: "Numbers that count up", group: "Sections" },
-  pricing: { label: "Pricing", icon: Tag, description: "Plans & packages", group: "Sections" },
-  form: { label: "Form", icon: Mail, description: "Newsletter or contact", group: "Sections" },
-  faq: { label: "FAQ", icon: CircleHelp, description: "Questions & answers", group: "Sections" },
-  map: { label: "Map", icon: MapPin, description: "Location with Maps & Waze", group: "Sections" },
-  marquee: { label: "Marquee", icon: MoveHorizontal, description: "Scrolling ticker text", group: "Flair" },
-  divider: { label: "Divider", icon: Minus, description: "A styled separator", group: "Flair" },
-  spacer: { label: "Spacer", icon: SeparatorHorizontal, description: "Breathing room", group: "Flair" },
-  countdown: { label: "Countdown", icon: Timer, description: "Count down to a launch", group: "Flair" },
-  music: { label: "Music", icon: Music, description: "Spotify, SoundCloud, Apple", group: "Flair" },
-  embed: { label: "Embed", icon: Code, description: "Any https page or widget", group: "Flair" },
-};
+import { AddItem, Chips, ColorField, ImageField, ItemCard, Label, Section, Seg, Slider, Toggle, TierPill, fieldCls } from "./ui";
 
 export function newBlock(type: BlockType): Block {
   const id = crypto.randomUUID();
@@ -169,7 +118,6 @@ export function BlockFields({ block, plan, onPatch }: { block: Block; plan: Plan
 
 function Fields({ block, plan, onPatch }: { block: Block; plan: Plan; onPatch: Patch }) {
   const c = caps(plan);
-  const { upgrade } = useLocked(plan);
   switch (block.type) {
     case "hero":
       return <HeroEditor b={block} plan={plan} onPatch={onPatch} />;
@@ -198,7 +146,7 @@ function Fields({ block, plan, onPatch }: { block: Block; plan: Plan; onPatch: P
               { id: "masonry", label: "Masonry" },
               { id: "carousel", label: <>Slideshow {!c.gallerySlideshow && <TierPill tier="PLUS" />}</> },
             ]}
-            onChange={(layout) => (layout === "carousel" && !c.gallerySlideshow ? upgrade() : onPatch({ layout }))}
+            onChange={(layout) => onPatch({ layout })}
           />
           {block.layout !== "masonry" && (
             <ImageControls value={block.img} onChange={(img) => onPatch({ img })} showSize={false} defaults={{ aspect: "square", radius: "sm" }} />
@@ -632,7 +580,7 @@ function LinksEditor({ b, plan, onPatch }: { b: BlockOf<"links">; plan: Plan; on
             {BUTTON_FX.map((e) => {
               const locked = e.category === "Creative" && !c.creativeEffects;
               return (
-                <option key={e.id} value={e.id} disabled={locked}>
+                <option key={e.id} value={e.id}>
                   {e.name}
                   {locked ? " · Plus" : ""}
                 </option>
@@ -664,40 +612,33 @@ function LinksEditor({ b, plan, onPatch }: { b: BlockOf<"links">; plan: Plan; on
               <Star className={cn("h-3.5 w-3.5", it.highlighted && "fill-primary text-primary")} /> Highlight
             </button>
             <ThumbButton value={it.thumb} onChange={(thumb) => update(i, { thumb })} />
-            {c.perElement ? (
-              <>
-                <input
-                  type="color"
-                  value={it.color || "#00e5a0"}
-                  onChange={(e) => update(i, { color: e.target.value })}
-                  className="h-8 w-9 cursor-pointer rounded-lg border border-border bg-surface-2"
-                  title="This button's color"
-                  aria-label="Button color"
-                />
-                {it.color && (
-                  <button type="button" onClick={() => update(i, { color: undefined })} className="text-[11px] text-text-muted hover:text-text">
-                    Reset color
-                  </button>
-                )}
-                <select
-                  value={it.fx ?? ""}
-                  onChange={(e) => update(i, { fx: e.target.value || undefined })}
-                  className="h-8 min-w-0 flex-1 rounded-lg border border-border bg-surface-2 px-2 text-xs text-text"
-                  aria-label="This button's hover effect"
-                >
-                  <option value="">Effect: default</option>
-                  {BUTTON_FX.map((e) => (
-                    <option key={e.id} value={e.id}>
-                      {e.name}
-                    </option>
-                  ))}
-                </select>
-              </>
-            ) : (
-              <span className="flex items-center gap-1 text-[11px] text-text-muted">
-                Per-button color & effect <TierPill tier="PLUS" />
-              </span>
-            )}
+              <input
+                type="color"
+                value={it.color || "#00e5a0"}
+                onChange={(e) => update(i, { color: e.target.value })}
+                className="h-8 w-9 cursor-pointer rounded-lg border border-border bg-surface-2"
+                title="This button's color"
+                aria-label="Button color"
+              />
+              {it.color && (
+                <button type="button" onClick={() => update(i, { color: undefined })} className="text-[11px] text-text-muted hover:text-text">
+                  Reset color
+                </button>
+              )}
+              <select
+                value={it.fx ?? ""}
+                onChange={(e) => update(i, { fx: e.target.value || undefined })}
+                className="h-8 min-w-0 flex-1 rounded-lg border border-border bg-surface-2 px-2 text-xs text-text"
+                aria-label="This button's hover effect"
+              >
+                <option value="">Effect: default</option>
+                {BUTTON_FX.map((e) => (
+                  <option key={e.id} value={e.id}>
+                    {e.name}
+                  </option>
+                ))}
+              </select>
+            {!c.perElement && <TierPill tier="PLUS" />}
           </div>
         </ItemCard>
       ))}
@@ -798,13 +739,10 @@ function TextEditor({ b, plan, onPatch }: { b: BlockOf<"text">; plan: Plan; onPa
           onChange={(size) => onPatch({ size })}
         />
       </div>
-      {c.perElement ? (
+      <div className="flex items-center gap-2">
         <ColorField value={b.color} fallback="#9AA3AF" label="Text color" onChange={(color) => onPatch({ color })} onReset={() => onPatch({ color: undefined })} />
-      ) : (
-        <p className="flex items-center gap-1 text-[11px] text-text-muted">
-          Block text color <TierPill tier="PLUS" />
-        </p>
-      )}
+        {!c.perElement && <TierPill tier="PLUS" />}
+      </div>
       <Toggle checked={!!b.spoiler} onChange={(spoiler) => onPatch({ spoiler: spoiler || undefined })} label="Hide behind a tap-to-reveal spoiler" />
     </div>
   );
@@ -860,8 +798,11 @@ function SocialsEditor({ b, plan, onPatch }: { b: BlockOf<"socials">; plan: Plan
           </select>
         </label>
       </div>
-      {c.perElement && b.iconStyle !== "brand" && (
-        <ColorField value={b.iconColor} fallback="#9AA3AF" label="Icon color" onChange={(iconColor) => onPatch({ iconColor })} onReset={() => onPatch({ iconColor: undefined })} />
+      {b.iconStyle !== "brand" && (
+        <div className="flex items-center gap-2">
+          <ColorField value={b.iconColor} fallback="#9AA3AF" label="Icon color" onChange={(iconColor) => onPatch({ iconColor })} onReset={() => onPatch({ iconColor: undefined })} />
+          {!c.perElement && <TierPill tier="PLUS" />}
+        </div>
       )}
       {items.map((it, i) => (
         <div key={i} className="flex items-center gap-2">
@@ -909,7 +850,6 @@ function SocialsEditor({ b, plan, onPatch }: { b: BlockOf<"socials">; plan: Plan
 
 function DividerEditor({ b, plan, onPatch }: { b: BlockOf<"divider">; plan: Plan; onPatch: Patch }) {
   const c = caps(plan);
-  const { upgrade } = useLocked(plan);
   const styles: { id: NonNullable<BlockOf<"divider">["style"]>; label: string; plus?: boolean }[] = [
     { id: "line", label: "Line" },
     { id: "dashed", label: "Dashed" },
@@ -930,11 +870,10 @@ function DividerEditor({ b, plan, onPatch }: { b: BlockOf<"divider">; plan: Plan
             <button
               key={s.id}
               type="button"
-              onClick={() => (locked ? upgrade() : onPatch({ style: s.id }))}
+              onClick={() => onPatch({ style: s.id })}
               className={cn(
                 "flex items-center justify-center gap-1 rounded-lg border px-2 py-1.5 text-xs",
                 (b.style ?? "line") === s.id ? "border-primary text-text" : "border-border text-text-muted hover:text-text",
-                locked && "opacity-60",
               )}
             >
               {s.label}
@@ -943,7 +882,10 @@ function DividerEditor({ b, plan, onPatch }: { b: BlockOf<"divider">; plan: Plan
           );
         })}
       </div>
-      {c.perElement && <ColorField value={b.color} fallback="#2A2F3A" label="Divider color" onChange={(color) => onPatch({ color })} onReset={() => onPatch({ color: undefined })} />}
+      <div className="flex items-center gap-2">
+        <ColorField value={b.color} fallback="#2A2F3A" label="Divider color" onChange={(color) => onPatch({ color })} onReset={() => onPatch({ color: undefined })} />
+        {!c.perElement && <TierPill tier="PLUS" />}
+      </div>
       <div className="rounded-lg border border-border bg-bg px-3 py-4">
         <div className={cn("dv", `dv-${b.style ?? "line"}`)} style={b.color ? ({ "--dvc": b.color } as React.CSSProperties) : undefined} />
       </div>
@@ -951,4 +893,4 @@ function DividerEditor({ b, plan, onPatch }: { b: BlockOf<"divider">; plan: Plan
   );
 }
 
-export { BLOCK_TIER };
+export { BLOCK_TIER, BLOCK_META };

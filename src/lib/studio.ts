@@ -2,7 +2,7 @@
 // design.ts: page & hero layouts, title effects, typography controls, custom
 // gradient / photo backgrounds, live (canvas) backgrounds, scroll reveals,
 // section containers, cursors — plus the Remix generator and palette tools.
-import type { BlockType, CustomBackground, PageContent, PageDesign } from "@/lib/blocks";
+import type { Block, BlockType, CustomBackground, PageContent, PageDesign } from "@/lib/blocks";
 import {
   BACKGROUNDS,
   CARD_STYLES,
@@ -16,7 +16,7 @@ import {
   bgFxCategoryTier,
 } from "@/lib/design";
 import { FONTS } from "@/lib/fonts";
-import { PLAN_RANK, type Plan } from "@/lib/plans";
+import { caps, PLAN_RANK, type Plan } from "@/lib/plans";
 
 export type Choice = { id: string; name: string; tier: Plan; hint?: string };
 
@@ -191,6 +191,13 @@ export function luminance(hex: string): number {
     return c <= 0.03928 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4;
   });
   return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+}
+
+/** Readable text color on top of `accent`: near-black or white, whichever contrasts more. */
+export function inkFor(accent: string): string | undefined {
+  if (!hexToRgb(accent)) return undefined;
+  const l = luminance(accent);
+  return (l + 0.05) / 0.054 >= 1.05 / (l + 0.05) ? "#0b0c10" : "#ffffff";
 }
 
 // ---------- Backgrounds ----------
@@ -393,51 +400,157 @@ export const BLOCK_TIER: Record<BlockType, Plan> = {
 };
 
 const tierOf = (list: Choice[], id?: string) => list.find((c) => c.id === id)?.tier ?? "FREE";
+const nameOf = (list: Choice[], id?: string) => list.find((c) => c.id === id)?.name ?? id ?? "";
+
+export type LockedFeature = { label: string; tier: Plan };
+
+const PREMIUM_DIVIDERS = new Set(["shimmer", "march", "pulse"]);
 
 /**
- * Downgrade anything the plan doesn't include to its closest free cousin, so
- * starting from a premium template never hands out paid features.
+ * Downgrade everything the plan doesn't include to its closest free cousin,
+ * and report what changed. Used on the server for every public render (so
+ * paid features can't be unlocked by editing a request, and lapse cleanly on
+ * downgrade), when creating pages from templates, and by the editor to tell
+ * the creator exactly what their live page won't show. Content is never lost —
+ * the stored page keeps everything; only the rendered result is fitted.
  */
-export function fitToPlan(content: PageContent, plan: Plan): PageContent {
-  if (plan === "PRO") return content;
+export function fitToPlanReport(content: PageContent, plan: Plan): { content: PageContent; locked: LockedFeature[] } {
+  if (plan === "PRO") return { content, locked: [] };
+  const c = caps(plan);
   const ok = (t: Plan) => allowed(t, plan);
+  const locked = new Map<string, Plan>();
+  const lock = (label: string, tier: Plan) => locked.set(label, tier);
   const d = { ...(content.design ?? {}) };
-  const fontCat = (id?: string) => FONTS.find((f) => f.id === id)?.category ?? "Sans";
+  const font = (id?: string) => FONTS.find((f) => f.id === id);
   const rtl = d.dir === "rtl";
-  if (d.font && !ok(fontCategoryTier(fontCat(d.font)))) d.font = rtl ? "heebo" : "inter";
-  if (d.headingFont && !ok(fontCategoryTier(fontCat(d.headingFont)))) d.headingFont = rtl ? "secular" : "sora";
-  if (!ok(tierOf(TITLE_FX, d.titleFx))) d.titleFx = "gradient";
-  if (!ok(tierOf(PAGE_LAYOUTS, d.layout))) d.layout = "card";
-  if (!ok(tierOf(REVEALS, d.reveal))) d.reveal = "rise";
-  if (!ok(tierOf(SECTION_STYLES, d.section))) d.section = "glass";
-  if (!ok(tierOf(LIVE_BGS, d.liveBg))) d.liveBg = plan === "PLUS" ? "particles" : "none";
-  if (!ok(tierOf(CURSORS, d.cursor))) d.cursor = "none";
-  if (plan === "FREE") {
-    if (d.bgCustom || d.bgImage) {
-      d.background = d.bgCustom && customBgIsLight(d.bgCustom) ? undefined : "mesh-5";
-      d.bgCustom = undefined;
-      d.bgImage = undefined;
+
+  for (const key of ["font", "headingFont"] as const) {
+    const f = font(d[key]);
+    if (f && !ok(fontCategoryTier(f.category))) {
+      lock(`Font: ${f.name}`, fontCategoryTier(f.category));
+      d[key] = key === "font" ? (rtl ? "heebo" : "inter") : rtl ? "secular" : undefined;
     }
+  }
+  const choice = (key: "titleFx" | "layout" | "reveal" | "section" | "liveBg" | "cursor", list: Choice[], fallback: string | undefined, what: string) => {
+    const t = tierOf(list, d[key]);
+    if (!ok(t)) {
+      lock(`${what}: ${nameOf(list, d[key])}`, t);
+      d[key] = fallback;
+    }
+  };
+  choice("titleFx", TITLE_FX, "gradient", "Title effect");
+  choice("layout", PAGE_LAYOUTS, "card", "Layout");
+  choice("reveal", REVEALS, "rise", "Scroll animation");
+  choice("section", SECTION_STYLES, "glass", "Section style");
+  choice("liveBg", LIVE_BGS, "none", "Live background");
+  choice("cursor", CURSORS, "none", "Cursor");
+
+  if (!c.customBackgrounds && (d.bgCustom || d.bgImage)) {
+    lock(d.bgImage ? "Photo background" : "Custom gradient", "PLUS");
+    d.background = d.bgCustom && customBgIsLight(d.bgCustom) ? undefined : "mesh-5";
+    d.bgCustom = undefined;
+    d.bgImage = undefined;
+  }
+  if (!c.customBackgrounds && d.bgAnimate) {
+    lock("Flowing gradient", "PLUS");
     d.bgAnimate = undefined;
-    d.fab = undefined;
-    d.motionSpeed = undefined;
   }
   if (d.background) {
     const bg = BACKGROUNDS.find((b) => b.id === d.background);
-    if (bg && !ok(bgCategoryTier(bg.category))) d.background = "mesh-5";
+    if (bg && !ok(bgCategoryTier(bg.category))) {
+      lock(`Background: ${bg.category}`, bgCategoryTier(bg.category));
+      d.background = "mesh-5";
+    }
   }
-  if (d.buttonShape && !ok(shapeTier(d.buttonShape))) d.buttonShape = "rounded";
-  const card = CARD_STYLES.find((c) => c.id === d.card);
-  if (card && !ok(cardCategoryTier(card.category))) d.card = "glass-frost";
+  if (!c.floatingButton && d.fab) {
+    lock("Floating button", "PLUS");
+    d.fab = undefined;
+  }
+  if (!c.creativeEffects && d.motionSpeed && d.motionSpeed !== "normal") {
+    lock("Animation speed", "PLUS");
+    d.motionSpeed = undefined;
+  }
+  if (!c.customSeo && (d.seoTitle || d.seoDescription)) {
+    lock("Custom SEO", "PLUS");
+    d.seoTitle = undefined;
+    d.seoDescription = undefined;
+  }
+  if (d.buttonShape && !ok(shapeTier(d.buttonShape))) {
+    lock(`Button shape: ${d.buttonShape}`, shapeTier(d.buttonShape));
+    d.buttonShape = "rounded";
+  }
+  const card = CARD_STYLES.find((x) => x.id === d.card);
+  if (card && !ok(cardCategoryTier(card.category))) {
+    lock(`Button style: ${card.name}`, cardCategoryTier(card.category));
+    d.card = "glass-frost";
+  }
   const fx = BG_FX.find((e) => e.id === d.bgFx);
-  if (fx && !ok(bgFxCategoryTier(fx.category))) d.bgFx = "topglow";
-  const bfx = BUTTON_FX.find((e) => e.id === d.buttonFx);
-  if (plan === "FREE" && bfx?.category === "Creative") d.buttonFx = "growglow";
+  if (fx && !ok(bgFxCategoryTier(fx.category))) {
+    lock(`Background effect: ${fx.name}`, bgFxCategoryTier(fx.category));
+    d.bgFx = "topglow";
+  }
+  const creative = (id?: string) => BUTTON_FX.find((e) => e.id === id)?.category === "Creative";
+  if (!c.creativeEffects && creative(d.buttonFx)) {
+    lock("Creative hover effects", "PLUS");
+    d.buttonFx = "growglow";
+  }
 
-  const blocks = content.blocks
-    .filter((b) => ok(BLOCK_TIER[b.type]))
-    .map((b) =>
-      b.type === "hero" && b.layout && !ok(tierOf(HERO_LAYOUTS, b.layout)) ? { ...b, layout: "center" as const } : b,
-    );
-  return { blocks, design: d };
+  const blocks: Block[] = [];
+  for (const b0 of content.blocks) {
+    const tier = BLOCK_TIER[b0.type];
+    if (!ok(tier)) {
+      lock(`${b0.type[0].toUpperCase()}${b0.type.slice(1)} block`, tier);
+      continue;
+    }
+    let b: Block = b0;
+    const set = (patch: Record<string, unknown>) => (b = { ...b, ...patch } as Block);
+    if (b.box && b.box !== "inherit" && !ok(tierOf(SECTION_STYLES, b.box))) {
+      lock(`Section style: ${nameOf(SECTION_STYLES, b.box)}`, tierOf(SECTION_STYLES, b.box));
+      set({ box: undefined });
+    }
+    if (b.anim && !ok(tierOf(REVEALS, b.anim))) {
+      lock(`Scroll animation: ${nameOf(REVEALS, b.anim)}`, tierOf(REVEALS, b.anim));
+      set({ anim: undefined });
+    }
+    if (b.type === "hero" && b.layout && !ok(tierOf(HERO_LAYOUTS, b.layout))) {
+      lock(`Header layout: ${nameOf(HERO_LAYOUTS, b.layout)}`, tierOf(HERO_LAYOUTS, b.layout));
+      set({ layout: "center" });
+    }
+    if (!c.perElement) {
+      if (b.type === "links" && b.items.some((l) => l.color || l.fx)) {
+        lock("Per-button colors & effects", "PLUS");
+        set({ items: b.items.map((l) => ({ ...l, color: undefined, fx: undefined })) });
+      }
+      if ((b.type === "text" || b.type === "divider") && b.color) {
+        lock("Block colors", "PLUS");
+        set({ color: undefined });
+      }
+      if (b.type === "socials" && b.iconColor) {
+        lock("Block colors", "PLUS");
+        set({ iconColor: undefined });
+      }
+      if (b.type === "divider" && b.style && PREMIUM_DIVIDERS.has(b.style)) {
+        lock("Animated dividers", "PLUS");
+        set({ style: "line" });
+      }
+    }
+    if (!c.creativeEffects && b.type === "links" && creative(b.buttonFx)) {
+      lock("Creative hover effects", "PLUS");
+      set({ buttonFx: undefined });
+    }
+    if (!c.gallerySlideshow && b.type === "gallery" && b.layout === "carousel") {
+      lock("Gallery slideshow", "PLUS");
+      set({ layout: "grid" });
+    }
+    blocks.push(b);
+  }
+
+  return {
+    content: { blocks, design: d },
+    locked: [...locked].map(([label, tier]) => ({ label, tier })),
+  };
+}
+
+export function fitToPlan(content: PageContent, plan: Plan): PageContent {
+  return fitToPlanReport(content, plan).content;
 }

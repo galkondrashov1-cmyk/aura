@@ -3,15 +3,18 @@ import { revalidatePath } from "next/cache";
 import type { Metadata } from "next";
 import { prisma } from "@/lib/prisma";
 import { asPageContent, heroOf, type PageContent } from "@/lib/blocks";
-import { caps, type Caps } from "@/lib/plans";
+import { caps, type Caps, type Plan } from "@/lib/plans";
 import { effectivePlanFrom } from "@/lib/plan-source";
 import { toPlain } from "@/lib/richtext";
+import { fitToPlan } from "@/lib/studio";
 
 export type PublicPage = {
   pageId: string;
   username: string;
   slug: string;
+  /** Already fitted to the owner's plan — paid features render only while paid for. */
   content: PageContent;
+  plan: Plan;
   caps: Caps;
   seoTitle?: string | null;
   seoDescription?: string | null;
@@ -32,9 +35,12 @@ export const getPublicPage = cache(async (usernameRaw: string, slug?: string): P
   });
   if (!user || user.status !== "ACTIVE") return null;
 
-  const page = await prisma.page.findFirst({
-    where: { userId: user.id, status: "PUBLISHED", ...(slug ? { slug: slug.toLowerCase() } : {}) },
-    orderBy: [{ isPrimary: "desc" }, { updatedAt: "desc" }],
+  const plan = effectivePlanFrom(user);
+  const live = await livePages(user.id, plan);
+  const target = slug ? live.find((p) => p.slug === slug.toLowerCase()) : live[0];
+  if (!target) return null;
+  const page = await prisma.page.findUnique({
+    where: { id: target.id },
     select: { id: true, slug: true, publishedContent: true, seoTitle: true, seoDescription: true },
   });
   if (!page?.publishedContent) return null;
@@ -43,12 +49,27 @@ export const getPublicPage = cache(async (usernameRaw: string, slug?: string): P
     pageId: page.id,
     username: user.username,
     slug: page.slug,
-    content: asPageContent(page.publishedContent),
-    caps: caps(effectivePlanFrom(user)),
+    content: fitToPlan(asPageContent(page.publishedContent), plan),
+    plan,
+    caps: caps(plan),
     seoTitle: page.seoTitle,
     seoDescription: page.seoDescription,
   };
 });
+
+/**
+ * The published pages that are actually online. The plan's page limit keeps
+ * the main page first, then the oldest — so after a downgrade the extra pages
+ * go offline (never deleted) and come back on upgrade.
+ */
+export async function livePages(userId: string, plan: Plan) {
+  const pages = await prisma.page.findMany({
+    where: { userId, status: "PUBLISHED" },
+    orderBy: [{ isPrimary: "desc" }, { createdAt: "asc" }],
+    select: { id: true, slug: true },
+  });
+  return pages.slice(0, caps(plan).maxPages);
+}
 
 export function publicMetadata(data: PublicPage | null, path: string): Metadata {
   if (!data) return { title: "Not found · AURA" };
@@ -64,9 +85,12 @@ export function publicMetadata(data: PublicPage | null, path: string): Metadata 
     data.seoDescription ||
     (hero ? toPlain(hero.tagline) : undefined) ||
     `${name} on AURA`;
+  // Pro: the creator's photo is the browser-tab icon instead of AURA's.
+  const avatar = hero?.avatarUrl && /^(https:\/\/|\/api\/media\/)/.test(hero.avatarUrl) ? hero.avatarUrl : null;
   return {
     title: `${name} · AURA`,
     description,
+    ...(data.caps.customFavicon && avatar ? { icons: { icon: avatar, apple: avatar } } : {}),
     alternates: { canonical: path },
     openGraph: { title: name, description, type: "profile", url: path },
     twitter: { card: "summary_large_image", title: name, description },

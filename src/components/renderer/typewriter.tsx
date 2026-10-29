@@ -27,7 +27,8 @@ export function Typewriter({ words }: { words: string[] }) {
   if (list.length === 0) return null;
   const word = list[i % list.length];
   return (
-    <span className="tw-caret font-medium text-primary" aria-label={list.join(", ")}>
+    <span className="tw-caret font-medium text-primary">
+      <span className="sr-only">{list.join(", ")}</span>
       <span aria-hidden>{word.slice(0, Math.min(n, word.length))}</span>
     </span>
   );

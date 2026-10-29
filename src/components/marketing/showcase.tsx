@@ -25,6 +25,7 @@ export function Showcase({ slides }: { slides: { id: string; name: string; node:
           <div
             key={s.id}
             aria-hidden={j !== i}
+            inert={j !== i}
             className={cn(
               "absolute inset-0 transition-all duration-700",
               j === i ? "scale-100 opacity-100" : "pointer-events-none scale-[1.04] opacity-0",

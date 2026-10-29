@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { SignJWT, jwtVerify } from "jose";
-import { SESSION_COOKIE, MAX_AGE } from "@/lib/session";
+import { SESSION_COOKIE, MAX_AGE } from "@/lib/session-cookie";
 
 const secret = new TextEncoder().encode(
   process.env.AUTH_SECRET ?? "dev-insecure-secret-change-me",

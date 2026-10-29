@@ -2,6 +2,8 @@ import { NextResponse, type NextRequest } from "next/server";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { asPageContent } from "@/lib/blocks";
+import { effectivePlanFrom } from "@/lib/plan-source";
+import { fitToPlan } from "@/lib/studio";
 
 const schema = z.object({
   pageId: z.string().min(1).max(40),
@@ -24,11 +26,16 @@ export async function POST(req: NextRequest) {
 
   const page = await prisma.page.findUnique({
     where: { id: pageId },
-    select: { status: true, publishedContent: true },
+    select: { status: true, publishedContent: true, user: { select: { plan: true, planExpiresAt: true, status: true } } },
   });
-  const block = page?.status === "PUBLISHED"
-    ? asPageContent(page.publishedContent).blocks.find((b) => b.id === blockId && b.type === "form")
-    : undefined;
+  // Only a form the visitor can actually see: published, owner active, and
+  // still included in the owner's plan.
+  const block =
+    page?.status === "PUBLISHED" && page.user.status === "ACTIVE"
+      ? fitToPlan(asPageContent(page.publishedContent), effectivePlanFrom(page.user)).blocks.find(
+          (b) => b.id === blockId && b.type === "form",
+        )
+      : undefined;
   if (!block || block.type !== "form") {
     return NextResponse.json({ error: "This form is no longer available." }, { status: 404 });
   }

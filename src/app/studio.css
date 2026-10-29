@@ -346,16 +346,20 @@
 .pg-fab a {
   position: relative;
 }
+/* The ping is a spreading box-shadow, not a scale: shadows never add scroll
+   width, so a button near the edge can't make the page wobble sideways. */
 .pg-fab a::before {
   content: "";
   position: absolute;
   inset: 0;
   border-radius: inherit;
-  background: inherit;
   z-index: -1;
   animation: fabPing 2.4s cubic-bezier(0, 0, 0.2, 1) infinite;
 }
-@keyframes fabPing { 75%, 100% { transform: scale(1.35); opacity: 0; } }
+@keyframes fabPing {
+  0% { box-shadow: 0 0 0 0 color-mix(in oklab, var(--fab, var(--primary)) 65%, transparent); }
+  75%, 100% { box-shadow: 0 0 0 18px transparent; }
+}
 
 /* ---------- Typewriter caret ---------- */
 .tw-caret::after {
@@ -418,7 +422,7 @@
 /* ---------- Quick intro (the "fade" option) ---------- */
 .aura-intro-fade {
   position: fixed;
-  inset: -24px;
+  inset: -24px 0 0;
   z-index: 60;
   pointer-events: none;
   animation: introLift 0.35s ease 0.05s forwards;

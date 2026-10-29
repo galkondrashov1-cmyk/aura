@@ -4,7 +4,12 @@
 //   PAYPAL_ENV=live PAYPAL_CLIENT_ID=xxx PAYPAL_CLIENT_SECRET=yyy node scripts/paypal-setup.mjs
 //
 // Creates the AURA product + 4 subscription plans and prints the env vars to
-// paste into Vercel. Yearly is the headline price; monthly is +20%.
+// paste into Vercel. Prices come from src/lib/pricing.json — the same file the
+// pricing page reads — so what customers see is what PayPal charges.
+import { readFileSync } from "node:fs";
+
+const pricing = JSON.parse(readFileSync(new URL("../src/lib/pricing.json", import.meta.url), "utf8"));
+const money = (n) => (Math.round(n * 100) / 100).toFixed(2);
 const BASE =
   process.env.PAYPAL_ENV === "live"
     ? "https://api-m.paypal.com"
@@ -58,7 +63,7 @@ async function plan(name, value, interval_unit) {
         tenure_type: "REGULAR",
         sequence: 1,
         total_cycles: 0, // renew until cancelled
-        pricing_scheme: { fixed_price: { value, currency_code: "USD" } },
+        pricing_scheme: { fixed_price: { value, currency_code: pricing.currency } },
       },
     ],
     payment_preferences: {
@@ -70,11 +75,11 @@ async function plan(name, value, interval_unit) {
   return p.id;
 }
 
-// Yearly = headline (4.99 / 7.99 per month, billed yearly). Monthly = +20%.
-const plusMonthly = await plan("AURA Plus (monthly)", "5.99", "MONTH");
-const plusYearly = await plan("AURA Plus (yearly)", "59.88", "YEAR");
-const proMonthly = await plan("AURA Pro (monthly)", "9.59", "MONTH");
-const proYearly = await plan("AURA Pro (yearly)", "95.88", "YEAR");
+const { PLUS, PRO } = pricing.plans;
+const plusMonthly = await plan("AURA Plus (monthly)", money(PLUS.monthly), "MONTH");
+const plusYearly = await plan("AURA Plus (yearly)", money(PLUS.yearlyPerMonth * 12), "YEAR");
+const proMonthly = await plan("AURA Pro (monthly)", money(PRO.monthly), "MONTH");
+const proYearly = await plan("AURA Pro (yearly)", money(PRO.yearlyPerMonth * 12), "YEAR");
 
 console.log("\nAdd these to Vercel → Settings → Environment Variables:\n");
 console.log(`NEXT_PUBLIC_PAYPAL_PLAN_PLUS_MONTHLY=${plusMonthly}`);

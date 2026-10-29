@@ -5,6 +5,7 @@ import { AuraLogo } from "@/components/aura-logo";
 import { DashboardNav } from "@/components/dashboard-nav";
 import { getSession } from "@/lib/session";
 import { logoutAction } from "@/lib/actions/auth";
+import { PlanNotice } from "@/components/dashboard/plan-notice";
 
 // Per-user, always fresh — never prerendered at build time.
 export const dynamic = "force-dynamic";
@@ -75,7 +76,10 @@ export default async function DashboardLayout({
             <DashboardNav orientation="horizontal" isAdmin={user.role === "ADMIN"} />
           </header>
 
-          <main className="min-w-0 flex-1 px-4 py-5 md:px-10 md:py-8">{children}</main>
+          <main className="min-w-0 flex-1 px-4 py-5 md:px-10 md:py-8">
+            <PlanNotice userId={user.id} />
+            {children}
+          </main>
         </div>
       </div>
     </div>

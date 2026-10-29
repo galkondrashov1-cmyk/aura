@@ -97,7 +97,7 @@ export function DesignPanel({
   const [tab, setTab] = useState<Tab>("style");
   const [open, setOpen] = useState<Picker>(null);
   const c = caps(plan);
-  const { isLocked, upgrade } = useLocked(plan);
+  const { isLocked } = useLocked(plan);
   const pick = (patch: Partial<PageDesign>) => {
     onChange(patch);
     setOpen(null);
@@ -254,7 +254,7 @@ export function DesignPanel({
               <Seg
                 value={design.motionSpeed ?? "normal"}
                 options={MOTION_SPEEDS.map((s) => ({ id: s.id, label: s.name }))}
-                onChange={(id) => (c.creativeEffects ? onChange({ motionSpeed: id }) : upgrade())}
+                onChange={(id) => onChange({ motionSpeed: id })}
               />
             </div>
             <div>
@@ -288,8 +288,8 @@ export function DesignPanel({
             <p className="text-[11px] text-text-muted">Shows on desktop visitors&apos; screens (not in the editor).</p>
           </Section>
           <FabEditor design={design} plan={plan} onChange={onChange} />
-          <Section title="Search & sharing" aside={!c.customSeo ? <TierPill tier="PRO" /> : undefined}>
-            <div className={cn("space-y-2", !c.customSeo && "pointer-events-none opacity-50")}>
+          <Section title="Search & sharing" aside={!c.customSeo ? <TierPill tier="PLUS" /> : undefined}>
+            <div className="space-y-2">
               <input
                 value={design.seoTitle ?? ""}
                 onChange={(e) => onChange({ seoTitle: e.target.value || undefined })}
@@ -306,11 +306,7 @@ export function DesignPanel({
                 className={cn(fieldCls, "h-auto resize-none py-2")}
               />
             </div>
-            {!c.customSeo && (
-              <button type="button" onClick={upgrade} className="text-xs text-primary hover:underline">
-                Unlock custom SEO with Pro →
-              </button>
-            )}
+
           </Section>
         </div>
       )}
@@ -340,11 +336,10 @@ export function DesignPanel({
                   {items.map((f) => (
                     <button
                       key={f.id}
-                      onClick={() => (locked ? upgrade() : pick({ [open]: f.id }))}
+                      onClick={() => pick({ [open]: f.id })}
                       className={cn(
                         "flex flex-col items-center gap-0.5 rounded-xl border px-2 py-3",
                         design[open] === f.id ? "border-primary" : "border-border",
-                        locked && "opacity-50",
                       )}
                       style={{ fontFamily: fontFamilyVar(f.id) }}
                     >
@@ -379,11 +374,10 @@ export function DesignPanel({
                   {items.map((b) => (
                     <button
                       key={b.id}
-                      onClick={() => (locked ? upgrade() : pick({ background: b.id, bgCustom: undefined, bgImage: undefined }))}
+                      onClick={() => pick({ background: b.id, bgCustom: undefined, bgImage: undefined })}
                       className={cn(
                         "overflow-hidden rounded-xl border",
                         design.background === b.id && !design.bgCustom ? "border-primary ring-2 ring-primary/30" : "border-border",
-                        locked && "opacity-50",
                       )}
                       title={b.name}
                     >
@@ -411,11 +405,10 @@ export function DesignPanel({
                   {items.map((e) => (
                     <button
                       key={e.id}
-                      onClick={() => (locked ? upgrade() : pick({ bgFx: e.id }))}
+                      onClick={() => pick({ bgFx: e.id })}
                       className={cn(
                         "overflow-hidden rounded-xl border",
                         (design.bgFx ?? "none") === e.id ? "border-primary" : "border-border",
-                        locked && "opacity-50",
                       )}
                     >
                       <span className="relative block h-14 w-full" style={{ background: "linear-gradient(160deg,#0b0b14,#1a1d24)" }}>
@@ -451,8 +444,8 @@ export function DesignPanel({
                   {items.map((o) => (
                     <button
                       key={o.id}
-                      onClick={() => (locked ? upgrade() : pick({ card: o.id }))}
-                      className={cn("rounded-xl border p-2", design.card === o.id ? "border-primary" : "border-border", locked && "opacity-50")}
+                      onClick={() => pick({ card: o.id })}
+                      className={cn("rounded-xl border p-2", design.card === o.id ? "border-primary" : "border-border")}
                     >
                       <span
                         className={cn(
@@ -490,13 +483,11 @@ function StyleTab({
   onChange: (patch: Partial<PageDesign>) => void;
 }) {
   const c = caps(plan);
-  const { upgrade } = useLocked(plan);
   const [matching, setMatching] = useState(false);
   const [matchError, setMatchError] = useState("");
   const [remixes, setRemixes] = useState(0);
 
   const matchPhoto = async () => {
-    if (!c.customBackgrounds) return upgrade();
     if (!avatarUrl) return;
     setMatching(true);
     setMatchError("");
@@ -540,7 +531,7 @@ function StyleTab({
       <button
         type="button"
         onClick={matchPhoto}
-        disabled={matching || (c.customBackgrounds && !avatarUrl)}
+        disabled={matching || !avatarUrl}
         className="flex w-full items-center gap-3 rounded-2xl border border-border bg-surface-2 p-3 text-start transition-colors hover:border-primary/50 disabled:opacity-60"
       >
         <span className="grid h-10 w-10 shrink-0 place-items-center overflow-hidden rounded-xl bg-bg">
@@ -648,7 +639,7 @@ function ThemeGrid({
   plan: Plan;
   onChange: (patch: Partial<PageDesign>) => void;
 }) {
-  const { isLocked, upgrade } = useLocked(plan);
+  const { isLocked } = useLocked(plan);
   return (
     <div className="grid grid-cols-4 gap-2 sm:grid-cols-6">
       {themes.map((t) => {
@@ -658,8 +649,8 @@ function ThemeGrid({
           <button
             key={t.id}
             type="button"
-            onClick={() => (locked ? upgrade() : onChange({ ...t.design, bgCustom: undefined, bgImage: undefined }))}
-            className={cn("group text-center", locked && "opacity-55")}
+            onClick={() => onChange({ ...t.design, bgCustom: undefined, bgImage: undefined })}
+            className={cn("group text-center")}
             title={t.name}
           >
             <span
@@ -717,7 +708,6 @@ function BackgroundTab({
   openPicker: (p: Picker) => void;
 }) {
   const c = caps(plan);
-  const { upgrade } = useLocked(plan);
   // "Photo" stays selected while no photo has been picked yet.
   const [photoPending, setPhotoPending] = useState(false);
   const mode = design.bgImage || photoPending ? "photo" : design.bgCustom ? "gradient" : "preset";
@@ -726,7 +716,6 @@ function BackgroundTab({
   const setMode = (m: string) => {
     setPhotoPending(false);
     if (m === "preset") return onChange({ bgCustom: undefined, bgImage: undefined });
-    if (!c.customBackgrounds) return upgrade();
     if (m === "gradient") onChange({ bgImage: undefined, bgCustom: grad ?? randomGradient(design.accent) });
     if (m === "photo") setPhotoPending(true);
   };
@@ -764,15 +753,20 @@ function BackgroundTab({
                   <button
                     key={b.id}
                     type="button"
-                    onClick={() => (locked ? upgrade() : onChange({ background: b.id }))}
+                    onClick={() => onChange({ background: b.id })}
                     className={cn(
-                      "aspect-square overflow-hidden rounded-lg border",
+                      "relative aspect-square overflow-hidden rounded-lg border",
                       design.background === b.id ? "border-primary ring-2 ring-primary/30" : "border-border",
-                      locked && "opacity-50",
                     )}
                     style={{ background: b.css }}
                     title={b.name}
-                  />
+                  >
+                    {locked && (
+                      <span className="absolute top-0.5 right-0.5 scale-90">
+                        <TierPill tier={tier} />
+                      </span>
+                    )}
+                  </button>
                 );
               })}
           </div>
@@ -866,7 +860,7 @@ function TypeTab({
   onChange: (patch: Partial<PageDesign>) => void;
   openPicker: (p: Picker) => void;
 }) {
-  const { isLocked, upgrade } = useLocked(plan);
+  const { isLocked } = useLocked(plan);
   const fontName = (id?: string) => FONTS.find((f) => f.id === id)?.name;
   const fontTier = (id: string) => fontCategoryTier(FONTS.find((f) => f.id === id)?.category ?? "Sans");
   const fontVar = fontFamilyVar;
@@ -883,11 +877,10 @@ function TypeTab({
               <button
                 key={p.id}
                 type="button"
-                onClick={() => (locked ? upgrade() : onChange({ headingFont: p.head, font: p.body }))}
+                onClick={() => onChange({ headingFont: p.head, font: p.body })}
                 className={cn(
                   "relative rounded-xl border px-2.5 py-2 text-start",
                   active ? "border-primary bg-primary/10" : "border-border bg-surface-2",
-                  locked && "opacity-55",
                 )}
               >
                 <span className="block truncate text-lg leading-tight text-text" style={{ fontFamily: fontVar(p.head) }}>
@@ -921,11 +914,10 @@ function TypeTab({
               <button
                 key={fx.id}
                 type="button"
-                onClick={() => (locked ? upgrade() : onChange({ titleFx: fx.id }))}
+                onClick={() => onChange({ titleFx: fx.id })}
                 className={cn(
                   "relative flex flex-col items-center gap-1 overflow-hidden rounded-xl border px-1 pt-2.5 pb-1.5",
                   active ? "border-primary bg-primary/10" : "border-border bg-[#0d0f14]",
-                  locked && "opacity-60",
                 )}
                 style={{ ["--primary" as string]: design.accent ?? "#00E5A0", ["--text" as string]: "#eef0f3" }}
               >
@@ -991,7 +983,6 @@ function FabEditor({
   onChange: (patch: Partial<PageDesign>) => void;
 }) {
   const c = caps(plan);
-  const { upgrade } = useLocked(plan);
   const fab = design.fab;
   const kind = fab?.kind ?? "off";
   const placeholders = {
@@ -1013,7 +1004,6 @@ function FabEditor({
         ]}
         onChange={(k) => {
           if (k === "off") return onChange({ fab: undefined });
-          if (!c.floatingButton) return upgrade();
           onChange({ fab: { kind: k, value: fab?.value ?? "", label: fab?.label } });
         }}
       />

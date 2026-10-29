@@ -602,9 +602,10 @@ textarea,
    stalled script can't trap the page behind it. */
 .aura-intro {
   position: fixed;
-  /* Overscanned: the root template's rise-in transform briefly makes this a
-     contained (not viewport) fixed box, and the bleed hides the offset. */
-  inset: -24px;
+  /* Overscanned upward only: the root template's rise-in (translateY) briefly
+     makes this a contained fixed box, and the bleed hides the offset. Sideways
+     or downward bleed would widen the page and let phones scroll sideways. */
+  inset: -24px 0 0;
   z-index: 60;
   display: grid;
   place-items: center;
@@ -641,7 +642,7 @@ textarea,
 /* Profile route loading UI — same mark, looping until the page arrives. */
 .aura-page-loading {
   position: fixed;
-  inset: -24px;
+  inset: -24px 0 0;
   z-index: 60;
   display: grid;
   place-items: center;

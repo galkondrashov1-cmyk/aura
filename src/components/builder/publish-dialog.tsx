@@ -1,12 +1,16 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Check, Copy, Download, ExternalLink, PartyPopper, Share2, X } from "lucide-react";
+import Link from "next/link";
+import { Check, Copy, Download, ExternalLink, PartyPopper, Share2, Sparkles, X } from "lucide-react";
 import { SocialIcon } from "@/lib/socials";
 import { cn } from "@/lib/utils";
 
-/** Shown after a successful publish: the live link, a QR code and share shortcuts. */
-export function PublishDialog({ url, onClose }: { url: string; onClose: () => void }) {
+/**
+ * Shown after a successful publish: the live link, a QR code and share
+ * shortcuts — or, when the plan's page limit keeps this page offline, why.
+ */
+export function PublishDialog({ url, overLimit = null, onClose }: { url: string; overLimit?: number | null; onClose: () => void }) {
   const [qr, setQr] = useState<string>("");
   const [copied, setCopied] = useState(false);
   const pretty = url.replace(/^https?:\/\//, "");
@@ -46,6 +50,35 @@ export function PublishDialog({ url, onClose }: { url: string; onClose: () => vo
     { name: "Facebook", icon: "facebook" as const, href: `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}` },
     { name: "Telegram", icon: "telegram" as const, href: `https://t.me/share/url?url=${encodeURIComponent(url)}` },
   ];
+
+  if (overLimit !== null) {
+    return (
+      <div className="fixed inset-0 z-[90] grid place-items-center bg-black/70 p-4 backdrop-blur-sm" onClick={onClose}>
+        <div
+          onClick={(e) => e.stopPropagation()}
+          className="publish-pop relative w-full max-w-sm rounded-3xl border border-border bg-bg p-6 text-center shadow-2xl"
+        >
+          <button onClick={onClose} aria-label="Close" className="absolute top-4 right-4 text-text-muted hover:text-text">
+            <X className="h-5 w-5" />
+          </button>
+          <span className="mx-auto grid h-12 w-12 place-items-center rounded-2xl bg-primary/15 text-primary">
+            <Sparkles className="h-6 w-6" />
+          </span>
+          <h2 className="mt-3 font-display text-xl font-medium">Saved — not online yet</h2>
+          <p className="mt-1 text-sm text-text-muted">
+            Your plan keeps {overLimit} page{overLimit === 1 ? "" : "s"} online, and they&apos;re all in use. Upgrade, or take
+            another page offline from its editor, and this one goes live at {pretty}.
+          </p>
+          <Link
+            href="/dashboard/upgrade"
+            className="mt-5 inline-flex h-11 w-full items-center justify-center rounded-full bg-primary text-sm font-medium text-primary-ink"
+          >
+            See plans
+          </Link>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="fixed inset-0 z-[90] grid place-items-center bg-black/70 p-4 backdrop-blur-sm" onClick={onClose}>

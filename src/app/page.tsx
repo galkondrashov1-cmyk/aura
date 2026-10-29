@@ -17,7 +17,7 @@ import { PageRenderer } from "@/components/renderer/page-renderer";
 import { templateContent } from "@/lib/templates";
 import { TITLE_FX } from "@/lib/studio";
 import { FONTS } from "@/lib/fonts";
-import { PLANS } from "@/lib/plans";
+import { PLANS, formatPrice } from "@/lib/plans";
 import type { PageContent, PageDesign } from "@/lib/blocks";
 
 // Static marketing page: rendered once at build time, served from the CDN.
@@ -202,21 +202,23 @@ export default function Home() {
       <HowItWorks />
 
       <section className="mx-auto max-w-6xl px-6 py-16">
-        <h2 className="font-display text-3xl font-medium tracking-tight md:text-4xl">Less than a coffee a month</h2>
-        <p className="mt-3 text-text-muted">Free while we&apos;re in early access. Prices below are what paid plans will cost, billed yearly.</p>
+        <h2 className="font-display text-3xl font-medium tracking-tight md:text-4xl">The price of one coffee a month</h2>
+        <p className="mt-3 text-text-muted">
+          Every plan is free during early access. Prices below are what paid plans will cost, billed yearly.
+        </p>
         <div className="mt-8 grid gap-4 lg:grid-cols-3">
           {PLANS.map((p) => (
-            <div key={p.id} className={`rounded-3xl border bg-surface p-6 ${p.popular ? "aura-glow border-primary/50" : "border-border"}`}>
+            <div key={p.id} className={`flex flex-col rounded-3xl border bg-surface p-6 ${p.popular ? "aura-glow border-primary/50" : "border-border"}`}>
               <div className="flex items-baseline justify-between">
                 <h3 className="font-display text-lg font-medium">{p.name}</h3>
                 <p className="font-display text-2xl font-medium">
-                  {p.yearlyPerMonth === 0 ? "Free" : `$${p.yearlyPerMonth}`}
+                  {p.yearlyPerMonth === 0 ? "Free" : formatPrice(p.yearlyPerMonth)}
                   {p.yearlyPerMonth > 0 && <span className="text-sm text-text-muted">/mo</span>}
                 </p>
               </div>
               <p className="mt-1 text-sm text-text-muted">{p.tagline}</p>
-              <ul className="mt-5 space-y-2">
-                {p.features.slice(0, 5).map((f) => (
+              <ul className="mt-5 flex-1 space-y-2">
+                {p.highlights.slice(0, 5).map((f) => (
                   <li key={f} className="flex items-start gap-2 text-sm text-text-muted">
                     <Check className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
                     {f}
@@ -226,6 +228,9 @@ export default function Home() {
             </div>
           ))}
         </div>
+        <Link href="/pricing" className={`${buttonClasses("secondary", "md")} mt-6`}>
+          Compare every feature
+        </Link>
       </section>
 
       <CtaBand />

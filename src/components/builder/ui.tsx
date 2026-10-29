@@ -1,8 +1,7 @@
 "use client";
 
 // Small, consistent controls shared by the design panel and block editors.
-import { useRef, useState } from "react";
-import { useRouter } from "next/navigation";
+import { createContext, useContext, useRef, useState } from "react";
 import { ImagePlus, Loader2, Lock, Plus, Trash2, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { PLAN_RANK, type Plan } from "@/lib/plans";
@@ -30,11 +29,16 @@ export function TierPill({ tier }: { tier: Plan }) {
   );
 }
 
+/** Provided by the editor: opens the in-editor upgrade sheet (no navigation, nothing lost). */
+export const UpgradeContext = createContext<{ openUpsell: (tier: Plan) => void }>({
+  openUpsell: () => window.open("/dashboard/upgrade", "_blank"),
+});
+
 export function useLocked(plan: Plan) {
-  const router = useRouter();
+  const { openUpsell } = useContext(UpgradeContext);
   return {
     isLocked: (tier: Plan) => PLAN_RANK[tier] > PLAN_RANK[plan],
-    upgrade: () => router.push("/dashboard/upgrade"),
+    upgrade: (tier: Plan = "PLUS") => openUpsell(tier),
   };
 }
 
@@ -86,7 +90,7 @@ export function Chips({
   cols?: 2 | 3 | 4;
   render?: (o: { id: string; name: string }) => React.ReactNode;
 }) {
-  const { isLocked, upgrade } = useLocked(plan);
+  const { isLocked } = useLocked(plan);
   return (
     <div className={cn("grid gap-1.5", cols === 2 ? "grid-cols-2" : cols === 4 ? "grid-cols-4" : "grid-cols-3")}>
       {options.map((o) => {
@@ -96,11 +100,10 @@ export function Chips({
             key={o.id}
             type="button"
             title={o.hint}
-            onClick={() => (locked ? upgrade() : onChange(o.id))}
+            onClick={() => onChange(o.id)}
             className={cn(
               "relative flex min-h-10 flex-col items-center justify-center gap-1 rounded-xl border px-1.5 py-2 text-center text-xs transition-colors",
               value === o.id ? "border-primary bg-primary/10 text-text" : "border-border bg-surface-2 text-text-muted hover:text-text",
-              locked && "opacity-60",
             )}
           >
             {render ? render(o) : <span className="leading-tight">{o.name}</span>}

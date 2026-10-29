@@ -3,6 +3,7 @@ import { Download, Inbox, Mail } from "lucide-react";
 import { getSession } from "@/lib/session";
 import { prisma } from "@/lib/prisma";
 import { buttonClasses } from "@/components/ui/button";
+import { InboxEntry } from "@/components/dashboard/inbox-entry";
 
 export const metadata = { title: "Inbox · AURA" };
 
@@ -50,14 +51,14 @@ export default async function InboxPage() {
           {subs.map((s) => {
             const d = (s.data ?? {}) as Entry;
             return (
-              <div key={s.id} className="flex gap-3 p-4">
+              <InboxEntry key={s.id} id={s.id}>
                 <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-primary/15 text-sm font-medium text-primary">
                   {(d.name || d.email || "?").slice(0, 1).toUpperCase()}
                 </span>
                 <div className="min-w-0 flex-1">
                   <div className="flex flex-wrap items-baseline gap-x-2">
                     {d.name && <span className="text-sm font-medium">{d.name}</span>}
-                    <a href={`mailto:${d.email}`} className="inline-flex items-center gap-1 text-sm text-primary hover:underline">
+                    <a href={`mailto:${d.email}`} className="inline-flex min-w-0 items-center gap-1 text-sm break-all text-primary hover:underline">
                       <Mail className="h-3.5 w-3.5" /> {d.email}
                     </a>
                     <span className="text-[11px] text-text-muted">
@@ -65,9 +66,9 @@ export default async function InboxPage() {
                       {s.createdAt.toLocaleString("en-GB", { dateStyle: "medium", timeStyle: "short" })}
                     </span>
                   </div>
-                  {d.message && <p className="mt-1 text-sm whitespace-pre-line text-text-muted">{d.message}</p>}
+                  {d.message && <p className="mt-1 text-sm break-words whitespace-pre-line text-text-muted">{d.message}</p>}
                 </div>
-              </div>
+              </InboxEntry>
             );
           })}
         </div>

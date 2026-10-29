@@ -1,12 +1,12 @@
 // Browser-side image helpers for the builder: shrink photos before upload,
 // and sample a photo's palette for "match my photo".
 
-const PASSTHROUGH = new Set(["image/gif", "image/svg+xml"]);
+const PASSTHROUGH = new Set(["image/gif"]);
 
 /**
  * Downscale to at most `maxDim` px and re-encode as WebP. A 6 MB phone photo
  * typically becomes ~200 KB — faster uploads and much faster public pages.
- * GIFs (animation) and SVGs pass through untouched; if anything fails we fall
+ * GIFs (animation) pass through untouched; if anything fails we fall
  * back to the original file.
  */
 export async function compressImage(file: File, maxDim = 1600, quality = 0.84): Promise<File> {

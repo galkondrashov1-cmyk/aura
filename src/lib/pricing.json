@@ -1,0 +1,8 @@
+{
+  "currency": "ILS",
+  "symbol": "₪",
+  "plans": {
+    "PLUS": { "yearlyPerMonth": 14.9, "monthly": 17.9 },
+    "PRO": { "yearlyPerMonth": 24.9, "monthly": 29.9 }
+  }
+}

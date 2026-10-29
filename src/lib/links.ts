@@ -32,3 +32,15 @@ export function resolveHref(raw: string | undefined | null, map?: HrefMap): stri
   const key = (raw ?? "").trim();
   return (map && map[key]) || normalizeHref(key);
 }
+
+/** Key the floating button's tracked href is stored under in an HrefMap. */
+export const FAB_KEY = "\u0000fab";
+
+/** Where the floating button goes, before tracking. */
+export function fabHref(fab: { kind: string; value: string }): string {
+  const v = fab.value.trim();
+  if (fab.kind === "whatsapp") return `https://wa.me/${v.replace(/[^\d]/g, "")}`;
+  if (fab.kind === "phone") return `tel:${v.replace(/[^\d+]/g, "")}`;
+  if (fab.kind === "email") return `mailto:${v}`;
+  return normalizeHref(v);
+}

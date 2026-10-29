@@ -9,7 +9,7 @@ type Params = { params: Promise<{ name: string }> };
 export async function GET(_req: Request, { params }: Params) {
   const { name } = await params;
   const safe = path.basename(name);
-  if (!/^[\w-]+\.(png|jpe?g|webp|gif|svg)$/i.test(safe)) {
+  if (!/^[\w-]+\.(png|jpe?g|webp|gif|avif)$/i.test(safe)) {
     return new Response("Not found", { status: 404 });
   }
 
@@ -20,6 +20,7 @@ export async function GET(_req: Request, { params }: Params) {
       headers: {
         "content-type": EXT_MIME[ext] ?? "application/octet-stream",
         "cache-control": "public, max-age=31536000, immutable",
+        "x-content-type-options": "nosniff",
       },
     });
   } catch {

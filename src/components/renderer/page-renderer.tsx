@@ -13,6 +13,7 @@ import {
   HEADING_CASES,
   HEADING_TRACKING,
   HEADING_WEIGHTS,
+  inkFor,
   LIGHT_VARS,
   looksRtl,
   resolveBackground,
@@ -20,7 +21,7 @@ import {
 import { fontFamilyVar, fontsHref } from "@/lib/fonts";
 import { SocialIcon } from "@/lib/socials";
 import { toPlain } from "@/lib/richtext";
-import { resolveHref, type HrefMap } from "@/lib/links";
+import { FAB_KEY, fabHref, type HrefMap } from "@/lib/links";
 import { detectLang, strings } from "@/lib/i18n";
 
 // Blocks that never sit inside the page-default container.
@@ -60,15 +61,7 @@ function FloatingButton({
   hrefs?: HrefMap;
   embedded: boolean;
 }) {
-  const v = fab.value.trim();
-  const href =
-    fab.kind === "whatsapp"
-      ? `https://wa.me/${v.replace(/[^\d]/g, "")}`
-      : fab.kind === "phone"
-        ? `tel:${v.replace(/[^\d+]/g, "")}`
-        : fab.kind === "email"
-          ? `mailto:${v}`
-          : resolveHref(v, hrefs);
+  const href = hrefs?.[FAB_KEY] ?? fabHref(fab);
   const icon =
     fab.kind === "whatsapp" ? (
       <SocialIcon platform="whatsapp" className="h-5 w-5" />
@@ -90,7 +83,13 @@ function FloatingButton({
           "flex h-14 items-center gap-2 rounded-full px-4 text-sm font-medium text-white shadow-2xl",
           !fab.label && "w-14 justify-center px-0",
         )}
-        style={{ background: fab.kind === "whatsapp" ? "#25D366" : "var(--primary)", color: fab.kind === "whatsapp" ? "#fff" : "var(--primary-ink)" }}
+        style={
+          {
+            "--fab": fab.kind === "whatsapp" ? "#25D366" : "var(--primary)",
+            background: "var(--fab)",
+            color: fab.kind === "whatsapp" ? "#fff" : "var(--primary-ink)",
+          } as React.CSSProperties
+        }
       >
         {icon}
         {fab.label && <span>{fab.label}</span>}
@@ -133,6 +132,9 @@ export function PageRenderer({
   if (bg.css) style.background = bg.css;
   if (design.accent) {
     style["--primary"] = design.accent;
+    // Text on accent-filled buttons must stay readable for any accent.
+    const ink = inkFor(design.accent);
+    if (ink) style["--primary-ink"] = ink;
     // Companion hue for two-tone effects (orbs, mesh, waves…), so they follow
     // the page palette instead of the fixed site accent.
     const c2 = secondaryAccent(design.accent);

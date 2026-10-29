@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Inter, Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
+import { SITE_URL } from "@/lib/site";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -15,6 +16,9 @@ const jakarta = Plus_Jakarta_Sans({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL(SITE_URL),
+  // Config (not file-based) icons, so a Pro page can swap in its own.
+  icons: { icon: { url: "/icon.png", sizes: "64x64", type: "image/png" }, apple: "/apple-icon.png" },
   title: "AURA — Create your aura",
   description:
     "The most beautiful way to build a personal landing page. Stunning, premium mini-sites in minutes — no code.",

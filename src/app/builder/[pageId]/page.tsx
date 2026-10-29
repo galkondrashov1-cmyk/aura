@@ -5,6 +5,7 @@ import { asPageContent } from "@/lib/blocks";
 import { getEffectivePlan } from "@/lib/plan-source";
 import { signDraft } from "@/lib/draft-token";
 import { Editor } from "@/components/builder/editor";
+import { paypalConfigured } from "@/lib/paypal";
 
 type Params = { params: Promise<{ pageId: string }> };
 
@@ -30,6 +31,7 @@ export default async function BuilderPage({ params }: Params) {
       published={page.status === "PUBLISHED"}
       publishedContent={page.publishedContent ? asPageContent(page.publishedContent) : null}
       plan={plan}
+      payments={paypalConfigured()}
       draftToken={signDraft(page.id)}
       initialContent={asPageContent(page.draftContent ?? page.publishedContent)}
     />

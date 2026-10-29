@@ -10,8 +10,12 @@ import { duplicatePage, setPrimaryPage } from "@/lib/actions/pages";
 import { CopyLinkButton } from "@/components/copy-link-button";
 import { PageThumb } from "@/components/dashboard/page-thumb";
 import { TemplateGallery } from "@/components/dashboard/template-gallery";
+import { livePages } from "@/lib/public-page";
+import { fitToPlanReport } from "@/lib/studio";
 
 const daysAgo = (n: number) => new Date(Date.now() - n * 86_400_000);
+// Live miniatures are full page renders; past this many, cards get a light placeholder.
+const LIVE_THUMBS = 12;
 
 export default async function DashboardHome() {
   const session = await getSession();
@@ -41,10 +45,12 @@ export default async function DashboardHome() {
 
   const ids = pages.map((p) => p.id);
   const since = daysAgo(7);
-  const [views, clicks] = await Promise.all([
+  const [views, clicks, live] = await Promise.all([
     prisma.pageView.groupBy({ by: ["pageId"], where: { pageId: { in: ids }, createdAt: { gte: since } }, _count: { _all: true } }),
     prisma.linkClick.groupBy({ by: ["pageId"], where: { pageId: { in: ids }, createdAt: { gte: since } }, _count: { _all: true } }),
+    livePages(session.id, plan),
   ]);
+  const online = new Set(live.map((p) => p.id));
   const viewCount = new Map(views.map((v) => [v.pageId, v._count._all]));
   const clickCount = new Map(clicks.map((c) => [c.pageId, c._count._all]));
 
@@ -62,23 +68,40 @@ export default async function DashboardHome() {
       </div>
 
       <div className="mt-8 grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
-        {pages.map((page) => {
+        {pages.map((page, index) => {
           const published = page.status === "PUBLISHED";
+          const offline = published && !online.has(page.id);
+          // Premium touches the live page skips on the current plan.
+          const skipped = published && !offline ? fitToPlanReport(asPageContent(page.publishedContent), plan).locked.length : 0;
           const path = page.isPrimary ? `/${session.username}` : `/${session.username}/${page.slug}`;
           const content = asPageContent(page.draftContent ?? page.publishedContent);
           return (
-            <div key={page.id} className="flex flex-col overflow-hidden rounded-3xl border border-border bg-surface">
+            <div
+              key={page.id}
+              // Off-screen cards skip rendering entirely — dashboards with dozens of pages stay fast.
+              className="flex flex-col overflow-hidden rounded-3xl border border-border bg-surface [contain-intrinsic-size:auto_440px] [content-visibility:auto]"
+            >
               <div className="group relative">
-                <PageThumb content={content} className="h-60 transition-opacity group-hover:opacity-90" />
+                {index < LIVE_THUMBS ? (
+                  <PageThumb content={content} className="h-60 transition-opacity group-hover:opacity-90" />
+                ) : (
+                  <div
+                    aria-hidden
+                    className="grid h-60 place-items-center font-display text-5xl text-white/80"
+                    style={{ background: `linear-gradient(140deg, ${content.design?.accent ?? "#00e5a0"}55, #08090c 70%)` }}
+                  >
+                    {page.title.slice(0, 1).toUpperCase()}
+                  </div>
+                )}
                 <span className="absolute top-3 left-3 flex gap-1.5">
                   <span
                     className={cn(
                       "inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-medium backdrop-blur",
-                      published ? "bg-primary/20 text-primary" : "bg-black/50 text-white/80",
+                      published && !offline ? "bg-primary/20 text-primary" : "bg-black/50 text-white/80",
                     )}
                   >
-                    {published && <span className="h-1.5 w-1.5 rounded-full bg-primary" />}
-                    {published ? "Live" : "Draft"}
+                    {published && !offline && <span className="h-1.5 w-1.5 rounded-full bg-primary" />}
+                    {offline ? "Offline · plan limit" : published ? "Live" : "Draft"}
                   </span>
                   {page.isPrimary && (
                     <span className="inline-flex items-center gap-1 rounded-full bg-black/50 px-2.5 py-1 text-[11px] text-white/85 backdrop-blur">
@@ -107,13 +130,20 @@ export default async function DashboardHome() {
                   </span>
                 </div>
 
+                {(offline || skipped > 0) && (
+                  <Link href="/dashboard/upgrade" className="mt-3 rounded-xl bg-primary/10 px-3 py-2 text-xs text-primary hover:bg-primary/15">
+                    {offline
+                      ? "Over your plan's page limit, so it isn't online. Upgrade to bring it back →"
+                      : `${skipped} premium touch${skipped === 1 ? " is" : "es are"} hidden on your live page. Upgrade to show ${skipped === 1 ? "it" : "them"} →`}
+                  </Link>
+                )}
                 <div className="mt-4 flex flex-wrap items-center gap-1.5">
                   <Link href={`/builder/${page.id}`} className={buttonClasses("secondary", "sm", "flex-1")}>
                     <Pencil className="h-4 w-4" />
                     Edit
                   </Link>
                   <CopyLinkButton url={`https://useaura.me${path}`} />
-                  {published && (
+                  {published && !offline && (
                     <Link href={path} target="_blank" className={buttonClasses("ghost", "sm")} aria-label="View live page">
                       <ExternalLink className="h-4 w-4" />
                     </Link>

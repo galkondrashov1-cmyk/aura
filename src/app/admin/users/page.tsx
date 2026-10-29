@@ -4,6 +4,8 @@ import { cn } from "@/lib/utils";
 import { suspendUser, activateUser, deleteUser } from "@/lib/actions/admin";
 import { PlanSelect } from "@/components/admin/plan-select";
 import { asPlan } from "@/lib/plans";
+import { ConfirmSubmit } from "@/components/confirm-submit";
+import Link from "next/link";
 
 type SP = { searchParams: Promise<{ q?: string }> };
 
@@ -15,9 +17,9 @@ export default async function AdminUsers({ searchParams }: SP) {
     where: query
       ? {
           OR: [
-            { username: { contains: query } },
-            { email: { contains: query } },
-            { name: { contains: query } },
+            { username: { contains: query, mode: "insensitive" } },
+            { email: { contains: query, mode: "insensitive" } },
+            { name: { contains: query, mode: "insensitive" } },
           ],
         }
       : undefined,
@@ -92,10 +94,19 @@ export default async function AdminUsers({ searchParams }: SP) {
                     {suspended ? "Activate" : "Suspend"}
                   </button>
                 </form>
+                <Link
+                  href={`/admin/users/reset?id=${u.id}`}
+                  className="flex-1 rounded-lg border border-border py-2 text-center text-xs text-text-muted transition-colors hover:text-text"
+                >
+                  Reset link
+                </Link>
                 <form className="flex-1" action={deleteUser.bind(null, u.id)}>
-                  <button className="w-full rounded-lg border border-border py-2 text-xs text-text-muted transition-colors hover:text-red-400">
+                  <ConfirmSubmit
+                    message={`Delete @${u.username} and all their pages? This can't be undone.`}
+                    className="w-full rounded-lg border border-border py-2 text-xs text-text-muted transition-colors hover:text-red-400"
+                  >
                     Delete
-                  </button>
+                  </ConfirmSubmit>
                 </form>
               </div>
             </div>
@@ -163,10 +174,19 @@ export default async function AdminUsers({ searchParams }: SP) {
                           {suspended ? "Activate" : "Suspend"}
                         </button>
                       </form>
+                      <Link
+                        href={`/admin/users/reset?id=${u.id}`}
+                        className="rounded-lg border border-border px-3 py-1.5 text-xs text-text-muted transition-colors hover:text-text"
+                      >
+                        Reset link
+                      </Link>
                       <form action={deleteUser.bind(null, u.id)}>
-                        <button className="rounded-lg border border-border px-3 py-1.5 text-xs text-text-muted transition-colors hover:text-red-400">
+                        <ConfirmSubmit
+                          message={`Delete @${u.username} and all their pages? This can't be undone.`}
+                          className="rounded-lg border border-border px-3 py-1.5 text-xs text-text-muted transition-colors hover:text-red-400"
+                        >
                           Delete
-                        </button>
+                        </ConfirmSubmit>
                       </form>
                     </div>
                   </td>

@@ -2,7 +2,7 @@
 // A published/draft page is a JSON document of this shape. The same schema is
 // rendered by PageRenderer (public pages) and the builder canvas.
 import type { ImageConfig } from "@/lib/image";
-import type { RichValue } from "@/lib/richtext";
+import { isSafeColor, type RichValue } from "@/lib/richtext";
 
 export type SocialPlatform =
   | "instagram"
@@ -278,6 +278,10 @@ function sanitizeDesign(d: unknown): PageDesign | undefined {
     const v = str(d[k], k.startsWith("seo") ? 300 : 120);
     if (v !== undefined) out[k] = v;
   }
+  // Colors land in inline style attributes: only plain #rrggbb is allowed, so
+  // a crafted value can't smuggle extra CSS declarations onto the page.
+  if (out.accent && !HEX.test(out.accent)) delete out.accent;
+  if (out.textColor && !HEX.test(out.textColor)) delete out.textColor;
   if (isObj(d.bgCustom)) {
     const c = d.bgCustom;
     const colors = Array.isArray(c.colors)
@@ -344,12 +348,27 @@ const LIST_KEY: Partial<Record<BlockType, "items" | "images">> = {
   gallery: "images",
 };
 
-function fixBlock(b: Block): Block {
+// Per-element colors are written into inline styles: drop anything that isn't
+// a plain color, so a crafted save can't add CSS declarations to the page.
+const COLOR_KEYS = ["color", "iconColor"] as const;
+function cleanColors<T extends Record<string, unknown>>(o: T): T {
+  let out = o;
+  for (const k of COLOR_KEYS) {
+    if (k in o && !isSafeColor(o[k] as string | undefined)) {
+      out = { ...out };
+      delete out[k];
+    }
+  }
+  return out;
+}
+
+function fixBlock(raw: Block): Block {
+  const b = cleanColors(raw as unknown as Record<string, unknown>) as unknown as Block;
   const key = LIST_KEY[b.type];
   const rec = b as unknown as Record<string, unknown>;
   if (key && !Array.isArray(rec[key])) return { ...b, [key]: [] } as Block;
   if (key) {
-    const list = (rec[key] as unknown[]).filter(isObj).slice(0, 60);
+    const list = (rec[key] as unknown[]).filter(isObj).slice(0, 60).map(cleanColors);
     return { ...b, [key]: list } as Block;
   }
   return b;

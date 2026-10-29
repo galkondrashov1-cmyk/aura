@@ -20,6 +20,7 @@ import {
   Plus,
   Redo2,
   Smartphone,
+  Sparkles,
   Trash2,
   Undo2,
   X,
@@ -30,12 +31,13 @@ import { cn } from "@/lib/utils";
 import { savePage, publishPage, deletePage, unpublishPage, setPrimaryPage, updatePageSlug, type SlugState } from "@/lib/actions/pages";
 import { asPageContent, heroOf, type Block, type BlockType, type PageContent, type PageDesign } from "@/lib/blocks";
 import { caps, type Plan } from "@/lib/plans";
-import { allowed, BLOCK_TIER, looksRtl } from "@/lib/studio";
+import { allowed, BLOCK_TIER, fitToPlanReport, looksRtl } from "@/lib/studio";
 import { toPlain } from "@/lib/richtext";
 import { DesignPanel } from "./design-panel";
 import { BLOCK_META, BlockFields, blockSummary, newBlock } from "./block-editors";
 import { PublishDialog } from "./publish-dialog";
-import { Modal, TierPill, fieldCls } from "./ui";
+import { Modal, TierPill, UpgradeContext, fieldCls } from "./ui";
+import { Upsell } from "./upsell";
 
 type Panel = "blocks" | "design";
 type SaveState = "saved" | "dirty" | "saving" | "error";
@@ -51,6 +53,7 @@ export function Editor({
   published: initialPublished,
   publishedContent,
   plan,
+  payments,
   draftToken,
   initialContent,
 }: {
@@ -61,6 +64,8 @@ export function Editor({
   published: boolean;
   publishedContent: PageContent | null;
   plan: Plan;
+  /** PayPal is live — paid plans are bought, not claimed. */
+  payments: boolean;
   draftToken: string;
   initialContent: PageContent;
 }) {
@@ -138,14 +143,17 @@ export function Editor({
 
   const selectedBlock = selected ? doc.blocks.find((b) => b.id === selected) : undefined;
 
-  const select = useCallback((id: string | null, scroll = false) => {
+  const select = useCallback((id: string | null, scroll: "center" | "nearest" | false = false) => {
     setSelected(id);
     if (id) setPanel((p) => p ?? "blocks");
     if (id && scroll) {
-      requestAnimationFrame(() =>
-        canvasRef.current
-          ?.querySelector(`[data-block-id="${CSS.escape(id)}"]`)
-          ?.scrollIntoView({ block: "center", behavior: "smooth" }),
+      // After the panel opens (the canvas shrinks on phones), keep the block in view.
+      setTimeout(
+        () =>
+          canvasRef.current
+            ?.querySelector(`[data-block-id="${CSS.escape(id)}"]`)
+            ?.scrollIntoView({ block: scroll, behavior: "smooth" }),
+        60,
       );
     }
   }, []);
@@ -154,21 +162,30 @@ export function Editor({
   const [saveState, setSaveState] = useState<SaveState>("saved");
   const savedJson = useRef(JSON.stringify(doc));
   const json = useMemo(() => JSON.stringify(doc), [doc]);
+  const [retry, setRetry] = useState(0);
+  const saveNow = useCallback(async () => {
+    const current = JSON.stringify(docRef.current);
+    if (current === savedJson.current) return true;
+    setSaveState("saving");
+    try {
+      await savePage(pageId, JSON.parse(current));
+      savedJson.current = current;
+      setSaveState(JSON.stringify(docRef.current) === current ? "saved" : "dirty");
+      return true;
+    } catch {
+      setSaveState("error");
+      return false;
+    }
+  }, [pageId]);
   useEffect(() => {
     if (json === savedJson.current) return;
     setSaveState("dirty");
     const t = setTimeout(async () => {
-      setSaveState("saving");
-      try {
-        await savePage(pageId, JSON.parse(json));
-        savedJson.current = json;
-        setSaveState(JSON.stringify(docRef.current) === json ? "saved" : "dirty");
-      } catch {
-        setSaveState("error");
-      }
+      // A failed save (offline, server hiccup) retries on its own every few seconds.
+      if (!(await saveNow())) setTimeout(() => setRetry((n) => n + 1), 4000);
     }, 900);
     return () => clearTimeout(t);
-  }, [json, pageId]);
+  }, [json, saveNow, retry]);
 
   useEffect(() => {
     const onLeave = (e: BeforeUnloadEvent) => {
@@ -185,11 +202,25 @@ export function Editor({
   );
   const [publishing, startPublish] = useTransition();
   const [shareUrl, setShareUrl] = useState<string | null>(null);
+  const [overLimit, setOverLimit] = useState<number | null>(null);
   const [isPrimary, setIsPrimary] = useState(initialPrimary);
   const [pageSlug, setPageSlug] = useState(slug);
   const unpublishedChanges = published && publishedJson !== JSON.stringify(asPageContent(doc));
 
-  const onPublish = () =>
+  // Premium touches the page uses that the current plan won't show live.
+  const locked = useMemo(() => fitToPlanReport(doc, plan).locked, [doc, plan]);
+  const [upsell, setUpsell] = useState<null | { tier: Plan; mode: "unlock" | "publish" }>(null);
+  const upgradeCtx = useMemo(() => ({ openUpsell: (tier: Plan) => setUpsell({ tier, mode: "unlock" }) }), []);
+
+  const onPublish = (force = false) => {
+    if (!force && locked.length > 0) {
+      setUpsell({ tier: "PLUS", mode: "publish" });
+      return;
+    }
+    doPublish();
+  };
+
+  const doPublish = () =>
     startPublish(async () => {
       const snapshot = docRef.current;
       const res = await publishPage(pageId, snapshot);
@@ -200,6 +231,7 @@ export function Editor({
       setPublishedJson(JSON.stringify(asPageContent(snapshot)));
       setPublished(true);
       setShareUrl(`${window.location.origin}${res.url}`);
+      setOverLimit(res.offline ? res.maxPages : null);
     });
 
   // ── Keyboard ──
@@ -216,8 +248,9 @@ export function Editor({
         e.preventDefault();
         redo();
       } else if (mod && e.key.toLowerCase() === "s") {
+        // Habitual ⌘S saves — publishing is always a deliberate click.
         e.preventDefault();
-        onPublish();
+        void saveNow();
       } else if (e.key === "Escape" && !typing) {
         setSelected(null);
         setAdding(false);
@@ -225,8 +258,7 @@ export function Editor({
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [undo, redo]);
+  }, [undo, redo, saveNow]);
 
   // ── Block operations ──
   const addBlock = (type: BlockType) => {
@@ -238,7 +270,7 @@ export function Editor({
       return { ...d, blocks };
     });
     setAdding(false);
-    select(b.id, true);
+    select(b.id, "center");
   };
   const removeBlock = (id: string) => {
     commit((d) => ({ ...d, blocks: d.blocks.filter((b) => b.id !== id) }));
@@ -253,7 +285,7 @@ export function Editor({
       blocks.splice(i + 1, 0, { ...structuredClone(d.blocks[i]), id: copyId });
       return { ...d, blocks };
     });
-    select(copyId, true);
+    select(copyId, "center");
   };
   const moveBlock = (from: number, to: number) =>
     commit((d) => {
@@ -306,7 +338,6 @@ export function Editor({
       </div>
     ) : view === "design" ? (
       <DesignPanel
-        key={version}
         design={doc.design ?? {}}
         plan={plan}
         rtl={rtl}
@@ -316,8 +347,9 @@ export function Editor({
     ) : (
       <Outline
         blocks={doc.blocks}
+        plan={plan}
         selected={selected}
-        onSelect={(id) => select(id, true)}
+        onSelect={(id) => select(id, "center")}
         onMove={moveBlock}
         onDuplicate={duplicateBlock}
         onDelete={removeBlock}
@@ -341,6 +373,7 @@ export function Editor({
     view === "block" && selectedBlock ? BLOCK_META[selectedBlock.type].label : view === "design" ? "Design studio" : "Blocks";
 
   return (
+    <UpgradeContext.Provider value={upgradeCtx}>
     <div data-mode="muted" className="flex h-[100dvh] flex-col bg-bg text-text">
       {/* ── Header ── */}
       <header className="flex shrink-0 items-center gap-2 border-b border-border px-3 py-2">
@@ -388,7 +421,7 @@ export function Editor({
             <Eye className="h-4 w-4" /> Preview
           </a>
           <button
-            onClick={onPublish}
+            onClick={() => onPublish()}
             disabled={publishing}
             className="relative inline-flex h-9 items-center gap-1.5 rounded-full bg-primary px-4 text-sm font-medium text-primary-ink transition hover:brightness-110 disabled:opacity-60"
           >
@@ -406,6 +439,19 @@ export function Editor({
           className="relative min-h-0 flex-1 overflow-y-auto"
           style={{ backgroundImage: "radial-gradient(circle at 1px 1px, rgba(255,255,255,0.05) 1px, transparent 0)", backgroundSize: "22px 22px" }}
         >
+          {locked.length > 0 && (
+            <button
+              onClick={() => setUpsell({ tier: "PLUS", mode: "unlock" })}
+              className="sticky top-0 z-30 flex w-full items-center gap-2 border-b border-primary/25 bg-bg/90 px-3 py-2 text-start text-xs backdrop-blur"
+            >
+              <Sparkles className="h-4 w-4 shrink-0 text-primary" />
+              <span className="min-w-0 flex-1 truncate text-text-muted">
+                <span className="text-text">Previewing {locked.length} premium {locked.length === 1 ? "touch" : "touches"}</span> — your live page shows
+                them once unlocked: {locked.map((f) => f.label).join(", ")}
+              </span>
+              <span className="shrink-0 rounded-full bg-primary px-2.5 py-1 font-medium text-primary-ink">Unlock</span>
+            </button>
+          )}
           <div className={cn("mx-auto flex min-h-full items-start justify-center p-3 sm:p-6", device === "desktop" ? "max-w-none" : "max-w-[440px]")}>
             <CanvasFrame device={device}>
               <div
@@ -416,7 +462,7 @@ export function Editor({
                   e.preventDefault();
                   e.stopPropagation();
                   const el = (e.target as HTMLElement).closest<HTMLElement>("[data-block-id]");
-                  if (el?.dataset.blockId) select(el.dataset.blockId);
+                  if (el?.dataset.blockId) select(el.dataset.blockId, "nearest");
                 }}
               >
                 <PageRenderer content={doc} embedded editable selectedId={selected ?? undefined} hideBadge={c.removeBadge} />
@@ -510,8 +556,24 @@ export function Editor({
       </nav>
 
       {adding && <AddBlockModal plan={plan} hasHero={doc.blocks.some((b) => b.type === "hero")} onPick={addBlock} onClose={() => setAdding(false)} />}
-      {shareUrl && <PublishDialog url={shareUrl} onClose={() => setShareUrl(null)} />}
+      {shareUrl && <PublishDialog url={shareUrl} overLimit={overLimit} onClose={() => setShareUrl(null)} />}
+      {upsell && (
+        <Upsell
+          tier={upsell.tier}
+          plan={plan}
+          payments={payments}
+          locked={locked}
+          mode={upsell.mode}
+          onClose={() => setUpsell(null)}
+          onUnlocked={upsell.mode === "publish" ? doPublish : undefined}
+          onPublishAnyway={() => {
+            setUpsell(null);
+            doPublish();
+          }}
+        />
+      )}
     </div>
+    </UpgradeContext.Provider>
   );
 }
 
@@ -559,6 +621,7 @@ function CanvasFrame({ device, children }: { device: "mobile" | "desktop"; child
 
 function Outline({
   blocks,
+  plan,
   selected,
   onSelect,
   onMove,
@@ -568,6 +631,7 @@ function Outline({
   footer,
 }: {
   blocks: Block[];
+  plan: Plan;
   selected: string | null;
   onSelect: (id: string) => void;
   onMove: (from: number, to: number) => void;
@@ -628,7 +692,10 @@ function Outline({
                   <Icon className="h-4 w-4" />
                 </span>
                 <span className="min-w-0">
-                  <span className="block text-sm text-text">{meta.label}</span>
+                  <span className="flex items-center gap-1.5 text-sm text-text">
+                    {meta.label}
+                    {!allowed(BLOCK_TIER[b.type], plan) && <TierPill tier={BLOCK_TIER[b.type]} />}
+                  </span>
                   <span className="block truncate text-[11px] text-text-muted">{blockSummary(b) || meta.description}</span>
                 </span>
               </button>
@@ -776,14 +843,12 @@ function AddBlockModal({
                   const meta = BLOCK_META[t];
                   const Icon = meta.icon;
                   const tier = BLOCK_TIER[t];
-                  const locked = !allowed(tier, plan);
                   return (
                     <button
                       key={t}
-                      onClick={() => (locked ? (window.location.href = "/dashboard/upgrade") : onPick(t))}
+                      onClick={() => onPick(t)}
                       className={cn(
                         "relative flex flex-col items-start gap-2 rounded-2xl border border-border bg-surface-2/70 p-3 text-start transition-colors hover:border-primary/50",
-                        locked && "opacity-60",
                       )}
                     >
                       <span className="grid h-9 w-9 place-items-center rounded-xl bg-primary/12 text-primary">
@@ -793,7 +858,7 @@ function AddBlockModal({
                         <span className="block text-sm text-text">{meta.label}</span>
                         <span className="block text-[11px] leading-snug text-text-muted">{meta.description}</span>
                       </span>
-                      {tier !== "FREE" && (
+                      {!allowed(tier, plan) && (
                         <span className="absolute top-2.5 right-2.5">
                           <TierPill tier={tier} />
                         </span>

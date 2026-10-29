@@ -5,7 +5,7 @@ import { randomUUID } from "node:crypto";
 import { put } from "@vercel/blob";
 import { prisma } from "@/lib/prisma";
 import { getSession } from "@/lib/session";
-import { UPLOAD_DIR, MIME_EXT } from "@/lib/uploads";
+import { UPLOAD_DIR, MIME_EXT, sniffImage } from "@/lib/uploads";
 
 const MAX_BYTES = 5 * 1024 * 1024; // 5MB
 
@@ -24,27 +24,37 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "No file provided" }, { status: 400 });
   }
 
-  const ext = MIME_EXT[file.type];
-  if (!ext) {
-    return NextResponse.json({ error: "Unsupported file type" }, { status: 400 });
-  }
   if (file.size > MAX_BYTES) {
     return NextResponse.json({ error: "File too large (max 5MB)" }, { status: 400 });
+  }
+  const bytes = new Uint8Array(await file.arrayBuffer());
+  const type = sniffImage(bytes.subarray(0, 16));
+  const ext = type && MIME_EXT[type];
+  if (!type || !ext) {
+    return NextResponse.json({ error: "Use a JPG, PNG, WebP, GIF or AVIF image." }, { status: 400 });
+  }
+
+  // Flood control: plenty for designing a page, useless for abuse.
+  const [lastHour, lastDay] = await Promise.all([
+    prisma.mediaAsset.count({ where: { userId: user.id, createdAt: { gte: new Date(Date.now() - 3_600_000) } } }),
+    prisma.mediaAsset.count({ where: { userId: user.id, createdAt: { gte: new Date(Date.now() - 86_400_000) } } }),
+  ]);
+  if (lastHour >= 60 || lastDay >= 300) {
+    return NextResponse.json({ error: "Upload limit reached — try again a little later." }, { status: 429 });
   }
 
   const name = `${randomUUID()}.${ext}`;
   let url: string;
 
   if (process.env.BLOB_READ_WRITE_TOKEN) {
-    const blob = await put(`media/${name}`, file, {
+    const blob = await put(`media/${name}`, Buffer.from(bytes), {
       access: "public",
-      contentType: file.type,
+      contentType: type,
     });
     url = blob.url;
   } else {
-    const buffer = Buffer.from(await file.arrayBuffer());
     await mkdir(UPLOAD_DIR, { recursive: true });
-    await writeFile(path.join(/*turbopackIgnore: true*/ UPLOAD_DIR, name), buffer);
+    await writeFile(path.join(/*turbopackIgnore: true*/ UPLOAD_DIR, name), bytes);
     url = `/api/media/${name}`;
   }
 

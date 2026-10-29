@@ -6,6 +6,7 @@ import { asPageContent } from "@/lib/blocks";
 import { caps } from "@/lib/plans";
 import { effectivePlanFrom } from "@/lib/plan-source";
 import { PageRenderer } from "@/components/renderer/page-renderer";
+import { fitToPlan } from "@/lib/studio";
 
 type Params = { params: Promise<{ token: string }> };
 
@@ -26,8 +27,9 @@ export default async function DraftPreview({ params }: Params) {
   });
   if (!page) notFound();
 
-  const content = asPageContent(page.draftContent ?? page.publishedContent);
   const ownerPlan = effectivePlanFrom(page.user as { plan?: string; planExpiresAt?: string | null });
+  // Exactly what visitors will get once published — fitted to the owner's plan.
+  const content = fitToPlan(asPageContent(page.draftContent ?? page.publishedContent), ownerPlan);
 
   return (
     <div className="relative">
