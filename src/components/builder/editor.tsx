@@ -8,6 +8,7 @@ import Link from "next/link";
 import {
   ArrowLeft,
   ChevronDown,
+  ChevronLeft,
   ChevronUp,
   Cloud,
   CloudOff,
@@ -60,6 +61,7 @@ export function Editor({
   payments,
   draftToken,
   initialContent,
+  welcome,
 }: {
   pageId: string;
   username: string;
@@ -72,6 +74,8 @@ export function Editor({
   payments: boolean;
   draftToken: string;
   initialContent: PageContent;
+  /** Arrived from the guided flow: suggest next blocks, celebrate if it went live. */
+  welcome?: { next: BlockType[]; live: boolean };
 }) {
   const c = caps(plan);
 
@@ -138,7 +142,8 @@ export function Editor({
 
   // ── UI state ──
   const [selected, setSelected] = useState<string | null>(null);
-  const [panel, setPanel] = useState<Panel | null>(null); // mobile sheet (null = closed)
+  // Mobile sheet (null = closed); opens on arrival from the guided flow so the next steps show.
+  const [panel, setPanel] = useState<Panel | null>(welcome ? "blocks" : null);
   const [deskPanel, setDeskPanel] = useState<Panel>("blocks");
   const [expanded, setExpanded] = useState(false);
   const [adding, setAdding] = useState(false);
@@ -206,6 +211,16 @@ export function Editor({
   );
   const [publishing, startPublish] = useTransition();
   const [shareUrl, setShareUrl] = useState<string | null>(null);
+  const [welcomeOpen, setWelcomeOpen] = useState(!!welcome);
+  useEffect(() => {
+    if (!welcome) return;
+    // One-time arrival: a refresh shouldn't celebrate again.
+    window.history.replaceState(null, "", window.location.pathname);
+    if (welcome.live) {
+      const t = setTimeout(() => setShareUrl(`${window.location.origin}/${username}${initialPrimary ? "" : `/${slug}`}`), 400);
+      return () => clearTimeout(t);
+    }
+  }, [welcome, username, initialPrimary, slug]);
   const [overLimit, setOverLimit] = useState<number | null>(null);
   const [isPrimary, setIsPrimary] = useState(initialPrimary);
   const [pageSlug, setPageSlug] = useState(slug);
@@ -349,6 +364,19 @@ export function Editor({
         onChange={patchDesign}
       />
     ) : (
+      <>
+      {welcomeOpen && welcome && (
+        <NextSteps
+          suggest={welcome.next.filter((t) => !doc.blocks.some((b) => b.type === t))}
+          plan={plan}
+          onAdd={addBlock}
+          onDesign={() => {
+            setDeskPanel("design");
+            setPanel("design");
+          }}
+          onClose={() => setWelcomeOpen(false)}
+        />
+      )}
       <Outline
         blocks={doc.blocks}
         plan={plan}
@@ -371,6 +399,7 @@ export function Editor({
           />
         }
       />
+      </>
     );
 
   const panelTitle =
@@ -622,6 +651,57 @@ function CanvasFrame({ device, children }: { device: "mobile" | "desktop"; child
 }
 
 // ─────────────────────────── Outline (drag to reorder) ───────────────────────────
+
+/** After the guided flow: the blocks that usually come next for this kind of page. */
+function NextSteps({
+  suggest,
+  plan,
+  onAdd,
+  onDesign,
+  onClose,
+}: {
+  suggest: BlockType[];
+  plan: Plan;
+  onAdd: (t: BlockType) => void;
+  onDesign: () => void;
+  onClose: () => void;
+}) {
+  return (
+    <div className="mb-4 rounded-xl border border-primary/40 bg-primary/5 p-4">
+      <div className="flex items-start justify-between gap-3">
+        <div>
+          <p className="font-semibold">העמוד נבנה. מה עכשיו?</p>
+          <p className="mt-0.5 text-sm text-text-muted">בלוקים שמתאימים לעמוד כזה, בלחיצה אחת.</p>
+        </div>
+        <button onClick={onClose} aria-label="סגירה" className="grid size-7 shrink-0 place-items-center rounded-md text-text-muted hover:text-text">
+          <X className="size-4" />
+        </button>
+      </div>
+      <div className="mt-3 grid gap-2">
+        {suggest.map((t) => {
+          const m = BLOCK_META[t];
+          const Icon = m.icon;
+          return (
+            <button key={t} onClick={() => onAdd(t)} className="flex items-center gap-3 rounded-lg border border-border bg-surface px-3 py-2 text-start hover:border-text-muted">
+              <Icon className="size-4 shrink-0 text-primary-text" />
+              <span className="min-w-0 flex-1">
+                <span className="block text-sm font-medium">{m.label}</span>
+                <span className="block truncate text-xs text-text-muted">{m.description}</span>
+              </span>
+              {!allowed(BLOCK_TIER[t], plan) && <TierPill tier={BLOCK_TIER[t]} />}
+              <Plus className="size-4 shrink-0 text-text-muted" />
+            </button>
+          );
+        })}
+        <button onClick={onDesign} className="flex items-center gap-3 rounded-lg border border-border bg-surface px-3 py-2 text-start hover:border-text-muted">
+          <Palette className="size-4 shrink-0 text-primary-text" />
+          <span className="min-w-0 flex-1 text-sm font-medium">לשחק עם המראה</span>
+          <ChevronLeft className="size-4 shrink-0 text-text-muted" />
+        </button>
+      </div>
+    </div>
+  );
+}
 
 function Outline({
   blocks,

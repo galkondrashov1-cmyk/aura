@@ -621,3 +621,8 @@
   border-bottom: 1px solid var(--border);
   padding-bottom: 0.4rem;
 }
+
+/* ---------- Guided new-page flow ---------- */
+.wz-step { animation: wzIn 0.35s var(--ease, ease) both; }
+@keyframes wzIn { from { opacity: 0; transform: translateY(10px); } }
+@media (prefers-reduced-motion: reduce) { .wz-step { animation: none; } }

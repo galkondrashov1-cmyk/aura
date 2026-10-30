@@ -12,6 +12,7 @@ import { getEffectivePlan } from "@/lib/plan-source";
 import { livePages, revalidateUser } from "@/lib/public-page";
 import { SLUG_RE, toSlug } from "@/lib/reserved";
 import { TEMPLATES, templateContent } from "@/lib/templates";
+import { buildWizardPage, cleanWizard } from "@/lib/wizard";
 
 async function requireUser() {
   const user = await getSession();
@@ -60,6 +61,35 @@ async function uniqueSlug(userId: string, base: string): Promise<string> {
   if (!taken.has(root)) return root;
   for (let i = 2; i < 500; i++) if (!taken.has(`${root}-${i}`)) return `${root}-${i}`;
   return `${root}-${Date.now().toString(36)}`;
+}
+
+/**
+ * New page from the guided flow. The answers are rebuilt and checked on the
+ * server; `publish` takes the page live in the same step.
+ */
+export async function createFromWizard(raw: unknown, publish: boolean): Promise<{ error: string } | never> {
+  const user = await requireUser();
+  const state = cleanWizard(raw);
+  if (!state.name) return { error: "חסר שם לעמוד" };
+  const plan = await getEffectivePlan(user.id);
+  const count = await prisma.page.count({ where: { userId: user.id } });
+  if (count >= caps(plan).maxPages) redirect("/dashboard/upgrade?limit=pages");
+
+  const content = checked(buildWizardPage(state));
+  const slug = count === 0 ? "home" : await uniqueSlug(user.id, state.purpose);
+  const page = await prisma.page.create({
+    data: {
+      userId: user.id,
+      slug,
+      title: heroName(content),
+      isPrimary: count === 0,
+      theme: "vivid",
+      draftContent: content,
+      ...(publish ? { status: "PUBLISHED", publishedContent: content, publishedAt: new Date() } : { status: "DRAFT" }),
+    },
+  });
+  if (publish) await revalidateUser(user.id);
+  redirect(`/builder/${page.id}?welcome=${state.purpose}${publish ? "&live=1" : ""}`);
 }
 
 /** New page — blank, or from a starter template (form field `template`). */

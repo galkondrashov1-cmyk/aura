@@ -102,7 +102,8 @@ export async function signupAction(
     plan: asPlan((user as { plan?: string }).plan),
   });
 
-  redirect("/dashboard");
+  // Straight into the guided builder: a new account has nothing else to see.
+  redirect("/dashboard/new");
 }
 
 export async function loginAction(

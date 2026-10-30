@@ -27,6 +27,12 @@ export function PublishDialog({ url, overLimit = null, onClose }: { url: string;
     };
   }, [url]);
 
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => e.key === "Escape" && onClose();
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [onClose]);
+
   const copy = async () => {
     try {
       await navigator.clipboard.writeText(url);

@@ -7,13 +7,16 @@ import { effectivePlanFrom } from "@/lib/plan-source";
 import { signDraft } from "@/lib/draft-token";
 import { Editor } from "@/components/builder/editor";
 import { paypalConfigured } from "@/lib/paypal";
+import { PURPOSES } from "@/lib/wizard";
 
-type Params = { params: Promise<{ pageId: string }> };
+type Params = { params: Promise<{ pageId: string }>; searchParams: Promise<{ welcome?: string; live?: string }> };
 
 export const metadata = { title: titled("עורך") };
 
-export default async function BuilderPage({ params }: Params) {
+export default async function BuilderPage({ params, searchParams }: Params) {
   const { pageId } = await params;
+  const q = await searchParams;
+  const purpose = PURPOSES.find((p) => p.id === q.welcome);
   const user = await getSession();
   if (!user) redirect("/login");
 
@@ -33,6 +36,7 @@ export default async function BuilderPage({ params }: Params) {
       payments={paypalConfigured()}
       draftToken={signDraft(page.id)}
       initialContent={asPageContent(page.draftContent ?? page.publishedContent)}
+      welcome={purpose && { next: purpose.next, live: q.live === "1" && page.status === "PUBLISHED" }}
     />
   );
 }
