@@ -82,6 +82,9 @@ export type PriceItem = {
   featured?: boolean;
 };
 
+/** One day of opening hours ("HH:MM"); a second range covers a midday break. */
+export type DayHours = { closed?: boolean; from?: string; to?: string; from2?: string; to2?: string };
+
 export type Block = BlockBase &
   (
     | {
@@ -164,6 +167,10 @@ export type Block = BlockBase &
       }
     | { type: "map"; query: string; height?: Height3 }
     | { type: "spacer"; size?: "sm" | "md" | "lg" | "xl" }
+    /** Seven days, Sunday first (Israel time). */
+    | { type: "hours"; heading?: string; days: DayHours[]; note?: string }
+    /** Business card the visitor saves straight to their phone's contacts. */
+    | { type: "contact"; name: string; org?: string; role?: string; phone?: string; email?: string; site?: string; address?: string }
     // ── Advanced blocks (Pro) ──
     | { type: "embed"; url: string; height?: Height3 }
     | { type: "music"; url: string }
@@ -250,7 +257,7 @@ export const EMPTY_PAGE: PageContent = { blocks: [] };
 export const BLOCK_TYPES: BlockType[] = [
   "hero", "links", "text", "socials", "image", "gallery", "video", "divider", "faq",
   "marquee", "features", "testimonials", "stats", "pricing", "form", "map", "spacer",
-  "embed", "music", "countdown",
+  "embed", "music", "countdown", "hours", "contact",
 ];
 
 const MAX_BLOCKS = 80;
@@ -368,8 +375,22 @@ function cleanColors<T extends Record<string, unknown>>(o: T): T {
   return out;
 }
 
+const hhmm = (x: unknown) => (typeof x === "string" && /^([01]\d|2[0-3]):[0-5]\d$/.test(x) ? x : undefined);
+
 function fixBlock(raw: Block): Block {
   const b = cleanColors(raw as unknown as Record<string, unknown>) as unknown as Block;
+  if (b.type === "hours") {
+    const src = Array.isArray(b.days) ? b.days : [];
+    const days = Array.from({ length: 7 }, (_, i): DayHours => {
+      const d: Record<string, unknown> = isObj(src[i]) ? src[i] : {};
+      return { closed: d.closed === true || undefined, from: hhmm(d.from), to: hhmm(d.to), from2: hhmm(d.from2), to2: hhmm(d.to2) };
+    });
+    return { ...b, days };
+  }
+  if (b.type === "contact") {
+    const f = (k: "org" | "role" | "phone" | "email" | "site" | "address") => str(b[k], 200)?.trim() || undefined;
+    return { ...b, name: str(b.name, 80) ?? "", org: f("org"), role: f("role"), phone: f("phone"), email: f("email"), site: f("site"), address: f("address") };
+  }
   const key = LIST_KEY[b.type];
   const rec = b as unknown as Record<string, unknown>;
   if (key && !Array.isArray(rec[key])) return { ...b, [key]: [] } as Block;

@@ -19,6 +19,16 @@ const HE = {
   min: "דק׳",
   sec: "שנ׳",
   done: "הגיע הזמן! 🎉",
+  dayNames: ["ראשון", "שני", "שלישי", "רביעי", "חמישי", "שישי", "שבת"],
+  openNow: "פתוח עכשיו",
+  closedNow: "סגור עכשיו",
+  closesAt: "עד",
+  opensAt: "נפתח ב־",
+  opensTomorrow: "נפתח מחר ב־",
+  opensOn: "נפתח ביום",
+  closed: "סגור",
+  saveContact: "שמירת איש קשר",
+  call: "חיוג",
 };
 
 const EN: typeof HE = {
@@ -38,6 +48,16 @@ const EN: typeof HE = {
   min: "Min",
   sec: "Sec",
   done: "It's time! 🎉",
+  dayNames: ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"],
+  openNow: "Open now",
+  closedNow: "Closed now",
+  closesAt: "until",
+  opensAt: "Opens at",
+  opensTomorrow: "Opens tomorrow at",
+  opensOn: "Opens",
+  closed: "Closed",
+  saveContact: "Save contact",
+  call: "Call",
 };
 
 export type Strings = typeof HE;

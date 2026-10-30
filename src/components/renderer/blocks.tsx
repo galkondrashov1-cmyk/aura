@@ -1,10 +1,11 @@
 // Block components for PageRenderer. Server-renderable; interactive bits are
 // small client islands (gallery, countdown, typewriter, count-up, forms,
 // video facade).
-import { ArrowUpRight, Check, ChevronDown, MapPin, Navigation, Star, UserRound } from "lucide-react";
+import { ArrowUpRight, Check, ChevronDown, Mail, MapPin, Navigation, Phone, Star, UserPlus, UserRound } from "lucide-react";
 import { RichTextView } from "@/components/rich-text-view";
 import { GalleryView } from "./gallery-view";
 import { CountdownView } from "./countdown-view";
+import { HoursView } from "./hours-view";
 import { Typewriter } from "./typewriter";
 import { CountUp } from "./count-up";
 import { FormView } from "./form-view";
@@ -19,6 +20,7 @@ import { toPlain, isEmptyRich } from "@/lib/richtext";
 import type { RichValue } from "@/lib/richtext";
 import { resolveHref, isExternal, type HrefMap } from "@/lib/links";
 import type { Strings } from "@/lib/i18n";
+import { vcard } from "@/lib/vcard";
 
 export type RenderCtx = {
   /** Visitor-facing UI strings in the page's language. */
@@ -891,6 +893,45 @@ export function MapBlock({ b, ctx }: { b: BlockOf<"map">; ctx: RenderCtx }) {
   );
 }
 
+function ContactBlock({ b, ctx }: { b: BlockOf<"contact">; ctx: RenderCtx }) {
+  // Live pages serve the card from the API (phones open it as a contact);
+  // the editor preview falls back to an inline file.
+  const save = ctx.pageId
+    ? `/api/vcard?p=${encodeURIComponent(ctx.pageId)}&b=${encodeURIComponent(b.id)}`
+    : `data:text/vcard;charset=utf-8,${encodeURIComponent(vcard(b))}`;
+  const sub = [b.role, b.org].filter(Boolean).join(" · ");
+  const chip = cn("flex h-11 w-11 shrink-0 items-center justify-center border border-border bg-surface-2 text-text", ctx.buttonShape ?? "rounded-full");
+  return (
+    <div className="rounded-2xl border border-border bg-surface/60 p-4 backdrop-blur">
+      <p className="font-display text-lg font-medium">{b.name || "—"}</p>
+      {sub && <p className="text-sm text-text-muted">{sub}</p>}
+      <div className="mt-4 flex gap-2">
+        <a
+          href={save}
+          download={`${(b.name || "contact").replace(/[^\p{L}\p{N} _-]/gu, "").trim() || "contact"}.vcf`}
+          className={cn(
+            "flex h-11 flex-1 items-center justify-center gap-2 bg-primary text-sm font-medium text-primary-ink",
+            ctx.buttonShape ?? "rounded-full",
+            ctx.buttonFx ?? "transition-all hover:brightness-110",
+          )}
+        >
+          <UserPlus className="h-4 w-4" /> {ctx.t.saveContact}
+        </a>
+        {b.phone && (
+          <a href={`tel:${b.phone.replace(/[^\d+]/g, "")}`} className={chip} aria-label={ctx.t.call}>
+            <Phone className="h-4 w-4" />
+          </a>
+        )}
+        {b.email && (
+          <a href={`mailto:${b.email}`} className={chip} aria-label="Email">
+            <Mail className="h-4 w-4" />
+          </a>
+        )}
+      </div>
+    </div>
+  );
+}
+
 const SPACER_H = { sm: "h-3", md: "h-8", lg: "h-16", xl: "h-28" };
 
 export function BlockView({ block, ctx }: { block: Block; ctx: RenderCtx }) {
@@ -933,6 +974,10 @@ export function BlockView({ block, ctx }: { block: Block; ctx: RenderCtx }) {
       return <FormBlock b={block} ctx={ctx} />;
     case "map":
       return <MapBlock b={block} ctx={ctx} />;
+    case "hours":
+      return <HoursView b={block} t={ctx.t} />;
+    case "contact":
+      return <ContactBlock b={block} ctx={ctx} />;
     case "spacer":
       return <div className={SPACER_H[block.size ?? "md"]} aria-hidden />;
     default:

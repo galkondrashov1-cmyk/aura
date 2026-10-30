@@ -3,7 +3,7 @@
 import { Image as ImageIcon, Star } from "lucide-react";
 import { BLOCK_META } from "./block-meta";
 import { cn } from "@/lib/utils";
-import type { Block, BlockOf, BlockType, LinkItem, SocialPlatform } from "@/lib/blocks";
+import type { Block, BlockOf, BlockType, DayHours, LinkItem, SocialPlatform } from "@/lib/blocks";
 import { AVATAR_IDLE, BUTTON_FX, BUTTON_IDLE, ICON_FX, ICON_IDLE } from "@/lib/design";
 import { SIZE_OPTS, ASPECT_OPTS, RADIUS_OPTS, type ImageConfig } from "@/lib/image";
 import { SOCIAL_OPTIONS, SocialIcon, platformFromUrl } from "@/lib/socials";
@@ -71,6 +71,12 @@ export function newBlock(type: BlockType): Block {
       return { id, type, query: "", height: "md" };
     case "spacer":
       return { id, type, size: "md" };
+    case "hours": {
+      const day = { from: "09:00", to: "18:00" };
+      return { id, type, heading: "שעות פתיחה", days: [day, day, day, day, day, { from: "09:00", to: "13:00" }, { closed: true }] };
+    }
+    case "contact":
+      return { id, type, name: "השם שלכם", role: "", phone: "", email: "" };
   }
 }
 
@@ -101,6 +107,10 @@ export function blockSummary(b: Block): string {
       return `${b.items.length} שאלות`;
     case "gallery":
       return `${b.images.length} תמונות`;
+    case "hours":
+      return b.heading ?? "";
+    case "contact":
+      return b.name;
     default:
       return "";
   }
@@ -383,6 +393,23 @@ function Fields({ block, plan, onPatch }: { block: Block; plan: Plan; onPatch: P
           <p className="text-[11px] text-text-muted">המבקרים מקבלים ניווט בלחיצה ב־Google Maps או ב־Waze.</p>
         </div>
       );
+    case "hours":
+      return <HoursEditor b={block} onPatch={onPatch} />;
+    case "contact":
+      return (
+        <div className="space-y-2">
+          <input value={block.name} onChange={(e) => onPatch({ name: e.target.value })} placeholder="שם מלא" maxLength={80} className={fieldCls} />
+          <div className="grid grid-cols-2 gap-2">
+            <input value={block.role ?? ""} onChange={(e) => onPatch({ role: e.target.value })} placeholder="תפקיד" maxLength={80} className={fieldCls} />
+            <input value={block.org ?? ""} onChange={(e) => onPatch({ org: e.target.value })} placeholder="עסק / חברה" maxLength={80} className={fieldCls} />
+          </div>
+          <input dir="ltr" type="tel" value={block.phone ?? ""} onChange={(e) => onPatch({ phone: e.target.value })} placeholder="050-000-0000" maxLength={30} className={cn(fieldCls, "text-end")} />
+          <input dir="ltr" type="email" value={block.email ?? ""} onChange={(e) => onPatch({ email: e.target.value })} placeholder="you@email.com" maxLength={120} className={cn(fieldCls, "text-end")} />
+          <input dir="ltr" value={block.site ?? ""} onChange={(e) => onPatch({ site: e.target.value })} placeholder="https://" maxLength={200} className={cn(fieldCls, "text-end")} />
+          <input value={block.address ?? ""} onChange={(e) => onPatch({ address: e.target.value })} placeholder="כתובת" maxLength={160} className={fieldCls} />
+          <p className="text-[11px] text-text-muted">בלחיצה אחת המבקרים שומרים אתכם באנשי הקשר בטלפון, עם קישור לעמוד.</p>
+        </div>
+      );
     case "spacer":
       return (
         <Seg
@@ -439,6 +466,66 @@ const ALIGNS = [
   { id: "center" as const, label: "מרכז" },
   { id: "right" as const, label: "סוף" },
 ];
+const DAY_SHORT = ["א׳", "ב׳", "ג׳", "ד׳", "ה׳", "ו׳", "ש׳"];
+
+function HoursEditor({ b, onPatch }: { b: BlockOf<"hours">; onPatch: Patch }) {
+  const set = (i: number, p: Partial<DayHours>) => onPatch({ days: b.days.map((d, j) => (j === i ? { ...d, ...p } : d)) });
+  const time = (i: number, k: keyof DayHours, label: string) => (
+    <input
+      type="time"
+      value={(b.days[i][k] as string | undefined) ?? ""}
+      onChange={(e) => set(i, { [k]: e.target.value || undefined })}
+      aria-label={`${DAY_SHORT[i]} ${label}`}
+      className={cn(fieldCls, "h-9 min-w-0 px-2 text-xs")}
+    />
+  );
+  const mini = "shrink-0 rounded-md border border-border px-2 py-1 text-[11px] text-text-muted hover:text-text";
+  return (
+    <div className="space-y-3">
+      <input value={b.heading ?? ""} onChange={(e) => onPatch({ heading: e.target.value || undefined })} placeholder="כותרת" maxLength={60} className={fieldCls} />
+      <div className="space-y-1.5">
+        {b.days.map((d, i) => (
+          <div key={i} className="flex items-start gap-1.5">
+            <span className="w-6 shrink-0 pt-2 text-xs text-text-muted">{DAY_SHORT[i]}</span>
+            {d.closed ? (
+              <span className="flex h-9 flex-1 items-center text-xs text-text-muted">סגור</span>
+            ) : (
+              <div dir="ltr" className="grid flex-1 grid-cols-2 gap-1.5">
+                {time(i, "from", "פתיחה")}
+                {time(i, "to", "סגירה")}
+                {(d.from2 || d.to2) && (
+                  <>
+                    {time(i, "from2", "פתיחה שנייה")}
+                    {time(i, "to2", "סגירה שנייה")}
+                  </>
+                )}
+              </div>
+            )}
+            {!d.closed && (
+              <button
+                type="button"
+                className={cn(mini, "mt-1.5")}
+                title="הפסקת צהריים: שני טווחי שעות ביום"
+                onClick={() => set(i, d.from2 || d.to2 ? { from2: undefined, to2: undefined } : { from2: "16:00", to2: "19:00" })}
+              >
+                {d.from2 || d.to2 ? "בלי הפסקה" : "+ הפסקה"}
+              </button>
+            )}
+            <button type="button" className={cn(mini, "mt-1.5")} onClick={() => set(i, { closed: !d.closed || undefined })}>
+              {d.closed ? "פתוח" : "סגור"}
+            </button>
+          </div>
+        ))}
+      </div>
+      <button type="button" className={mini} onClick={() => onPatch({ days: b.days.map((d, j) => (j > 0 && j < 5 ? { ...b.days[0] } : d)) })}>
+        להחיל את יום א׳ על א׳–ה׳
+      </button>
+      <input value={b.note ?? ""} onChange={(e) => onPatch({ note: e.target.value || undefined })} placeholder="הערה (למשל: בערבי חג עד 13:00)" maxLength={140} className={fieldCls} />
+      <p className="text-[11px] text-text-muted">לפי שעון ישראל. ימים עם אותן שעות מתאחדים לשורה אחת, והמבקרים רואים אם פתוח עכשיו.</p>
+    </div>
+  );
+}
+
 const HEIGHTS = [
   { id: "sm" as const, label: "נמוך" },
   { id: "md" as const, label: "בינוני" },

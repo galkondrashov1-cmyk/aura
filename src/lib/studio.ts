@@ -410,6 +410,8 @@ export const BLOCK_TIER: Record<BlockType, Plan> = {
   embed: "PRO",
   music: "PRO",
   countdown: "PRO",
+  hours: "FREE",
+  contact: "FREE",
 };
 
 const tierOf = (list: Choice[], id?: string) => list.find((c) => c.id === id)?.tier ?? "FREE";
