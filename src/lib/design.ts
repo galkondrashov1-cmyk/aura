@@ -664,6 +664,19 @@ export const COLOR_PRESETS: ColorPreset[] = [
   { id: "forest", name: "יער", accent: "#4ADE80", background: "forest-2" },
   { id: "mono", name: "מונוכרום", accent: "#E5E7EB", background: "mono-3" },
   { id: "candy", name: "ממתק", accent: "#EC4899", background: "candy-2" },
+  // Israel: the land's own light, from the Bauhaus white to the Negev at dusk.
+  { id: "white-city", name: "העיר הלבנה", accent: "#F04E14", background: "israel-1" },
+  { id: "jerusalem", name: "אבן ירושלמית", accent: "#9A6B1F", background: "israel-2" },
+  { id: "dead-sea", name: "ים המלח", accent: "#0F766E", background: "israel-3" },
+  { id: "reef", name: "שונית", accent: "#FF7F66", background: "israel-4" },
+  { id: "negev", name: "נגב", accent: "#E8A35C", background: "israel-5" },
+  { id: "galilee", name: "גליל", accent: "#3F6212", background: "israel-6" },
+  { id: "jaffa", name: "יפו בלילה", accent: "#F28C28", background: "israel-7" },
+  { id: "bougainvillea", name: "בוגנוויליה", accent: "#C2185B", background: "israel-8" },
+  { id: "olive", name: "זית", accent: "#9CA34A", background: "forest-5" },
+  { id: "kinneret", name: "כנרת", accent: "#0EA5E9", background: "ocean-5" },
+  { id: "hamsin", name: "חמסין", accent: "#EA8A1A", background: "sunset-4" },
+  { id: "pomegranate", name: "רימון", accent: "#BE123C", background: "ember-2" },
 ];
 
 

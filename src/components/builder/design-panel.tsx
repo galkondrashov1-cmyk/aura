@@ -595,6 +595,7 @@ function StyleTab({
               )}
               style={{ background: p.accent }}
               title={p.name}
+              aria-label={`פלטה: ${p.name}`}
             />
           ))}
         </div>
