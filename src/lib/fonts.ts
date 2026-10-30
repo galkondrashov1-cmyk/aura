@@ -5,8 +5,8 @@
 // ~430 @font-face rules (≈140 KB of render-blocking CSS) on every page and
 // made every build download ~180 font files. Instead a page links one small
 // Google Fonts stylesheet for just the fonts it uses (see PageRenderer), and
-// only the editor loads the whole set for its previews. The site's own UI
-// fonts (Inter, Plus Jakarta Sans) stay on next/font in the root layout.
+// only the editor loads the whole set for its previews. The product's own UI
+// fonts (Heebo, Frank Ruhl Libre) stay on next/font in the root layout.
 
 export type FontDef = {
   id: string;
@@ -70,10 +70,36 @@ export const FONTS: FontDef[] = [
   F("frankruhl", "Frank Ruhl", "Frank Ruhl Libre", [400, 700], "Hebrew"),
   F("karantina", "Karantina", "Karantina", [400, 700], "Hebrew"),
   F("amatic", "Amatic SC", "Amatic SC", [400, 700], "Hebrew"),
+  // Every other Google family that ships Hebrew glyphs.
+  F("notosanshe", "Noto Sans Hebrew", "Noto Sans Hebrew", [400, 600, 800], "Hebrew"),
+  F("plexhe", "IBM Plex Hebrew", "IBM Plex Sans Hebrew", [400, 600, 700], "Hebrew"),
+  F("opensans", "Open Sans", "Open Sans", [400, 600, 800], "Hebrew"),
+  F("arimo", "Arimo", "Arimo", [400, 600, 700], "Hebrew"),
+  F("alef", "Alef", "Alef", [400, 700], "Hebrew"),
+  F("miriam", "Miriam Libre", "Miriam Libre", [400, 600, 700], "Hebrew"),
+  F("lunasima", "Lunasima", "Lunasima", [400, 700], "Hebrew"),
+  F("playpenhe", "Playpen Hebrew", "Playpen Sans Hebrew", [400, 600, 800], "Hebrew"),
+  F("davidlibre", "David Libre", "David Libre", [400, 500, 700], "Hebrew"),
+  F("notoserifhe", "Noto Serif Hebrew", "Noto Serif Hebrew", [400, 600, 800], "Hebrew"),
+  F("rashi", "Rashi", "Noto Rashi Hebrew", [400, 600, 800], "Hebrew"),
+  F("bellefair", "Bellefair", "Bellefair", [400], "Hebrew"),
+  F("bonanova", "Bona Nova", "Bona Nova", [400, 700], "Hebrew"),
+  F("cardo", "Cardo", "Cardo", [400, 700], "Hebrew"),
+  F("tinos", "Tinos", "Tinos", [400, 700], "Hebrew"),
+  F("libertinus", "Libertinus", "Libertinus Serif", [400, 600, 700], "Hebrew"),
+  F("cousine", "Cousine", "Cousine", [400, 700], "Hebrew"),
+  F("cascadia", "Cascadia Code", "Cascadia Code", [400, 600, 700], "Hebrew"),
+  F("handjet", "Handjet", "Handjet", [400, 600, 800], "Hebrew"),
+  F("solitreo", "Solitreo", "Solitreo", [400], "HebrewDisplay"),
+  ...[
+    "80s Fade", "Beastly", "Broken Fax", "Bubbles", "Burned", "Dirt", "Distressed", "Doodle Shadow", "Doodle Triangles",
+    "Gemstones", "Glitch", "Glitch Pop", "Iso", "Lines", "Maps", "Marker Hatch", "Maze", "Microbe", "Moonrocks",
+    "Pixels", "Puddles", "Scribble", "Spray Paint", "Storm", "Vinyl", "Wet Paint",
+  ].map((v) => F(`rubik-${v.toLowerCase().replace(/\s+/g, "-")}`, `Rubik ${v}`, `Rubik ${v}`, [400], "HebrewDisplay")),
 ];
 
 /** Display order of font categories in the picker. */
-export const FONT_CATEGORIES = ["Sans", "Hebrew", "Serif", "Display", "Handwriting", "Mono"];
+export const FONT_CATEGORIES = ["Hebrew", "HebrewDisplay", "Sans", "Serif", "Display", "Handwriting", "Mono"];
 
 const FALLBACK: Record<string, string> = {
   Serif: "ui-serif, Georgia, serif",

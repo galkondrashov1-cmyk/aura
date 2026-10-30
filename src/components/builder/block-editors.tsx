@@ -10,6 +10,7 @@ import { SOCIAL_OPTIONS, SocialIcon, platformFromUrl } from "@/lib/socials";
 import { caps, type Plan } from "@/lib/plans";
 import { HERO_LAYOUTS, REVEALS, SECTION_STYLES, BLOCK_TIER } from "@/lib/studio";
 import { toPlain } from "@/lib/richtext";
+import { TYPE_COLORS, TYPE_CURSORS, TYPE_FX, TYPE_SPEEDS, type Typing, type TypeFxId } from "@/lib/typing";
 import { RichTextInput } from "./rich-text-input";
 import { AddItem, Chips, ColorField, ImageField, ItemCard, Label, Section, Seg, Slider, Toggle, TierPill, fieldCls } from "./ui";
 
@@ -488,6 +489,35 @@ function ImageControls({
   );
 }
 
+/** Typewriter 2.0: effect, speed, cursor, color and looping for the header words. */
+function TypingFields({ typing = {}, plan, onChange }: { typing?: Typing; plan: Plan; onChange: (t: Typing) => void }) {
+  const set = (p: Partial<Typing>) => onChange({ ...typing, ...p });
+  const fx = typing.fx ?? "type";
+  const keystrokes = fx === "type" || fx === "erase" || fx === "scramble";
+  return (
+    <Section title="אפקט כתיבה">
+      <Chips value={fx} plan={plan} options={TYPE_FX} onChange={(id) => set({ fx: id as TypeFxId })} />
+      <div className="grid grid-cols-2 gap-3">
+        <div>
+          <Label>מהירות</Label>
+          <Seg value={typing.speed ?? "normal"} options={[...TYPE_SPEEDS]} onChange={(speed) => set({ speed })} />
+        </div>
+        <div>
+          <Label>צבע</Label>
+          <Seg value={typing.color ?? "accent"} options={[...TYPE_COLORS]} onChange={(color) => set({ color })} />
+        </div>
+      </div>
+      {keystrokes && (
+        <div>
+          <Label>סמן</Label>
+          <Seg value={typing.cursor ?? "bar"} options={[...TYPE_CURSORS]} onChange={(cursor) => set({ cursor })} />
+        </div>
+      )}
+      <Toggle checked={typing.loop !== false} onChange={(v) => set({ loop: v ? undefined : false })} label="לחזור על המילים בלולאה" />
+    </Section>
+  );
+}
+
 function HeroEditor({ b, plan, onPatch }: { b: BlockOf<"hero">; plan: Plan; onPatch: Patch }) {
   const layout = b.layout ?? "center";
   return (
@@ -514,6 +544,7 @@ function HeroEditor({ b, plan, onPatch }: { b: BlockOf<"hero">; plan: Plan; onPa
         />
         <input value={b.badge ?? ""} onChange={(e) => onPatch({ badge: e.target.value || undefined })} placeholder='תג סטטוס, למשל "פנוי/ה לפרויקטים"' maxLength={40} className={fieldCls} />
       </div>
+      {(b.words ?? []).length > 0 && <TypingFields typing={b.typing} plan={plan} onChange={(typing) => onPatch({ typing })} />}
       <Section title="תמונת פרופיל">
         <ImageField value={b.avatarUrl} onChange={(avatarUrl) => onPatch({ avatarUrl: avatarUrl ?? null })} maxDim={640} />
         <Slider label="גודל" value={b.avatarScale ?? 80} min={48} max={200} step={4} suffix="px" onChange={(avatarScale) => onPatch({ avatarScale })} />

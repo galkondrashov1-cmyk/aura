@@ -3,6 +3,7 @@
 // rendered by PageRenderer (public pages) and the builder canvas.
 import type { ImageConfig } from "@/lib/image";
 import { isSafeColor, type RichValue } from "@/lib/richtext";
+import type { Typing } from "@/lib/typing";
 
 export type SocialPlatform =
   | "instagram"
@@ -89,6 +90,8 @@ export type Block = BlockBase &
         tagline?: RichValue;
         /** Rotating words typed after the tagline ("designer", "creator"…). */
         words?: string[];
+        /** How the rotating words animate (Typewriter 2.0). */
+        typing?: Typing;
         /** Small status pill above the name ("Available for work"). */
         badge?: string;
         layout?: HeroLayout;

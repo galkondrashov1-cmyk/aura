@@ -17,6 +17,7 @@ import {
   catLabel,
 } from "@/lib/design";
 import { FONTS } from "@/lib/fonts";
+import { TYPE_FX } from "@/lib/typing";
 import { caps, PLAN_RANK, type Plan } from "@/lib/plans";
 
 export type Choice = { id: string; name: string; tier: Plan; hint?: string };
@@ -86,6 +87,16 @@ export const FONT_PAIRS: { id: string; name: string; head: string; body: string 
   { id: "hebrew-modern", name: "עברית מודרני", head: "secular", body: "heebo" },
   { id: "hebrew-classic", name: "עברית קלאסי", head: "frankruhl", body: "assistant" },
   { id: "hebrew-soft", name: "עברית רך", head: "fredoka", body: "rubik" },
+  { id: "hebrew-press", name: "דפוס", head: "davidlibre", body: "heebo" },
+  { id: "hebrew-poster", name: "פוסטר עברי", head: "karantina", body: "heebo" },
+  { id: "hebrew-tlv", name: "תל אביב", head: "rubik", body: "assistant" },
+  { id: "hebrew-notebook", name: "מחברת", head: "playpenhe", body: "alef" },
+  { id: "hebrew-graffiti", name: "גרפיטי", head: "rubik-spray-paint", body: "rubik" },
+  { id: "hebrew-retro", name: "רטרו", head: "rubik-80s-fade", body: "assistant" },
+  { id: "hebrew-elegant", name: "אלגנטי", head: "bellefair", body: "miriam" },
+  { id: "hebrew-tech", name: "הייטק", head: "plexhe", body: "cascadia" },
+  { id: "hebrew-ink", name: "דיו", head: "solitreo", body: "davidlibre" },
+  { id: "hebrew-bold", name: "מודגש", head: "suez", body: "opensans" },
 ];
 
 // ---------- Containers & motion ----------
@@ -316,7 +327,8 @@ export function remixDesign(plan: Plan, keepRtl = false): Partial<PageDesign> {
   const fontPool = FONTS.filter((f) =>
     paid ? true : f.category === "Sans" || (keepRtl && f.category === "Hebrew"),
   ).filter((f) => (keepRtl ? f.category === "Hebrew" : f.category !== "Hebrew"));
-  const pair = paid && !keepRtl && Math.random() < 0.7 ? rand(FONT_PAIRS.filter((p) => !p.id.startsWith("hebrew"))) : null;
+  // Hebrew pages remix within Hebrew pairings; others within Latin ones.
+  const pair = paid && Math.random() < 0.7 ? rand(FONT_PAIRS.filter((p) => p.id.startsWith("hebrew") === keepRtl)) : null;
   if (pair) {
     patch.headingFont = pair.head;
     patch.font = pair.body;
@@ -522,6 +534,14 @@ export function fitToPlanReport(content: PageContent, plan: Plan): { content: Pa
     if (b.type === "hero" && b.layout && !ok(tierOf(HERO_LAYOUTS, b.layout))) {
       lock(`פריסת כותרת: ${nameOf(HERO_LAYOUTS, b.layout)}`, tierOf(HERO_LAYOUTS, b.layout));
       set({ layout: "center" });
+    }
+    if (b.type === "hero" && b.typing?.fx) {
+      const typing = b.typing;
+      const fx = TYPE_FX.find((x) => x.id === typing.fx);
+      if (fx && !ok(fx.tier)) {
+        lock(`אפקט כתיבה: ${fx.name}`, fx.tier);
+        set({ typing: { ...typing, fx: "type" } });
+      }
     }
     if (!c.perElement) {
       if (b.type === "links" && b.items.some((l) => l.color || l.fx)) {

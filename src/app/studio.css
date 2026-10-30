@@ -361,7 +361,7 @@
   75%, 100% { box-shadow: 0 0 0 18px transparent; }
 }
 
-/* ---------- Typewriter caret ---------- */
+/* ---------- Typewriter 2.0 ---------- */
 .tw-caret::after {
   content: "";
   display: inline-block;
@@ -369,10 +369,45 @@
   height: 1em;
   margin-inline-start: 2px;
   vertical-align: -0.12em;
-  background: var(--primary);
+  background: currentColor;
   animation: twBlink 1s steps(1) infinite;
 }
+.tw-cur-block::after { width: 0.55em; opacity: 0.55; }
+.tw-cur-under::after { width: 0.6em; height: 2px; vertical-align: -0.08em; }
 @keyframes twBlink { 50% { opacity: 0; } }
+.tw-sel { background: color-mix(in oklab, var(--primary) 38%, transparent); border-radius: 2px; }
+.tw-grad {
+  background: linear-gradient(100deg, var(--primary), var(--fx-c2, var(--accent)));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+.tw-grad.tw-caret::after { background: var(--primary); }
+/* Animated words are their own boxes: they need the gradient clipped again. */
+.tw-grad :is(.tw-fade, .tw-slide, .tw-blur, .tw-flip, .tw-wave > span) {
+  background-image: linear-gradient(100deg, var(--primary), var(--fx-c2, var(--accent)));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+.tw-fade, .tw-slide, .tw-blur, .tw-flip, .tw-marker, .tw-wave > span { display: inline-block; }
+.tw-fade { animation: twFade calc(0.5s * var(--spd, 1)) ease both; }
+.tw-slide { animation: twSlide calc(0.55s * var(--spd, 1)) cubic-bezier(0.16, 1, 0.3, 1) both; }
+.tw-blur { animation: twBlur calc(0.6s * var(--spd, 1)) ease-out both; }
+.tw-flip { transform-origin: 50% 100%; animation: twFlip calc(0.6s * var(--spd, 1)) cubic-bezier(0.16, 1, 0.3, 1) both; }
+.tw-wave > span { animation: twSlide calc(0.5s * var(--spd, 1)) cubic-bezier(0.16, 1, 0.3, 1) both; animation-delay: calc(var(--i) * 35ms); }
+.tw-marker {
+  padding-inline: 0.12em;
+  background: linear-gradient(color-mix(in oklab, var(--primary) 40%, transparent), color-mix(in oklab, var(--primary) 40%, transparent)) no-repeat;
+  background-position: left;
+  animation: twMarker calc(0.7s * var(--spd, 1)) cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+[dir="rtl"] .tw-marker { background-position: right; }
+@keyframes twFade { from { opacity: 0; } }
+@keyframes twSlide { from { opacity: 0; transform: translateY(0.55em); } }
+@keyframes twBlur { from { opacity: 0; filter: blur(8px); } }
+@keyframes twFlip { from { opacity: 0; transform: perspective(400px) rotateX(-90deg); } }
+@keyframes twMarker { from { background-size: 0% 100%; } to { background-size: 100% 100%; } }
 
 /* ---------- Status badge ---------- */
 .pg-badge-dot {

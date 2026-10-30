@@ -2,7 +2,7 @@ import type { PageDesign } from "@/lib/blocks";
 import type { Plan } from "@/lib/plans";
 
 // Category → required plan tier. Free gets a generous base; the rest is paid.
-const FREE_BG_CATEGORIES = new Set(["Gradient", "Mesh", "Aurora", "Sunset", "Ocean", "Neon"]);
+const FREE_BG_CATEGORIES = new Set(["Gradient", "Mesh", "Aurora", "Sunset", "Ocean", "Neon", "Israel"]);
 const PRO_BG_CATEGORIES = new Set(["Liquid", "Foil", "Nebula"]);
 export function bgCategoryTier(category: string): Plan {
   if (PRO_BG_CATEGORIES.has(category)) return "PRO";
@@ -31,11 +31,11 @@ export const CAT_HE: Record<string, string> = {
   Gradient: "גרדיאנט", Mesh: "רשת צבעים", Aurora: "זוהר צפוני", Sunset: "שקיעה", Ocean: "אוקיינוס", Neon: "ניאון",
   Noir: "נואר", Cosmic: "קוסמי", Pattern: "דוגמאות", Light: "בהיר", Synthwave: "סינת׳וויב", Ember: "גחלים",
   Forest: "יער", Holographic: "הולוגרפי", Royal: "מלכותי", Candy: "ממתקים", Mono: "מונוכרום", Vapor: "אדים",
-  Liquid: "נוזלי", Foil: "נייר כסף", Nebula: "ערפילית", Motion: "תנועה", Idle: "במנוחה", Animated: "מונפש",
+  Liquid: "נוזלי", Israel: "ישראל", Foil: "נייר כסף", Nebula: "ערפילית", Motion: "תנועה", Idle: "במנוחה", Animated: "מונפש",
   Glow: "זוהר", Creative: "יצירתי", Texture: "טקסטורה", Special: "מיוחד", Overlay: "שכבה", Solid: "מלא",
   Outline: "קו מתאר", Glass: "זכוכית", Elevated: "מוגבה", Color: "צבע", Retro: "רטרו", Interactive: "אינטראקטיבי",
   Brutalist: "ברוטליסטי", Sans: "ללא תגים", Hebrew: "עברית", Serif: "עם תגים", Display: "תצוגה",
-  Handwriting: "כתב יד", "Local business": "עסק מקומי", Everyone: "לכולם",
+  Handwriting: "כתב יד", HebrewDisplay: "עברית מעוצבת", "Local business": "עסק מקומי", Everyone: "לכולם",
   Creators: "יוצרים", Services: "נותני שירות", Freelancers: "פרילנסרים", Events: "אירועים",
 };
 export const catLabel = (c: string) => CAT_HE[c] ?? c;
@@ -134,6 +134,18 @@ pushBgs(
     };
   }),
 );
+// Israel: the White City's limestone, Jerusalem stone, the Dead Sea, Eilat's
+// reef, the Negev at dusk, the Galilee, Jaffa at night, bougainvillea.
+pushBgs("Israel", [
+  { css: "linear-gradient(170deg, #f6f3ec 0%, #ebe4d6 100%)", light: true },
+  { css: "linear-gradient(160deg, #f1e6cc 0%, #d8c39a 100%)", light: true },
+  { css: "radial-gradient(120% 90% at 50% 0%, #eef7f4 0%, #a7d8d0 58%, #6aaea6 100%)", light: true },
+  { css: "linear-gradient(180deg, #06324a 0%, #0a6c8f 55%, #e9785f 120%)" },
+  { css: "linear-gradient(175deg, #24150f 0%, #7a3412 58%, #d99050 120%)" },
+  { css: "linear-gradient(165deg, #f2f5e7 0%, #c6d6a3 100%)", light: true },
+  { css: "radial-gradient(80% 60% at 72% 18%, #e8862a55 0%, transparent 62%), linear-gradient(180deg, #0c1826 0%, #1a2638 100%)" },
+  { css: "linear-gradient(150deg, #fff3ee 0%, #fbd3e3 100%)", light: true },
+]);
 pushBgs(
   "Synthwave",
   Array.from({ length: 6 }, (_, i) => {
@@ -707,6 +719,31 @@ export const FULL_THEMES: FullTheme[] = [
     design: { accent: "#E5E7EB", background: "foil-5", bgFx: "vignette", card: "brutal-mono", font: "jetbrains", buttonShape: "sharp", buttonSize: "sm", buttonIdle: "none", buttonFx: "press", iconFx: "i-flip", iconIdle: "none", spacing: "compact" } },
   { id: "rose-nebula", name: "ערפילית ורודה", accent: "#FB7185", tier: "PRO",
     design: { accent: "#FB7185", background: "nebula-5", bgFx: "orbs", card: "elev-lift", font: "playfair", buttonShape: "soft", buttonSize: "md", buttonIdle: "none", buttonFx: "jelly", iconFx: "i-tilt", iconIdle: "none", spacing: "cozy" } },
+  // ── Israel (12): places and Israeli design traditions ─────────────
+  { id: "white-city", name: "העיר הלבנה", accent: "#F04E14", tier: "PLUS",
+    design: { accent: "#F04E14", background: "israel-1", bgFx: "none", card: "out-bold", font: "heebo", headingFont: "frankruhl", headingWeight: "black", buttonShape: "sharp", buttonSize: "md", buttonFx: "slide", iconFx: "i-fade", spacing: "roomy", titleFx: "none", section: "none" } },
+  { id: "jerusalem-stone", name: "אבן ירושלמית", accent: "#9A6B1F", tier: "PLUS",
+    design: { accent: "#9A6B1F", background: "israel-2", bgFx: "grain", card: "solid-surface", font: "assistant", headingFont: "davidlibre", headingWeight: "bold", buttonShape: "soft", buttonFx: "lift", iconFx: "i-color", spacing: "roomy", titleFx: "none" } },
+  { id: "dead-sea", name: "ים המלח", accent: "#0F766E", tier: "PLUS",
+    design: { accent: "#0F766E", background: "israel-3", bgFx: "haze", card: "glass-soft", font: "alef", headingFont: "bellefair", buttonShape: "pill", buttonFx: "growglow", iconFx: "i-glow", spacing: "roomy", titleFx: "none", section: "glass" } },
+  { id: "eilat-reef", name: "שונית אילת", accent: "#FF7F66", tier: "PLUS",
+    design: { accent: "#FF7F66", background: "israel-4", bgFx: "underglow", card: "glass-frost", font: "rubik", headingFont: "rubik-bubbles", buttonShape: "pill", buttonFx: "bounce", iconFx: "i-bounce", spacing: "cozy", titleFx: "gradient" } },
+  { id: "negev-dusk", name: "שקיעה בנגב", accent: "#E8A35C", tier: "PLUS",
+    design: { accent: "#E8A35C", background: "israel-5", bgFx: "grain", card: "solid-deep", font: "heebo", headingFont: "karantina", headingWeight: "bold", headingCase: "upper", buttonShape: "rounded", buttonFx: "shine", iconFx: "i-lift", spacing: "cozy", titleFx: "highlight" } },
+  { id: "galilee", name: "גליל ירוק", accent: "#3F6212", tier: "PLUS",
+    design: { accent: "#3F6212", background: "israel-6", bgFx: "none", card: "elev-soft", font: "opensans", headingFont: "secular", buttonShape: "rounded", buttonFx: "lift", iconFx: "i-scale", spacing: "roomy", titleFx: "none", section: "soft" } },
+  { id: "jaffa-night", name: "לילה ביפו", accent: "#F28C28", tier: "PLUS",
+    design: { accent: "#F28C28", background: "israel-7", bgFx: "starfield", card: "glass-smoke", font: "heebo", headingFont: "suez", buttonShape: "soft", buttonFx: "glow", iconFx: "i-glow", spacing: "cozy", titleFx: "glow" } },
+  { id: "bougainvillea", name: "בוגנוויליה", accent: "#C2185B", tier: "PLUS",
+    design: { accent: "#C2185B", background: "israel-8", bgFx: "none", card: "solid-tint", font: "fredoka", headingFont: "fredoka", headingWeight: "semibold", buttonShape: "pill", buttonFx: "jelly", iconFx: "i-wiggle", spacing: "cozy", titleFx: "none" } },
+  { id: "kibbutz-70s", name: "קיבוץ 70", accent: "#B45309", tier: "PLUS",
+    design: { accent: "#B45309", background: "israel-2", bgFx: "halftone", card: "retro-double", font: "assistant", headingFont: "rubik-80s-fade", buttonShape: "rounded", buttonFx: "press", iconFx: "i-pop", spacing: "cozy", titleFx: "retro" } },
+  { id: "shuk", name: "שוק הכרמל", accent: "#DC2626", tier: "PLUS",
+    design: { accent: "#DC2626", background: "israel-1", bgFx: "none", card: "brutal-accent", font: "heebo", headingFont: "rubik-spray-paint", buttonShape: "sharp", buttonFx: "wobble", iconFx: "i-shake", spacing: "compact", titleFx: "none" } },
+  { id: "florentin", name: "פלורנטין", accent: "#A3E635", tier: "PRO",
+    design: { accent: "#A3E635", background: "noir-1", bgFx: "grain", card: "brutal-mono", font: "rubik", headingFont: "rubik-wet-paint", buttonShape: "sharp", buttonFx: "glitch", iconFx: "i-shake", spacing: "cozy", titleFx: "glitch", cursor: "trail" } },
+  { id: "rothschild", name: "שדרות רוטשילד", accent: "#FBBF24", tier: "PRO",
+    design: { accent: "#FBBF24", background: "israel-7", bgFx: "rays", card: "elev-float", font: "miriam", headingFont: "frankruhl", headingWeight: "black", buttonShape: "pill", buttonFx: "magnetic", iconFx: "i-glow", spacing: "roomy", titleFx: "chrome", liveBg: "fireflies" } },
 ];
 
 /** A swatch gradient for a full theme tile. */

@@ -18,6 +18,7 @@ import {
   type Choice,
 } from "@/lib/studio";
 import { BLOCK_META } from "@/components/builder/block-meta";
+import { TYPE_FX } from "@/lib/typing";
 
 /** true = included, false = not, string = included with this detail. */
 export type Cell = boolean | string;
@@ -87,6 +88,7 @@ export function planMatrix(): MatrixGroup[] {
         { label: "רקעים חיים ומונפשים", hint: "ב־Pro גם WebGL בזמן אמת", cells: counts(countFor(realChoices(LIVE_BGS), (x) => x.tier)) },
         { label: "אפקטי שכבה לרקע", cells: counts(countFor(BG_FX.filter((e) => e.id !== "none"), (e) => bgFxCategoryTier(e.category))) },
         { label: "אפקטים לכותרות", cells: counts(countFor(realChoices(TITLE_FX), (x) => x.tier)) },
+        { label: "אפקטי מכונת כתיבה", hint: "מהירות, סמן, צבע ולולאה בכל החבילות", cells: counts(countFor(TYPE_FX, (x) => x.tier)) },
         { label: "ערכות עיצוב בלחיצה", cells: counts(countFor(FULL_THEMES, (t) => t.tier)) },
         { label: "סגנונות כפתורים", cells: counts(countFor(CARD_STYLES, (s) => cardCategoryTier(s.category))) },
         { label: "פריסות עמוד", cells: counts(countFor(PAGE_LAYOUTS, (x) => x.tier)) },

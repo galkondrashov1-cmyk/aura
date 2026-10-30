@@ -156,7 +156,7 @@ function Tagline({ b, className }: { b: BlockOf<"hero">; className?: string }) {
       {words.length > 0 && (
         <>
           {!isEmptyRich(b.tagline) && " "}
-          <Typewriter words={words} />
+          <Typewriter words={words} typing={b.typing} />
         </>
       )}
     </p>
