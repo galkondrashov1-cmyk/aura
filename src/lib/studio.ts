@@ -37,6 +37,9 @@ export const HERO_LAYOUTS: Choice[] = [
   { id: "split", name: "זה לצד זה", tier: "PLUS" },
   { id: "cover", name: "שער", tier: "PLUS", hint: "באנר ברוחב מלא עם השם שלכם עליו" },
   { id: "big", name: "פוסטר", tier: "PLUS", hint: "טיפוגרפיה ענקית ומצהירה" },
+  { id: "minimal", name: "טקסט בלבד", tier: "FREE", hint: "בלי תמונה, רק השם" },
+  { id: "masthead", name: "עיתון", tier: "PLUS", hint: "שם העיתון בין קווים כפולים" },
+  { id: "ticket", name: "כרטיס", tier: "PLUS", hint: "כרטיס כניסה עם ספח" },
 ];
 
 // ---------- Profile photo ----------

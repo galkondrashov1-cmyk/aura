@@ -218,6 +218,46 @@ export function HeroBlock({ b }: { b: BlockOf<"hero"> }) {
     );
   }
 
+  if (layout === "minimal") {
+    return (
+      <div className="pg-hero flex flex-col items-start border-b border-border pb-5 text-start">
+        <HeroBadge text={b.badge} />
+        <Title value={b.name} as="h1" className="pg-title" />
+        <Tagline b={b} className="mt-1" />
+      </div>
+    );
+  }
+
+  if (layout === "masthead") {
+    return (
+      <div className="pg-hero flex flex-col items-center text-center">
+        <HeroBadge text={b.badge} />
+        <div className="w-full border-t-[3px] border-b border-text pt-3 pb-2.5">
+          <Title value={b.name} as="h1" className="pg-title !leading-[0.95] [--h1:2.6rem]" />
+        </div>
+        <div className="flex w-full items-center justify-center gap-3 border-b border-text py-2.5">
+          <Avatar b={b} px={b.avatarScale ?? 36} />
+          <Tagline b={b} />
+        </div>
+      </div>
+    );
+  }
+
+  if (layout === "ticket") {
+    return (
+      <div className="pg-hero pg-ticket flex items-stretch rounded-2xl border border-border bg-surface/70 text-start backdrop-blur">
+        <div className="grid w-26 shrink-0 place-items-center py-4">
+          <Avatar b={b} px={b.avatarScale ?? 68} />
+        </div>
+        <div className="min-w-0 flex-1 border-s-2 border-dashed border-border px-4 py-4">
+          <HeroBadge text={b.badge} />
+          <Title value={b.name} as="h1" className="pg-title [--h1:1.6rem]" />
+          <Tagline b={b} className="mt-1" />
+        </div>
+      </div>
+    );
+  }
+
   if (layout === "left") {
     return (
       <div className="pg-hero flex items-center gap-4 text-start">

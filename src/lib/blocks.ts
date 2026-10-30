@@ -84,7 +84,7 @@ export type DividerStyle =
   | "shimmer" | "march" | "pulse";
 export type BannerHeight = "sm" | "md" | "lg";
 export type Align = "left" | "center" | "right";
-export type HeroLayout = "center" | "left" | "cover" | "big" | "split";
+export type HeroLayout = "center" | "left" | "cover" | "big" | "split" | "minimal" | "masthead" | "ticket";
 export type LinksLayout = "list" | "grid" | "cards";
 export type Height3 = "sm" | "md" | "lg";
 

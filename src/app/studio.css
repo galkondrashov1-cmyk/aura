@@ -532,3 +532,12 @@
 }
 .avf-polaroid { rotate: -3deg; background: #fbfaf6; padding: 6px 6px 24px; box-shadow: 0 12px 28px rgb(0 0 0 / 0.35); }
 .avf-polaroid > span { border: 0 !important; border-radius: 2px !important; }
+
+/* Ticket hero: punched notches where the stub meets the ticket. */
+.pg-ticket {
+  --tx: 6.5rem;
+  mask:
+    radial-gradient(circle 11px at var(--tx) 0, #0000 97%, #000) top / 100% 51% no-repeat,
+    radial-gradient(circle 11px at var(--tx) 100%, #0000 97%, #000) bottom / 100% 51% no-repeat;
+}
+.pg-ticket:dir(rtl) { --tx: calc(100% - 6.5rem); }

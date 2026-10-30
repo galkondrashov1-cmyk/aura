@@ -633,6 +633,7 @@ function HeroEditor({ b, plan, onPatch }: { b: BlockOf<"hero">; plan: Plan; onPa
         <input value={b.badge ?? ""} onChange={(e) => onPatch({ badge: e.target.value || undefined })} placeholder='תג סטטוס, למשל "פנוי/ה לפרויקטים"' maxLength={40} className={fieldCls} />
       </div>
       {(b.words ?? []).length > 0 && <TypingFields typing={b.typing} plan={plan} onChange={(typing) => onPatch({ typing })} />}
+      {layout !== "minimal" && (
       <Section title="תמונת פרופיל">
         <ImageField value={b.avatarUrl} onChange={(avatarUrl) => onPatch({ avatarUrl: avatarUrl ?? null })} maxDim={640} />
         <Slider label="גודל" value={b.avatarScale ?? 80} min={48} max={200} step={4} suffix="px" onChange={(avatarScale) => onPatch({ avatarScale })} />
@@ -658,6 +659,7 @@ function HeroEditor({ b, plan, onPatch }: { b: BlockOf<"hero">; plan: Plan; onPa
           ))}
         </select>
       </Section>
+      )}
       {(layout === "center" || layout === "cover") && (
         <Section title={layout === "cover" ? "תמונת שער" : "באנר"}>
           <ImageField value={b.bannerUrl} onChange={(bannerUrl) => onPatch({ bannerUrl: bannerUrl ?? null })} maxDim={1800} />
