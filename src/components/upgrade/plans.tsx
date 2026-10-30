@@ -168,7 +168,7 @@ export function UpgradePlans({
                         e.preventDefault();
                     }}
                   >
-                    <button type="submit" className="w-full rounded-full border border-border py-2.5 text-sm text-text-muted transition-colors hover:text-red-700">
+                    <button type="submit" className="w-full rounded-full border border-border py-2.5 text-sm text-text-muted transition-colors hover:text-red-400">
                       ביטול מנוי
                     </button>
                   </form>

@@ -44,7 +44,7 @@ export default function GatePage() {
           placeholder="• • • •"
           className="w-full rounded-xl border border-border bg-surface-2 px-4 py-3 text-center text-lg tracking-[0.4em] text-text outline-none focus-visible:ring-2 focus-visible:ring-primary/50"
         />
-        {err && <p className="text-sm text-red-700">קוד שגוי — נסו שוב.</p>}
+        {err && <p className="text-sm text-red-400">קוד שגוי — נסו שוב.</p>}
         <button
           type="submit"
           disabled={busy}

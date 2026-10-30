@@ -291,13 +291,13 @@ export function ImageField({
             type="button"
             onClick={() => onChange(undefined)}
             aria-label="הסרת תמונה"
-            className="grid h-10 w-8 shrink-0 place-items-center text-text-muted hover:text-red-700"
+            className="grid h-10 w-8 shrink-0 place-items-center text-text-muted hover:text-red-400"
           >
             <X className="h-4 w-4" />
           </button>
         )}
       </div>
-      {error && <p className="mt-1 text-xs text-red-700">{error}</p>}
+      {error && <p className="mt-1 text-xs text-red-400">{error}</p>}
     </div>
   );
 }
@@ -310,7 +310,7 @@ export function ItemCard({ children, onRemove }: { children: React.ReactNode; on
           type="button"
           onClick={onRemove}
           aria-label="הסרת פריט"
-          className="absolute top-2 end-2 grid h-7 w-7 place-items-center rounded-lg text-text-muted transition-colors hover:bg-bg hover:text-red-700"
+          className="absolute top-2 end-2 grid h-7 w-7 place-items-center rounded-lg text-text-muted transition-colors hover:bg-bg hover:text-red-400"
         >
           <Trash2 className="h-3.5 w-3.5" />
         </button>

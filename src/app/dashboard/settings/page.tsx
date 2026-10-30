@@ -8,7 +8,7 @@ export default async function SettingsPage() {
 
   return (
     <div className="mx-auto max-w-xl">
-      <h1 className="font-display text-[2rem] leading-tight font-black tracking-tight">הגדרות</h1>
+      <h1 className="font-display text-[2rem] leading-tight font-bold tracking-tight">הגדרות</h1>
       <p className="mt-1 text-sm text-text-muted">ניהול החשבון שלכם.</p>
       <div className="mt-6">
         <SettingsForm

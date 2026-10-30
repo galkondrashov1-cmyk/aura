@@ -168,7 +168,7 @@ const RECIPES: Record<string, () => Recipe> = {
       fab: { kind: "phone", value: "+972300000000" },
     },
     blocks: [
-      { type: "hero", name: "קפה טקס הבוקר", tagline: "קפה ספשלטי · מאפים שנאפים עם שחר", badge: "פתוח עכשיו", layout: "cover" },
+      { type: "hero", name: "קפה טקס הבוקר", tagline: "קפה ספשלטי · מאפים שנאפים עם שחר", badge: "פלורנטין, תל אביב", layout: "cover" },
       { type: "links", layout: "cards", items: [
         { label: "הזמנה לאיסוף", sub: "מוכן תוך 10 דקות", url: "https://", icon: "🥡" },
         { label: "הזמנת שולחן", sub: "בסופי שבוע מתמלא מהר", url: "https://", icon: "🪑" },
@@ -180,7 +180,10 @@ const RECIPES: Record<string, () => Recipe> = {
         { icon: "🌱", title: "אפשרויות טבעוניות" },
         { icon: "📶", title: "Wi‑Fi חינם" },
       ] },
-      { type: "text", heading: "שעות פתיחה", body: "א׳–ה׳ · 7:00–19:00\nו׳ · 7:00–15:00\nשבת · 9:00–18:00", align: "center" },
+      { type: "hours", heading: "שעות פתיחה", days: [
+        { from: "07:00", to: "19:00" }, { from: "07:00", to: "19:00" }, { from: "07:00", to: "19:00" }, { from: "07:00", to: "19:00" },
+        { from: "07:00", to: "19:00" }, { from: "07:00", to: "15:00" }, { from: "09:00", to: "18:00" },
+      ] },
       { type: "map", query: "שדרות רוטשילד 1, תל אביב", height: "md" },
       { type: "socials", iconStyle: "chip", items: [
         { platform: "instagram", url: "https://instagram.com/" },

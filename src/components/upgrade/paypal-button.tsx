@@ -72,12 +72,12 @@ export function PayPalSubscribe({ clientId, planId, customId }: { clientId: stri
     <div>
       <div ref={host} />
       {failed && (
-        <p className="mt-2 text-center text-xs text-red-700">
+        <p className="mt-2 text-center text-xs text-red-400">
           PayPal לא נטען — רעננו את העמוד ונסו שוב.
         </p>
       )}
       {pending && <p className="mt-2 text-center text-xs text-text-muted">מאמתים מול PayPal…</p>}
-      {state?.error && <p className="mt-2 text-center text-xs text-red-700">{state.error}</p>}
+      {state?.error && <p className="mt-2 text-center text-xs text-red-400">{state.error}</p>}
       <form ref={form} action={action} className="hidden">
         <input type="hidden" name="subscriptionId" value={subId} readOnly />
       </form>

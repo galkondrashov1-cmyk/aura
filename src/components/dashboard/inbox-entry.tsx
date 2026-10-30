@@ -31,7 +31,7 @@ export function InboxEntry({ id, children }: { id: string; children: React.React
           });
         }}
         aria-label="מחיקת פנייה"
-        className="grid h-8 w-8 shrink-0 place-items-center rounded-lg text-text-muted transition-colors hover:bg-surface-2 hover:text-red-700 disabled:opacity-50"
+        className="grid h-8 w-8 shrink-0 place-items-center rounded-lg text-text-muted transition-colors hover:bg-surface-2 hover:text-red-400 disabled:opacity-50"
       >
         <Trash2 className="h-4 w-4" />
       </button>

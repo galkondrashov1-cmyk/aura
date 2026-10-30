@@ -117,7 +117,7 @@ export function Upsell({
           )}
         </div>
 
-        {error && <p className="relative mt-3 text-sm text-red-700">{error}</p>}
+        {error && <p className="relative mt-3 text-sm text-red-400">{error}</p>}
 
         <div className="relative mt-5 flex flex-col gap-2">
           <button

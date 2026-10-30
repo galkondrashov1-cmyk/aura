@@ -30,7 +30,7 @@ export function AdminUnlock() {
           placeholder="קוד"
           className="h-12 w-full rounded-xl border border-border bg-surface-2 px-4 text-center text-lg tracking-[0.3em] text-text placeholder:tracking-normal placeholder:text-text-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50"
         />
-        {state?.error && <p className="mt-3 text-sm text-red-700">{state.error}</p>}
+        {state?.error && <p className="mt-3 text-sm text-red-400">{state.error}</p>}
         <button
           type="submit"
           disabled={pending}

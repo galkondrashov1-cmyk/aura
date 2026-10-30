@@ -58,6 +58,7 @@ export function SignupForm({ initialName = "" }: { initialName?: string }) {
             autoCorrect="off"
             spellCheck={false}
             maxLength={20}
+            size={1}
             required
             value={name}
             onChange={(e) => setName(e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, ""))}
@@ -65,10 +66,10 @@ export function SignupForm({ initialName = "" }: { initialName?: string }) {
           />
           {current === "checking" && <Loader2 className="h-4 w-4 animate-spin text-text-muted" />}
           {current === "free" && <Check className="h-4 w-4 text-primary-text" aria-label="פנוי" />}
-          {current && current !== "free" && current !== "checking" && <X className="h-4 w-4 text-red-700" />}
+          {current && current !== "free" && current !== "checking" && <X className="h-4 w-4 text-red-400" />}
         </div>
         {current && current !== "free" && current !== "checking" && (
-          <p className="mt-1.5 text-xs text-red-700">{HINT[current]}</p>
+          <p className="mt-1.5 text-xs text-red-400">{HINT[current]}</p>
         )}
       </div>
       <Input
@@ -80,7 +81,7 @@ export function SignupForm({ initialName = "" }: { initialName?: string }) {
         required
       />
       <PasswordInput name="password" placeholder="בחרו סיסמה (8 תווים לפחות)" autoComplete="new-password" minLength={8} required />
-      {state?.error && <p className="text-sm text-red-700">{state.error}</p>}
+      {state?.error && <p className="text-sm text-red-400">{state.error}</p>}
       <button type="submit" disabled={pending} className={buttonClasses("primary", "md", "w-full")}>
         {pending ? "יוצרים…" : "צרו עמוד משלכם"}
       </button>

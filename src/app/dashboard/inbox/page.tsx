@@ -24,7 +24,7 @@ export default async function InboxPage() {
     <div>
       <div className="flex items-center justify-between gap-4">
         <div>
-          <h1 className="font-display text-[2rem] leading-tight font-black tracking-tight">פניות</h1>
+          <h1 className="font-display text-[2rem] leading-tight font-bold tracking-tight">פניות</h1>
           <p className="mt-1 text-sm text-text-muted">הרשמות והודעות מהטפסים בעמודים שלכם.</p>
         </div>
         {subs.length > 0 && (

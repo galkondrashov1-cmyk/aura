@@ -131,7 +131,7 @@ export default async function AnalyticsPage({
     <div>
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
-          <h1 className="font-display text-[2rem] leading-tight font-black tracking-tight">נתונים</h1>
+          <h1 className="font-display text-[2rem] leading-tight font-bold tracking-tight">נתונים</h1>
           <p className="mt-1 text-sm text-text-muted">
             {selected ? selected.title : "כל העמודים"} · {days} הימים האחרונים{step > 1 ? " לפי שבועות" : ""} · בלי בוטים ובלי
             הביקורים שלכם
@@ -285,7 +285,7 @@ function Metric({ label, value, prev, suffix = "" }: { label: string; value: num
         {suffix}
       </p>
       {delta !== null && (
-        <p className={cn("mt-0.5 text-[11px]", delta > 0 ? "text-primary-text" : delta < 0 ? "text-red-700" : "text-text-muted")}>
+        <p className={cn("mt-0.5 text-[11px]", delta > 0 ? "text-primary-text" : delta < 0 ? "text-red-400" : "text-text-muted")}>
           {delta > 0 ? "▲" : delta < 0 ? "▼" : "•"} {Math.abs(delta)}% לעומת התקופה הקודמת
         </p>
       )}

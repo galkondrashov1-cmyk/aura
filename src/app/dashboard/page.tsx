@@ -38,7 +38,7 @@ export default async function DashboardHome() {
   if (pages.length === 0) {
     return (
       <div>
-        <h1 className="font-display text-[2rem] leading-tight font-black tracking-tight">צרו את העמוד הראשון שלכם</h1>
+        <h1 className="font-display text-[2rem] leading-tight font-bold tracking-tight">צרו את העמוד הראשון שלכם</h1>
         <p className="mt-1 text-sm text-text-muted">
           בחרו נקודת התחלה — כל תבנית ניתנת לעריכה מלאה, ו־Remix נותן מראה חדש בלחיצה.
         </p>
@@ -57,7 +57,7 @@ export default async function DashboardHome() {
     <div>
       <div className="flex items-center justify-between gap-4">
         <div>
-          <h1 className="font-display text-[2rem] leading-tight font-black tracking-tight">העמודים שלי</h1>
+          <h1 className="font-display text-[2rem] leading-tight font-bold tracking-tight">העמודים שלי</h1>
           <p className="mt-1 text-sm text-text-muted">7 הימים האחרונים במבט אחד. לחצו על עמוד כדי להמשיך לעצב.</p>
         </div>
         <Link href="/dashboard/new" className={buttonClasses("primary", "md")}>

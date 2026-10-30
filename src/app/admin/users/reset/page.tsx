@@ -14,7 +14,7 @@ export default async function AdminResetLink({ searchParams }: { searchParams: P
       <Link href="/admin/users" className="text-sm text-text-muted hover:text-text">
         → משתמשים
       </Link>
-      <h1 className="mt-3 font-display text-[2rem] leading-tight font-black tracking-tight">קישור לאיפוס סיסמה</h1>
+      <h1 className="mt-3 font-display text-[2rem] leading-tight font-bold tracking-tight">קישור לאיפוס סיסמה</h1>
       {user && link ? (
         <>
           <p className="mt-1 text-sm text-text-muted">

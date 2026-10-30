@@ -30,7 +30,7 @@ export function LoginForm() {
           שכחתי סיסמה
         </Link>
       </div>
-      {state?.error && <p className="text-sm text-red-700">{state.error}</p>}
+      {state?.error && <p className="text-sm text-red-400">{state.error}</p>}
       <button type="submit" disabled={pending} className={buttonClasses("primary", "md", "w-full")}>
         {pending ? "מתחברים…" : "התחברות"}
       </button>

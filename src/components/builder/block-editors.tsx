@@ -990,7 +990,7 @@ function SocialsEditor({ b, plan, onPatch }: { b: BlockOf<"socials">; plan: Plan
             type="button"
             onClick={() => setItems(items.filter((_, j) => j !== i))}
             aria-label="הסרה"
-            className="grid h-10 w-8 shrink-0 place-items-center text-text-muted hover:text-red-700"
+            className="grid h-10 w-8 shrink-0 place-items-center text-text-muted hover:text-red-400"
           >
             ×
           </button>

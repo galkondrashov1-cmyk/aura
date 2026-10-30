@@ -558,7 +558,7 @@ function StyleTab({
         </span>
         {matching ? <Loader2 className="h-4 w-4 animate-spin text-text-muted" /> : <Wand2 className="h-4 w-4 text-text-muted" />}
       </button>
-      {matchError && <p className="-mt-3 text-xs text-red-700">{matchError}</p>}
+      {matchError && <p className="-mt-3 text-xs text-red-400">{matchError}</p>}
 
       <Section
         title="ערכות עיצוב"

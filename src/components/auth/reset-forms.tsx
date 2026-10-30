@@ -44,7 +44,7 @@ export function ForgotForm({ support }: { support: string | null }) {
           )}
         </p>
       ) : (
-        state?.error && <p className="text-sm text-red-700">{state.error}</p>
+        state?.error && <p className="text-sm text-red-400">{state.error}</p>
       )}
       <button type="submit" disabled={pending} className={buttonClasses("primary", "md", "w-full")}>
         {pending ? "שולחים…" : "שליחת קישור איפוס"}
@@ -58,7 +58,7 @@ export function ResetForm({ token }: { token: string }) {
   return (
     <form action={action} className="space-y-3">
       <PasswordInput name="password" placeholder="סיסמה חדשה (8 תווים לפחות)" autoComplete="new-password" minLength={8} required />
-      {state?.error && <p className="text-sm text-red-700">{state.error}</p>}
+      {state?.error && <p className="text-sm text-red-400">{state.error}</p>}
       <button type="submit" disabled={pending} className={buttonClasses("primary", "md", "w-full")}>
         {pending ? "שומרים…" : "שמירה והתחברות"}
       </button>

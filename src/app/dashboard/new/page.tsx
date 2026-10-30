@@ -12,7 +12,7 @@ export default async function NewPage() {
   const plan = effectivePlanFrom(user);
   return (
     <div>
-      <h1 className="font-display text-[2rem] leading-tight font-black tracking-tight">בחרו נקודת התחלה</h1>
+      <h1 className="font-display text-[2rem] leading-tight font-bold tracking-tight">בחרו נקודת התחלה</h1>
       <p className="mt-1 text-sm text-text-muted">
         כל תבנית ניתנת לעריכה מלאה — החליפו את הטקסטים, ואז עשו Remix עד שהמראה יהיה בדיוק שלכם.
       </p>

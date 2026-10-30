@@ -775,7 +775,7 @@ function PageSettings({
                 {pending ? "…" : "שמירה"}
               </button>
             </form>
-            {state?.error && <p className="text-xs text-red-700">{state.error}</p>}
+            {state?.error && <p className="text-xs text-red-400">{state.error}</p>}
             {state?.ok && <p className="text-xs text-primary-text">הכתובת עודכנה.</p>}
             <button
               disabled={busy}
@@ -813,7 +813,7 @@ function PageSettings({
               if (!confirm("למחוק את העמוד? אי אפשר לבטל את הפעולה.")) e.preventDefault();
             }}
           >
-            <button className="w-full rounded-lg border border-red-500/30 py-2 text-xs text-red-700 hover:bg-red-500/10">מחיקת עמוד</button>
+            <button className="w-full rounded-lg border border-red-500/30 py-2 text-xs text-red-400 hover:bg-red-500/10">מחיקת עמוד</button>
           </form>
         </div>
       </div>
@@ -888,7 +888,7 @@ function SaveBadge({ state }: { state: SaveState }) {
     saved: { icon: Cloud, text: "נשמר", cls: "text-text-muted" },
     dirty: { icon: Cloud, text: "עורכים…", cls: "text-text-muted" },
     saving: { icon: Loader2, text: "שומרים…", cls: "text-text-muted" },
-    error: { icon: CloudOff, text: "לא נשמר — מנסים שוב אוטומטית", cls: "text-red-700" },
+    error: { icon: CloudOff, text: "לא נשמר — מנסים שוב אוטומטית", cls: "text-red-400" },
   }[state];
   const Icon = map.icon;
   return (
@@ -923,7 +923,7 @@ function IconBtn({
       aria-label={label}
       className={cn(
         "grid h-8 w-8 shrink-0 place-items-center rounded-lg text-text-muted transition-colors hover:bg-surface-2 disabled:opacity-30",
-        danger ? "hover:text-red-700" : "hover:text-text",
+        danger ? "hover:text-red-400" : "hover:text-text",
         className,
       )}
     >

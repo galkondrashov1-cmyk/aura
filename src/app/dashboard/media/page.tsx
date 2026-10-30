@@ -13,7 +13,7 @@ export default async function MediaPage() {
 
   return (
     <div>
-      <h1 className="font-display text-[2rem] leading-tight font-black tracking-tight">מדיה</h1>
+      <h1 className="font-display text-[2rem] leading-tight font-bold tracking-tight">מדיה</h1>
       <p className="mt-1 text-sm text-text-muted">
         תמונות שהעליתם בעורך מופיעות כאן.
       </p>

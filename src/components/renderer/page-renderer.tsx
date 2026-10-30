@@ -40,7 +40,11 @@ function pageLocale(content: PageContent) {
           ? toPlain(b.body)
           : b.type === "links"
             ? b.items.map((l) => toPlain(l.label)).join(" ")
-            : "",
+            : b.type === "hours"
+              ? (b.heading ?? "")
+              : b.type === "contact"
+                ? `${b.name} ${b.role ?? ""}`
+                : "",
     )
     .join(" ");
   const d = content.design?.dir;

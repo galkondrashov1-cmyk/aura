@@ -49,6 +49,7 @@ export function SettingsForm({
                 autoCorrect="off"
                 spellCheck={false}
                 maxLength={20}
+                size={1}
                 className="ms-0.5 min-w-0 flex-1 bg-transparent text-text focus:outline-none"
               />
             </div>
@@ -59,7 +60,7 @@ export function SettingsForm({
           <Field label="מייל">
             <Input defaultValue={email} disabled />
           </Field>
-          {pState?.error && <p className="text-sm text-red-700">{pState.error}</p>}
+          {pState?.error && <p className="text-sm text-red-400">{pState.error}</p>}
           {pState?.ok && <p className="text-sm text-primary-text">נשמר.</p>}
           <button type="submit" disabled={pPending} className={buttonClasses("primary", "md")}>
             {pPending ? "שומרים…" : "שמירת פרופיל"}
@@ -76,7 +77,7 @@ export function SettingsForm({
           <Field label="סיסמה חדשה">
             <PasswordInput name="next" autoComplete="new-password" placeholder="8 תווים לפחות" minLength={8} required />
           </Field>
-          {wState?.error && <p className="text-sm text-red-700">{wState.error}</p>}
+          {wState?.error && <p className="text-sm text-red-400">{wState.error}</p>}
           {wState?.ok && <p className="text-sm text-primary-text">הסיסמה עודכנה. שאר המכשירים נותקו.</p>}
           <button type="submit" disabled={wPending} className={buttonClasses("primary", "md")}>
             {wPending ? "מעדכנים…" : "שינוי סיסמה"}
@@ -85,7 +86,7 @@ export function SettingsForm({
       </section>
 
       <details className="group rounded-lg border border-red-500/30 bg-surface p-6">
-        <summary className="cursor-pointer list-none font-display text-lg font-medium text-red-700">מחיקת חשבון</summary>
+        <summary className="cursor-pointer list-none font-display text-lg font-medium text-red-400">מחיקת חשבון</summary>
         <p className="mt-2 text-sm text-text-muted">
           מוחק לצמיתות את העמודים, ההעלאות, הפניות והנתונים שלכם, ומשחרר את @{username}. מנוי פעיל יבוטל. אי אפשר
           לבטל את הפעולה.
@@ -97,7 +98,7 @@ export function SettingsForm({
           <Field label="סיסמה">
             <PasswordInput name="password" autoComplete="current-password" required />
           </Field>
-          {dState?.error && <p className="text-sm text-red-700">{dState.error}</p>}
+          {dState?.error && <p className="text-sm text-red-400">{dState.error}</p>}
           <button
             type="submit"
             disabled={dPending}

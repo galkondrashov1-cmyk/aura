@@ -1,13 +1,18 @@
 import { BRAND } from "@/lib/brand";
 import type { Metadata, Viewport } from "next";
-import { Frank_Ruhl_Libre, Heebo } from "next/font/google";
+import { IBM_Plex_Sans_Hebrew } from "next/font/google";
 import "./globals.css";
 import { SITE_URL } from "@/lib/site";
 
-// Hebrew-first type: Frank Ruhl Libre (the classic Israeli newspaper serif)
-// for headlines, Heebo for everything else. Both cover Latin.
-const body = Heebo({ subsets: ["hebrew", "latin"], variable: "--font-body", display: "swap" });
-const display = Frank_Ruhl_Libre({ subsets: ["hebrew", "latin"], variable: "--font-head", display: "swap" });
+// One family for the whole product: IBM Plex Sans Hebrew (Hebrew by Liron
+// Lavi Turkenich). Headlines are the same face, heavier, so the UI reads as
+// one voice. Covers Latin too.
+const plex = IBM_Plex_Sans_Hebrew({
+  subsets: ["hebrew", "latin"],
+  weight: ["300", "400", "500", "600", "700"],
+  variable: "--font-body",
+  display: "swap",
+});
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
@@ -19,7 +24,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#f4f1ea",
+  themeColor: "#141312",
 };
 
 export default function RootLayout({
@@ -32,7 +37,7 @@ export default function RootLayout({
     // proxies) inject attributes onto <html> before React hydrates, which would
     // otherwise surface a harmless attribute-mismatch warning. This only relaxes
     // the check for <html>'s own attributes, not the rest of the tree.
-    <html lang="he" dir="rtl" className={`${body.variable} ${display.variable}`} suppressHydrationWarning>
+    <html lang="he" dir="rtl" className={plex.variable} suppressHydrationWarning>
       {/* The PWA launch splash is pure CSS (body::before/::after, installed
           app only — see globals.css). It used to be a <div> injected by an
           inline script, which landed in <body> ahead of React's streamed

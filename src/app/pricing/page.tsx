@@ -16,10 +16,7 @@ export default function PricingPage() {
     <div className="min-h-dvh">
       <SiteNav />
       <section className="mx-auto max-w-6xl px-4 pt-8 pb-14 sm:px-6 md:pt-14">
-        <p className="kicker">מחירים</p>
-        <h1 className="display-l wipe mt-3 max-w-4xl">
-          עמוד שאין לאף אחד אחר, במחיר של כוס קפה בחודש.
-        </h1>
+        <h1 className="display-l max-w-3xl">מחירים</h1>
         <p className="mt-4 max-w-2xl text-text-muted">
           מתחילים בחינם ונשארים בחינם כמה שרוצים. משדרגים כשרוצים את כל סטודיו העיצוב, בלוקים לעסקים או עוד עמודים.
           כל מה שמופיע כאן נוצר ישירות מהמוצר, כך שזה בדיוק מה שתקבלו.
@@ -30,7 +27,7 @@ export default function PricingPage() {
       </section>
 
       <section className="mx-auto max-w-6xl px-4 pb-14 sm:px-6">
-        <h2 className="font-display text-[2rem] leading-tight font-black tracking-tight md:text-3xl">הכל, זה לצד זה</h2>
+        <h2 className="font-display text-[2rem] leading-tight font-bold tracking-tight md:text-3xl">הכל, זה לצד זה</h2>
         <p className="mt-2 text-sm text-text-muted">
           כל אפקט עובד בעורך בכל חבילה, כך שאפשר לנסות לפני שמחליטים.
         </p>
@@ -40,7 +37,7 @@ export default function PricingPage() {
       </section>
 
       <section className="mx-auto max-w-3xl px-4 pb-16 sm:px-6">
-        <h2 className="font-display text-[2rem] leading-tight font-black tracking-tight md:text-3xl">שאלות נפוצות</h2>
+        <h2 className="font-display text-[2rem] leading-tight font-bold tracking-tight md:text-3xl">שאלות נפוצות</h2>
         <div className="mt-6">
           <PricingFaq />
         </div>

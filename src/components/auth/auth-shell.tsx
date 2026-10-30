@@ -1,8 +1,10 @@
 import Link from "next/link";
 import { Logo } from "@/components/logo";
 import { BRAND } from "@/lib/brand";
+import { Phone } from "@/components/marketing/phone";
+import { templateContent } from "@/lib/templates";
 
-/** Every auth screen: the form on paper, a typographic ink panel beside it. */
+/** Every auth screen: the form, and beside it a real page made with the product. */
 export function AuthShell({
   title,
   subtitle,
@@ -16,12 +18,12 @@ export function AuthShell({
 }) {
   return (
     <div className="grid min-h-dvh lg:grid-cols-2">
-      <div className="flex flex-col px-5 py-6 sm:px-10">
+      <div className="flex min-w-0 flex-col px-5 py-6 sm:px-10">
         <Link href="/" aria-label={BRAND.name} className="self-start">
           <Logo />
         </Link>
         <div className="m-auto w-full max-w-sm py-12">
-          <h1 className="font-display text-[2.6rem] leading-none font-black tracking-tight">{title}</h1>
+          <h1 className="text-[2rem] leading-tight font-semibold">{title}</h1>
           <p className="mt-3 mb-8 text-text-muted">{subtitle}</p>
           {children}
           {footer && (
@@ -29,16 +31,9 @@ export function AuthShell({
           )}
         </div>
       </div>
-      <aside className="hidden flex-col justify-between bg-text p-12 text-bg lg:flex">
-        <span className="size-3 bg-primary" />
-        <p className="display-xl">
-          עמוד אחד.
-          <br />
-          בדיוק כמוכם.
-        </p>
-        <p dir="ltr" className="text-end text-sm text-bg/50">
-          {BRAND.domain}
-        </p>
+      <aside className="hidden flex-col items-center justify-center gap-5 border-s border-border bg-surface p-12 lg:flex">
+        <Phone content={templateContent("hebrew")} />
+        <p className="text-sm text-text-muted">עמוד לדוגמה מתוך התבניות</p>
       </aside>
     </div>
   );

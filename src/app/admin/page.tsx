@@ -27,7 +27,7 @@ export default async function AdminOverview() {
 
   return (
     <div>
-      <h1 className="font-display text-[2rem] leading-tight font-black tracking-tight">סקירה</h1>
+      <h1 className="font-display text-[2rem] leading-tight font-bold tracking-tight">סקירה</h1>
       <p className="mt-1 text-sm text-text-muted">מצב הפלטפורמה במבט אחד.</p>
 
       <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">

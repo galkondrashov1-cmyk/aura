@@ -38,7 +38,7 @@ export default async function AdminUsers({ searchParams }: SP) {
     <div>
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h1 className="font-display text-[2rem] leading-tight font-black tracking-tight">משתמשים</h1>
+          <h1 className="font-display text-[2rem] leading-tight font-bold tracking-tight">משתמשים</h1>
           <p className="mt-1 text-sm text-text-muted">{users.length} shown</p>
         </div>
         <form className="relative w-full sm:w-auto">
@@ -73,7 +73,7 @@ export default async function AdminUsers({ searchParams }: SP) {
                 <span
                   className={cn(
                     "shrink-0 rounded-full px-2.5 py-1 text-xs font-medium",
-                    suspended ? "bg-red-500/15 text-red-700" : "bg-primary/15 text-primary-text",
+                    suspended ? "bg-red-500/15 text-red-400" : "bg-primary/15 text-primary-text",
                   )}
                 >
                   {suspended ? "מושעה" : "פעיל"}
@@ -103,7 +103,7 @@ export default async function AdminUsers({ searchParams }: SP) {
                 <form className="flex-1" action={deleteUser.bind(null, u.id)}>
                   <ConfirmSubmit
                     message={`למחוק את @${u.username} ואת כל העמודים שלו? אי אפשר לבטל.`}
-                    className="w-full rounded-lg border border-border py-2 text-xs text-text-muted transition-colors hover:text-red-700"
+                    className="w-full rounded-lg border border-border py-2 text-xs text-text-muted transition-colors hover:text-red-400"
                   >
                     מחיקה
                   </ConfirmSubmit>
@@ -157,7 +157,7 @@ export default async function AdminUsers({ searchParams }: SP) {
                       className={cn(
                         "rounded-full px-2.5 py-1 text-xs font-medium",
                         suspended
-                          ? "bg-red-500/15 text-red-700"
+                          ? "bg-red-500/15 text-red-400"
                           : "bg-primary/15 text-primary-text",
                       )}
                     >
@@ -183,7 +183,7 @@ export default async function AdminUsers({ searchParams }: SP) {
                       <form action={deleteUser.bind(null, u.id)}>
                         <ConfirmSubmit
                           message={`למחוק את @${u.username} ואת כל העמודים שלו? אי אפשר לבטל.`}
-                          className="rounded-lg border border-border px-3 py-1.5 text-xs text-text-muted transition-colors hover:text-red-700"
+                          className="rounded-lg border border-border px-3 py-1.5 text-xs text-text-muted transition-colors hover:text-red-400"
                         >
                           מחיקה
                         </ConfirmSubmit>
