@@ -64,6 +64,7 @@ export function planMatrix(): MatrixGroup[] {
         { label: "תבניות פתיחה", hint: "נגיעות פרימיום אפשר לנסות בחינם בעורך", cells: flag(() => true, () => `כל ה־${TEMPLATES.length}`) },
         { label: "Remix — מראה חדש בלחיצה", cells: flag(() => true) },
         { label: "עברית ועמודים מימין לשמאל", cells: flag(() => true) },
+        { label: "תפריט נגישות למבקרים", hint: "טקסט גדול, ניגודיות, הדגשת קישורים ועצירת אנימציות", cells: flag(() => true) },
         { label: "תמונת שיתוף לוואטסאפ, אינסטגרם ו־X", cells: flag(() => true) },
       ],
     },

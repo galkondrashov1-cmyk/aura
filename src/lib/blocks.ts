@@ -236,6 +236,8 @@ export type PageDesign = {
   dir?: "auto" | "ltr" | "rtl";
   intro?: "aura" | "fade" | "none";
   fab?: FloatingButton;
+  /** Visitor accessibility menu (text size, contrast, links, motion, font). */
+  a11y?: boolean;
 };
 
 export type PageContent = {
@@ -304,6 +306,7 @@ function sanitizeDesign(d: unknown): PageDesign | undefined {
   if (d.bgAnimate === true) out.bgAnimate = true;
   if (d.dir === "ltr" || d.dir === "rtl" || d.dir === "auto") out.dir = d.dir;
   if (d.intro === "aura" || d.intro === "fade" || d.intro === "none") out.intro = d.intro;
+  if (d.a11y === true) out.a11y = true;
   if (isObj(d.fab) && ["whatsapp", "phone", "email", "link"].includes(d.fab.kind as string)) {
     const value = str(d.fab.value, 300);
     if (value) {

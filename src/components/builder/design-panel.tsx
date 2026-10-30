@@ -289,6 +289,12 @@ export function DesignPanel({
             <p className="text-[11px] text-text-muted">מופיע אצל מבקרים במחשב (לא בעורך).</p>
           </Section>
           <FabEditor design={design} plan={plan} onChange={onChange} />
+          <Section title="נגישות">
+            <Toggle checked={!!design.a11y} onChange={(v) => onChange({ a11y: v || undefined })} label="תפריט נגישות למבקרים" />
+            <p className="text-[11px] text-text-muted">
+              כפתור צף עם הגדלת טקסט, ניגודיות, הדגשת קישורים, עצירת אנימציות וגופן קריא. מומלץ לעסקים בישראל.
+            </p>
+          </Section>
           <Section title="חיפוש ושיתוף" aside={!c.customSeo ? <TierPill tier="PLUS" /> : undefined}>
             <div className="space-y-2">
               <input
@@ -307,7 +313,6 @@ export function DesignPanel({
                 className={cn(fieldCls, "h-auto resize-none py-2")}
               />
             </div>
-
           </Section>
         </div>
       )}

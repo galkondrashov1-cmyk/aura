@@ -2,6 +2,7 @@ import { BRAND } from "@/lib/brand";
 import Link from "next/link";
 import { Mail, Phone, ExternalLink } from "lucide-react";
 import { Mark } from "@/components/logo";
+import { A11yMenu } from "./a11y-menu";
 import { ViewBeacon } from "@/components/view-beacon";
 import { CursorFx } from "./cursor-fx";
 import { PageIntro } from "./page-intro";
@@ -301,6 +302,7 @@ export function PageRenderer({
       {body_}
       {!thumbnail && design.fab && <FloatingButton fab={design.fab} hrefs={hrefs} embedded={embedded} />}
       {!embedded && design.cursor && design.cursor !== "none" && <CustomCursor variant={design.cursor} />}
+      {!thumbnail && !editable && design.a11y && <A11yMenu lang={lang} />}
       {trackPageId && <ViewBeacon pageId={trackPageId} />}
     </div>
   );
