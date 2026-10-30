@@ -129,6 +129,9 @@ export type Block = BlockBase &
         avatarUrl?: string | null;
         avatarShape?: AvatarShape;
         avatarIdle?: string;
+        /** Photo silhouette (AVATAR_SHAPES) and frame (AVATAR_FRAMES). */
+        avatarMask?: string;
+        avatarFrame?: string;
         /** Avatar size as a free scale (px width). Overrides preset sizes. */
         avatarScale?: number;
         avatar?: ImageConfig;

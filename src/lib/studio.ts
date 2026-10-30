@@ -39,6 +39,31 @@ export const HERO_LAYOUTS: Choice[] = [
   { id: "big", name: "פוסטר", tier: "PLUS", hint: "טיפוגרפיה ענקית ומצהירה" },
 ];
 
+// ---------- Profile photo ----------
+export const AVATAR_SHAPES: Choice[] = [
+  { id: "none", name: "לפי הפינות", tier: "FREE" },
+  { id: "arch", name: "קשת", tier: "FREE", hint: "כמו חלון בבית באוהאוס" },
+  { id: "blob", name: "בועה", tier: "FREE" },
+  { id: "leaf", name: "עלה", tier: "FREE" },
+  { id: "squircle", name: "ריבוע רך", tier: "FREE" },
+  { id: "pebble", name: "חלוק", tier: "PLUS" },
+  { id: "hexagon", name: "משושה", tier: "PLUS" },
+  { id: "diamond", name: "מעוין", tier: "PLUS" },
+  { id: "star", name: "כוכב", tier: "PLUS" },
+  { id: "seal", name: "חותמת", tier: "PLUS" },
+  { id: "shield", name: "מגן", tier: "PLUS" },
+];
+
+export const AVATAR_FRAMES: Choice[] = [
+  { id: "none", name: "ללא", tier: "FREE" },
+  { id: "ring", name: "מתאר", tier: "FREE" },
+  { id: "offset", name: "צל קשיח", tier: "FREE" },
+  { id: "glow", name: "זוהר", tier: "PLUS" },
+  { id: "duo", name: "כפול", tier: "PLUS" },
+  { id: "sticker", name: "מדבקה", tier: "PLUS" },
+  { id: "polaroid", name: "פולארויד", tier: "PLUS" },
+];
+
 // ---------- Typography ----------
 export const TITLE_FX: Choice[] = [
   { id: "none", name: "ללא", tier: "FREE" },
@@ -536,6 +561,15 @@ export function fitToPlanReport(content: PageContent, plan: Plan): { content: Pa
     if (b.type === "hero" && b.layout && !ok(tierOf(HERO_LAYOUTS, b.layout))) {
       lock(`פריסת כותרת: ${nameOf(HERO_LAYOUTS, b.layout)}`, tierOf(HERO_LAYOUTS, b.layout));
       set({ layout: "center" });
+    }
+    if (b.type === "hero") {
+      for (const [key, list, what] of [["avatarMask", AVATAR_SHAPES, "צורת תמונה"], ["avatarFrame", AVATAR_FRAMES, "מסגרת תמונה"]] as const) {
+        const t = tierOf(list, b[key]);
+        if (!ok(t)) {
+          lock(`${what}: ${nameOf(list, b[key])}`, t);
+          set({ [key]: undefined });
+        }
+      }
     }
     if (b.type === "hero" && b.typing?.fx) {
       const typing = b.typing;

@@ -14,6 +14,7 @@ import { FormView } from "./form-view";
 import { VideoFacade } from "./video-facade";
 import { cn } from "@/lib/utils";
 import type { AvatarShape, BannerHeight, Block, BlockOf, LinkItem } from "@/lib/blocks";
+import { AVATAR_FRAMES, AVATAR_SHAPES } from "@/lib/studio";
 import { avatarIdleClass, buttonFxClass, buttonIdleClass, iconFxClass, iconIdleClass } from "@/lib/design";
 import { resolveImage } from "@/lib/image";
 import type { ImageConfig, ImageRadius, ImageSize } from "@/lib/image";
@@ -96,9 +97,11 @@ function Avatar({ b, px }: { b: BlockOf<"hero">; px?: number }) {
   });
   const width = px ?? b.avatarScale;
   const style = width ? { width: `${Math.min(Math.max(width, 40), 220)}px` } : undefined;
+  const mask = AVATAR_SHAPES.some((s) => s.id === b.avatarMask && s.id !== "none") && b.avatarMask;
+  const frame = AVATAR_FRAMES.some((s) => s.id === b.avatarFrame && s.id !== "none") && b.avatarFrame;
   return (
-    <span className={cn("inline-flex shrink-0", avatarIdleClass(b.avatarIdle))}>
-      <span className={cn("block border-2 border-bg shadow-xl", av.box)} style={style}>
+    <span className={cn("inline-flex shrink-0", avatarIdleClass(b.avatarIdle), frame && `avf avf-${frame}`)}>
+      <span className={cn("block border-2 border-bg", !frame && "shadow-xl", av.box, mask && `av-${mask}`)} style={style}>
         <div className={av.frame}>
           {b.avatarUrl ? (
             // eslint-disable-next-line @next/next/no-img-element

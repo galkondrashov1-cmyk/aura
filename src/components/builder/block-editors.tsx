@@ -9,7 +9,7 @@ import { AVATAR_IDLE, BUTTON_FX, BUTTON_IDLE, ICON_FX, ICON_IDLE } from "@/lib/d
 import { SIZE_OPTS, ASPECT_OPTS, RADIUS_OPTS, type ImageConfig } from "@/lib/image";
 import { SOCIAL_OPTIONS, SocialIcon, platformFromUrl } from "@/lib/socials";
 import { caps, type Plan } from "@/lib/plans";
-import { HERO_LAYOUTS, REVEALS, SECTION_STYLES, BLOCK_TIER } from "@/lib/studio";
+import { AVATAR_FRAMES, AVATAR_SHAPES, HERO_LAYOUTS, REVEALS, SECTION_STYLES, BLOCK_TIER } from "@/lib/studio";
 import { toPlain } from "@/lib/richtext";
 import { TYPE_COLORS, TYPE_CURSORS, TYPE_FX, TYPE_SPEEDS, type Typing, type TypeFxId } from "@/lib/typing";
 import { RichTextInput } from "./rich-text-input";
@@ -641,6 +641,10 @@ function HeroEditor({ b, plan, onPatch }: { b: BlockOf<"hero">; plan: Plan; onPa
           options={RADIUS_OPTS}
           onChange={(radius) => onPatch({ avatar: { ...(b.avatar ?? {}), radius, aspect: "square" } })}
         />
+        <Label>צורה</Label>
+        <Chips value={b.avatarMask ?? "none"} plan={plan} cols={4} options={AVATAR_SHAPES} onChange={(id) => onPatch({ avatarMask: id === "none" ? undefined : id })} />
+        <Label>מסגרת</Label>
+        <Chips value={b.avatarFrame ?? "none"} plan={plan} cols={4} options={AVATAR_FRAMES} onChange={(id) => onPatch({ avatarFrame: id === "none" ? undefined : id })} />
         <select
           value={b.avatarIdle ?? ""}
           onChange={(e) => onPatch({ avatarIdle: e.target.value || undefined })}

@@ -7,6 +7,8 @@ import { FONTS } from "@/lib/fonts";
 import { TEMPLATES } from "@/lib/templates";
 import { caps, PLAN_RANK, type Plan } from "@/lib/plans";
 import {
+  AVATAR_FRAMES,
+  AVATAR_SHAPES,
   BLOCK_TIER,
   CURSORS,
   HERO_LAYOUTS,
@@ -95,6 +97,7 @@ export function planMatrix(): MatrixGroup[] {
         { label: "סגנונות כפתורים", cells: counts(countFor(CARD_STYLES, (s) => cardCategoryTier(s.category))) },
         { label: "פריסות עמוד", cells: counts(countFor(PAGE_LAYOUTS, (x) => x.tier)) },
         { label: "פריסות כותרת", cells: counts(countFor(HERO_LAYOUTS, (x) => x.tier)) },
+        { label: "צורות ומסגרות לתמונת הפרופיל", cells: counts(countFor([...realChoices(AVATAR_SHAPES), ...realChoices(AVATAR_FRAMES)], (x) => x.tier)) },
         { label: "אנימציות גלילה", cells: counts(countFor(realChoices(REVEALS), (x) => x.tier)) },
         { label: "סגנונות מקטעים", cells: counts(countFor(realChoices(SECTION_STYLES), (x) => x.tier)) },
         { label: "צבעים ואפקטים לכל כפתור", cells: flag((p) => c[p].perElement) },
