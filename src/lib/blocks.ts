@@ -81,7 +81,8 @@ export type LinkItem = {
 export type AvatarShape = "circle" | "rounded" | "square";
 export type DividerStyle =
   | "line" | "dashed" | "dotted" | "glow" | "double" | "wave"
-  | "shimmer" | "march" | "pulse";
+  | "shimmer" | "march" | "pulse"
+  | "zigzag" | "squiggle" | "scallop" | "stars" | "hearts" | "ornament";
 export type BannerHeight = "sm" | "md" | "lg";
 export type Align = "left" | "center" | "right";
 export type HeroLayout = "center" | "left" | "cover" | "big" | "split" | "minimal" | "masthead" | "ticket";

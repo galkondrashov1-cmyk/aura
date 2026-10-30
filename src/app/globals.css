@@ -359,6 +359,34 @@ textarea,
 }
 .dv-march { height: 0; border-top: 3px dashed var(--dvc); animation: auraMarch calc(1.2s * var(--spd, 1)) linear infinite; }
 @keyframes auraMarch { to { transform: translateX(14px); } }
+/* Pattern dividers: an SVG tile masks the divider color, intersected with the taper. */
+:is(.dv-zigzag, .dv-squiggle, .dv-scallop, .dv-stars, .dv-hearts) {
+  height: 10px;
+  background: var(--dvc);
+  -webkit-mask: var(--dvm) 0 50% / auto 100% repeat-x, linear-gradient(90deg, transparent, #000 18%, #000 82%, transparent);
+  -webkit-mask-composite: source-in;
+  mask: var(--dvm) 0 50% / auto 100% repeat-x, linear-gradient(90deg, transparent, #000 18%, #000 82%, transparent);
+  mask-composite: intersect;
+}
+.dv-scallop { height: 7px; }
+:is(.dv-zigzag, .dv-squiggle, .dv-scallop, .dv-stars, .dv-hearts, .dv-ornament):not([style*="--dvc"]) {
+  --dvc: color-mix(in oklab, var(--text) 32%, transparent);
+}
+.dv-zigzag { --dvm: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M0 7 6 1l6 6' fill='none' stroke='black' stroke-width='1.6' stroke-linecap='round'/%3E%3C/svg%3E"); }
+.dv-squiggle { --dvm: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='8'%3E%3Cpath d='M0 4C5 0 5 0 10 4s5 4 10 0' fill='none' stroke='black' stroke-width='1.6' stroke-linecap='round'/%3E%3C/svg%3E"); }
+.dv-scallop { --dvm: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='7'%3E%3Cpath d='M0 1a6 6 0 0 0 12 0' fill='none' stroke='black' stroke-width='1.6' stroke-linecap='round'/%3E%3C/svg%3E"); }
+.dv-stars { --dvm: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='22' height='10'%3E%3Cpath d='M11 0l1.6 3.4L16 5l-3.4 1.6L11 10 9.4 6.6 6 5l3.4-1.6z'/%3E%3C/svg%3E"); }
+.dv-hearts { --dvm: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='22' height='10'%3E%3Cpath d='M11 9C4 4.5 6 0 11 3c5-3 7 1.5 0 6z'/%3E%3C/svg%3E"); }
+.dv-ornament {
+  position: relative;
+  height: 14px;
+  -webkit-mask: none;
+  mask: none;
+  background:
+    linear-gradient(var(--dvc), var(--dvc)) left center / calc(50% - 18px) 1px no-repeat,
+    linear-gradient(var(--dvc), var(--dvc)) right center / calc(50% - 18px) 1px no-repeat;
+}
+.dv-ornament::after { content: "✦"; position: absolute; inset: 0; display: grid; place-items: center; font-size: 12px; line-height: 1; color: var(--dvc); }
 .dv-pulse { height: 2px; background: var(--dvc); box-shadow: 0 0 14px 2px var(--dvc); border-radius: 2px; animation: auraGlowPulse calc(2.4s * var(--spd, 1)) ease-in-out infinite; }
 
 /* ===== Extra button hover effects ===== */

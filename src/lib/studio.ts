@@ -464,7 +464,7 @@ const BLOCK_LABEL: Partial<Record<BlockType, string>> = {
   map: "מפה", marquee: "טקסט רץ", embed: "הטמעה", music: "מוזיקה", countdown: "ספירה לאחור",
 };
 
-const PREMIUM_DIVIDERS = new Set(["shimmer", "march", "pulse"]);
+const PREMIUM_DIVIDERS = new Set(["shimmer", "march", "pulse", "stars", "hearts", "ornament"]);
 
 /**
  * Downgrade everything the plan doesn't include to its closest free cousin,
