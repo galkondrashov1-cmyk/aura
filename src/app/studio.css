@@ -541,3 +541,48 @@
     radial-gradient(circle 11px at var(--tx) 100%, #0000 97%, #000) bottom / 100% 51% no-repeat;
 }
 .pg-ticket:dir(rtl) { --tx: calc(100% - 6.5rem); }
+
+/* ── Text block looks (editorial) ── */
+.tx-quote { border-inline-start: 3px solid var(--primary); padding-inline-start: 1rem; }
+.tx-quote .pg-p {
+  font-family: var(--font-display);
+  font-size: calc(var(--p, 0.875rem) * var(--ts, 1) * 1.4);
+  line-height: 1.4;
+  color: var(--text);
+}
+.tx-quote .pg-p::before { content: "”"; display: block; height: 0.9em; font-size: 3em; line-height: 1; color: var(--primary); }
+.tx-dropcap .pg-p::first-letter {
+  float: inline-start;
+  margin-inline-end: 0.12em;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 3.4em;
+  line-height: 0.85;
+  color: var(--primary);
+}
+.tx-callout {
+  border-inline-start: 3px solid var(--primary);
+  border-radius: 0.75rem;
+  background: color-mix(in oklab, var(--primary) 12%, transparent);
+  padding: 0.9rem 1rem;
+}
+.tx-callout .pg-p { color: var(--text); }
+.tx-marker .pg-h2 > * , .tx-marker .pg-h2 {
+  background: linear-gradient(transparent 55%, color-mix(in oklab, var(--primary) 55%, transparent) 55%);
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+  display: inline;
+}
+.tx-marker .pg-h2 + * { margin-top: 0.6rem; }
+@container page (min-width: 34rem) {
+  .tx-columns .pg-p { columns: 2; column-gap: 1.75rem; column-rule: 1px solid var(--border); }
+}
+.tx-kicker .pg-h2 {
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--primary);
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 0.4rem;
+}

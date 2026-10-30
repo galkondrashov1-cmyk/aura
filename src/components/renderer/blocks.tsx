@@ -14,7 +14,7 @@ import { FormView } from "./form-view";
 import { VideoFacade } from "./video-facade";
 import { cn } from "@/lib/utils";
 import type { AvatarShape, BannerHeight, Block, BlockOf, LinkItem } from "@/lib/blocks";
-import { AVATAR_FRAMES, AVATAR_SHAPES } from "@/lib/studio";
+import { AVATAR_FRAMES, AVATAR_SHAPES, TEXT_LOOKS } from "@/lib/studio";
 import { avatarIdleClass, buttonFxClass, buttonIdleClass, iconFxClass, iconIdleClass } from "@/lib/design";
 import { resolveImage } from "@/lib/image";
 import type { ImageConfig, ImageRadius, ImageSize } from "@/lib/image";
@@ -502,8 +502,9 @@ export function TextBlock({ b, ctx }: { b: BlockOf<"text">; ctx: RenderCtx }) {
       <RichTextView value={b.body} />
     </p>
   );
+  const look = TEXT_LOOKS.some((l) => l.id === b.look && l.id !== "plain") && b.look;
   return (
-    <div className={ALIGN[b.align ?? "left"]} style={b.color ? { color: b.color } : undefined}>
+    <div className={cn(ALIGN[b.align ?? "left"], look && `tx tx-${look}`)} style={b.color ? { color: b.color } : undefined}>
       {!isEmptyRich(b.heading) && <Title value={b.heading!} className={cn("pg-h2 mb-2", H2_SIZE[size])} />}
       {b.spoiler ? (
         <details className="group rounded-xl border border-border bg-surface/40 px-4 py-2.5">

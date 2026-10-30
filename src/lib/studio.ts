@@ -67,6 +67,17 @@ export const AVATAR_FRAMES: Choice[] = [
   { id: "polaroid", name: "פולארויד", tier: "PLUS" },
 ];
 
+/** Editorial treatments for the Text block. */
+export const TEXT_LOOKS: Choice[] = [
+  { id: "plain", name: "רגיל", tier: "FREE" },
+  { id: "quote", name: "ציטוט", tier: "FREE", hint: "פסקה גדולה בפונט הכותרות, עם קו מבטא" },
+  { id: "dropcap", name: "אות פתיחה", tier: "FREE", hint: "האות הראשונה גדולה, כמו בפתיחת כתבה" },
+  { id: "callout", name: "תיבת הערה", tier: "FREE" },
+  { id: "marker", name: "מרקר", tier: "PLUS", hint: "הכותרת מסומנת בצבע המבטא" },
+  { id: "columns", name: "שני טורים", tier: "PLUS", hint: "טורים כמו בעיתון, במסכים רחבים" },
+  { id: "kicker", name: "כותרת־על", tier: "PLUS", hint: "הכותרת קטנה ומרווחת מעל הטקסט" },
+];
+
 // ---------- Typography ----------
 export const TITLE_FX: Choice[] = [
   { id: "none", name: "ללא", tier: "FREE" },
@@ -573,6 +584,10 @@ export function fitToPlanReport(content: PageContent, plan: Plan): { content: Pa
           set({ [key]: undefined });
         }
       }
+    }
+    if (b.type === "text" && b.look && !ok(tierOf(TEXT_LOOKS, b.look))) {
+      lock(`סגנון טקסט: ${nameOf(TEXT_LOOKS, b.look)}`, tierOf(TEXT_LOOKS, b.look));
+      set({ look: undefined });
     }
     if (b.type === "hero" && b.typing?.fx) {
       const typing = b.typing;

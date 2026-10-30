@@ -9,7 +9,7 @@ import { AVATAR_IDLE, BUTTON_FX, BUTTON_IDLE, ICON_FX, ICON_IDLE } from "@/lib/d
 import { SIZE_OPTS, ASPECT_OPTS, RADIUS_OPTS, type ImageConfig } from "@/lib/image";
 import { SOCIAL_OPTIONS, SocialIcon, platformFromUrl } from "@/lib/socials";
 import { caps, type Plan } from "@/lib/plans";
-import { AVATAR_FRAMES, AVATAR_SHAPES, HERO_LAYOUTS, REVEALS, SECTION_STYLES, BLOCK_TIER } from "@/lib/studio";
+import { AVATAR_FRAMES, AVATAR_SHAPES, TEXT_LOOKS, HERO_LAYOUTS, REVEALS, SECTION_STYLES, BLOCK_TIER } from "@/lib/studio";
 import { toPlain } from "@/lib/richtext";
 import { TYPE_COLORS, TYPE_CURSORS, TYPE_FX, TYPE_SPEEDS, type Typing, type TypeFxId } from "@/lib/typing";
 import { RichTextInput } from "./rich-text-input";
@@ -886,6 +886,7 @@ function TextEditor({ b, plan, onPatch }: { b: BlockOf<"text">; plan: Plan; onPa
     <div className="space-y-2.5">
       <RichTextInput value={b.heading} onChange={(heading) => onPatch({ heading })} placeholder="כותרת (רשות)" />
       <RichTextInput value={b.body} onChange={(body) => onPatch({ body })} placeholder="טקסט" multiline />
+      <Chips value={b.look ?? "plain"} plan={plan} cols={4} options={TEXT_LOOKS} onChange={(id) => onPatch({ look: id === "plain" ? undefined : id })} />
       <div className="grid grid-cols-2 gap-2">
         <Seg value={b.align ?? "left"} options={ALIGNS} onChange={(align) => onPatch({ align })} />
         <Seg

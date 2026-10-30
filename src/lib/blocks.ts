@@ -155,6 +155,8 @@ export type Block = BlockBase &
         color?: string;
         size?: "sm" | "md" | "lg";
         spoiler?: boolean;
+        /** Editorial treatment (TEXT_LOOKS). */
+        look?: string;
       }
     | {
         type: "socials";

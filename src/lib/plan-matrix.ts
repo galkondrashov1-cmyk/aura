@@ -16,6 +16,7 @@ import {
   PAGE_LAYOUTS,
   REVEALS,
   SECTION_STYLES,
+  TEXT_LOOKS,
   TITLE_FX,
   type Choice,
 } from "@/lib/studio";
@@ -97,6 +98,7 @@ export function planMatrix(): MatrixGroup[] {
         { label: "סגנונות כפתורים", cells: counts(countFor(CARD_STYLES, (s) => cardCategoryTier(s.category))) },
         { label: "פריסות עמוד", cells: counts(countFor(PAGE_LAYOUTS, (x) => x.tier)) },
         { label: "פריסות כותרת", cells: counts(countFor(HERO_LAYOUTS, (x) => x.tier)) },
+        { label: "סגנונות טקסט עיתונאיים", hint: "ציטוט, אות פתיחה, טורים ועוד", cells: counts(countFor(TEXT_LOOKS.filter((x) => x.id !== "plain"), (x) => x.tier)) },
         { label: "צורות ומסגרות לתמונת הפרופיל", cells: counts(countFor([...realChoices(AVATAR_SHAPES), ...realChoices(AVATAR_FRAMES)], (x) => x.tier)) },
         { label: "אנימציות גלילה", cells: counts(countFor(realChoices(REVEALS), (x) => x.tier)) },
         { label: "סגנונות מקטעים", cells: counts(countFor(realChoices(SECTION_STYLES), (x) => x.tier)) },
