@@ -364,7 +364,7 @@ export function LinksBlock({ b, ctx }: { b: BlockOf<"links">; ctx: RenderCtx }) 
   const fxDefault = buttonFxClass(b.buttonFx) ?? ctx.buttonFx;
   const idle = buttonIdleClass(b.buttonIdle) ?? ctx.buttonIdle;
   const surface = (l: LinkItem) =>
-    l.color ? "border" : l.highlighted ? "aura-glow bg-primary text-primary-ink" : (ctx.card ?? "border border-border bg-surface-2 text-text");
+    l.color ? "border" : l.highlighted ? (ctx.card ? `${ctx.card} is-hl` : "aura-glow bg-primary text-primary-ink") : (ctx.card ?? "border border-border bg-surface-2 text-text");
   const fx = (l: LinkItem) => buttonFxClass(l.fx) ?? fxDefault ?? "transition-all duration-150 hover:brightness-110";
   // The editor shows every link; live pages gate the scheduled ones.
   const gate = (l: LinkItem, i: number, node: React.ReactNode) =>
@@ -378,7 +378,7 @@ export function LinksBlock({ b, ctx }: { b: BlockOf<"links">; ctx: RenderCtx }) 
 
   if (layout === "grid") {
     return (
-      <div className="grid grid-cols-2 gap-2.5">
+      <div className="grid grid-cols-2 gap-2.5 [&>*:last-child:nth-child(odd)]:col-span-2">
         {b.items.map((l, i) => {
           const lead = <LinkLead item={l} round={false} />;
           return gate(
@@ -521,6 +521,9 @@ export function TextBlock({ b, ctx }: { b: BlockOf<"text">; ctx: RenderCtx }) {
 }
 
 const ICON_SIZE = { sm: "h-4 w-4", md: "h-5 w-5", lg: "h-7 w-7" };
+/** Icon chips follow the page's button shape (round buttons, round chips). */
+const chipRadius = (shape?: string) =>
+  !shape || shape.includes("rounded-full") ? "rounded-full" : shape.includes("rounded-none") || shape.includes("shape-slant") ? "rounded-none" : shape.includes("rounded-2xl") ? "rounded-xl" : "rounded-lg";
 const CHIP_SIZE = { sm: "h-9 w-9", md: "h-11 w-11", lg: "h-14 w-14" };
 
 export function SocialsBlock({ b, ctx }: { b: BlockOf<"socials">; ctx: RenderCtx }) {
@@ -540,15 +543,16 @@ export function SocialsBlock({ b, ctx }: { b: BlockOf<"socials">; ctx: RenderCtx
             key={i}
             href={href}
             label={s.platform}
-            className={cn("inline-flex", fx ?? "transition-colors hover:text-text")}
+            // Chip color sits on the link, so hover color effects can win.
+            className={cn("inline-flex", style === "chip" && !b.iconColor && "text-text", fx ?? "transition-colors hover:text-text")}
           >
             <span
               className={cn(
                 "inline-flex",
                 idle,
-                style !== "plain" && cn("items-center justify-center rounded-full", CHIP_SIZE[size]),
-                style === "chip" && "border border-border bg-surface-2/80 text-text backdrop-blur",
-                style === "brand" && "text-white shadow-lg",
+                style !== "plain" && cn("items-center justify-center", chipRadius(ctx.buttonShape), CHIP_SIZE[size]),
+                style === "chip" && "border border-border bg-surface-2/80 backdrop-blur",
+                style === "brand" && "text-white shadow-lg ring-1 ring-white/15",
               )}
               style={style === "brand" ? { background: brandColor(s.platform) } : undefined}
             >
@@ -626,7 +630,7 @@ export function GalleryBlock({ b }: { b: BlockOf<"gallery"> }) {
 
 export function FaqBlock({ b }: { b: BlockOf<"faq"> }) {
   return (
-    <div className={cn("divide-y divide-border overflow-hidden rounded-2xl border border-border", ALIGN[b.align ?? "left"])}>
+    <div className={cn("blk-card divide-y divide-border overflow-hidden rounded-2xl border border-border", ALIGN[b.align ?? "left"])}>
       {b.items.map((f, i) => (
         <details key={i} className="group px-4 py-3">
           <summary className="flex cursor-pointer list-none items-center justify-between gap-3 text-sm font-medium">
@@ -888,7 +892,7 @@ export function PricingBlock({ b, ctx }: { b: BlockOf<"pricing">; ctx: RenderCtx
                 className={cn(
                   "mt-5 flex h-11 items-center justify-center text-sm font-medium",
                   ctx.buttonShape ?? "rounded-full",
-                  p.featured ? "aura-glow bg-primary text-primary-ink" : (ctx.card ?? "border border-border bg-surface-2 text-text"),
+                  p.featured ? (ctx.card ? `${ctx.card} is-hl` : "aura-glow bg-primary text-primary-ink") : (ctx.card ?? "border border-border bg-surface-2 text-text"),
                   ctx.buttonFx ?? "transition-all hover:brightness-110",
                 )}
               >
@@ -926,7 +930,7 @@ export function MapBlock({ b, ctx }: { b: BlockOf<"map">; ctx: RenderCtx }) {
   const q = b.query.trim();
   if (!q) return <p className="text-center text-sm text-text-muted">הוסיפו כתובת או שם מקום…</p>;
   return (
-    <div className="overflow-hidden rounded-2xl border border-border bg-surface/60">
+    <div className="blk-card overflow-hidden rounded-2xl border border-border bg-surface/60">
       <iframe
         src={`https://maps.google.com/maps?q=${encodeURIComponent(q)}&z=15&output=embed`}
         title={`Map of ${q}`}
@@ -967,7 +971,7 @@ function ContactBlock({ b, ctx }: { b: BlockOf<"contact">; ctx: RenderCtx }) {
   const sub = [b.role, b.org].filter(Boolean).join(" · ");
   const chip = cn("flex h-11 w-11 shrink-0 items-center justify-center border border-border bg-surface-2 text-text", ctx.buttonShape ?? "rounded-full");
   return (
-    <div className="rounded-2xl border border-border bg-surface/60 p-4 backdrop-blur">
+    <div className="blk-card rounded-2xl border border-border bg-surface/60 p-4 backdrop-blur">
       <p className="font-display text-lg font-medium">{b.name || "—"}</p>
       {sub && <p className="text-sm text-text-muted">{sub}</p>}
       <div className="mt-4 flex gap-2">

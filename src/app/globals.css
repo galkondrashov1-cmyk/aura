@@ -282,7 +282,7 @@ textarea,
 
 /* Icon hover effects */
 .ih-scale { transition: transform 0.2s; } .ih-scale:hover { transform: scale(1.25); }
-.ih-pop { transition: transform 0.2s; } .ih-pop:hover { transform: scale(1.5); }
+.ih-pop { transition: transform 0.2s; } .ih-pop:hover { transform: scale(1.35); }
 .ih-lift { transition: transform 0.2s; } .ih-lift:hover { transform: translateY(-4px); }
 .ih-drop { transition: transform 0.2s; } .ih-drop:hover { transform: translateY(4px); }
 .ih-spin { transition: transform 0.3s; } .ih-spin:hover { transform: rotate(180deg); }
@@ -304,7 +304,8 @@ textarea,
 .cs-brutal { background: var(--surface-2); color: var(--text); border: 2px solid var(--text); box-shadow: 4px 4px 0 0 var(--text); }
 .cs-brutal-accent { background: var(--primary); color: var(--primary-ink); border: 2px solid var(--text); box-shadow: 4px 4px 0 0 var(--text); }
 .cs-brutal-mono { background: var(--bg); color: var(--text); border: 2px solid var(--border); box-shadow: 5px 5px 0 0 var(--border); }
-.cs-retro-double { background: var(--surface); color: var(--text); border: 1px solid var(--text); outline: 1px solid var(--text); outline-offset: 3px; }
+/* The second line is drawn inside, so the button stays on the column edge. */
+.cs-retro-double { background: var(--surface); color: var(--text); border: 1px solid var(--text); box-shadow: inset 0 0 0 3px var(--surface), inset 0 0 0 4px var(--text); }
 .cs-retro-inset { background: var(--surface-2); color: var(--text); box-shadow: inset 0 2px 6px rgba(0,0,0,0.5), inset 0 -1px 0 rgba(255,255,255,0.08); }
 .cs-retro-stripe { background: repeating-linear-gradient(45deg, var(--surface-2) 0 10px, var(--surface) 10px 20px); color: var(--text); border: 1px solid var(--border); }
 
@@ -317,7 +318,7 @@ textarea,
   mask: radial-gradient(circle 9px at 0 50%, transparent 98%, #000) left / 51% 100% no-repeat,
         radial-gradient(circle 9px at 100% 50%, transparent 98%, #000) right / 51% 100% no-repeat;
 }
-.cs-sp-slant { background: color-mix(in oklab, var(--primary) 14%, var(--surface-2)); color: var(--text); clip-path: polygon(3% 0, 100% 0, 97% 100%, 0 100%); }
+.cs-sp-slant { background: color-mix(in oklab, var(--primary) 14%, var(--surface-2)); color: var(--text); border-radius: 0 !important; clip-path: polygon(12px 0, 100% 0, calc(100% - 12px) 100%, 0 100%); }
 .cs-sp-underline { background: transparent; color: var(--text); border-radius: 0 !important; border-bottom: 2px solid var(--primary); }
 .cs-sp-3d { background: var(--surface-2); color: var(--text); border: 1px solid var(--border); border-bottom: 4px solid color-mix(in oklab, var(--primary) 70%, transparent); }
 .cs-sp-aurora-edge { position: relative; background: var(--surface); color: var(--text); z-index: 0; }
@@ -330,6 +331,9 @@ textarea,
   animation: auraEdgeFlow calc(5s * var(--spd, 1)) linear infinite;
 }
 @keyframes auraEdgeFlow { to { background-position: 250% 0; } }
+
+/* The highlighted link keeps its style's shape, filled with the accent. */
+.is-hl { background: var(--primary) !important; color: var(--primary-ink) !important; }
 
 /* Slanted button shape (clip-path can't live in Tailwind utility maps) */
 .shape-slant { border-radius: 0 !important; clip-path: polygon(6% 0, 100% 0, 94% 100%, 0 100%); }
@@ -440,19 +444,23 @@ textarea,
 .bh-glitch:hover { animation: auraGlitch 0.35s steps(2) infinite; text-shadow: 1.5px 0 #ff3b6b, -1.5px 0 #22d3ee; }
 @keyframes auraGlitch { 0%,100% { transform: translate(0); } 25% { transform: translate(-1.5px,1px); } 50% { transform: translate(1.5px,-1px); } 75% { transform: translate(-1px,-1px); } }
 
+/* The ring stays put; only its colors turn (rotating the element would swing
+   a wide pill around like a stick). */
+@property --rb { syntax: "<angle>"; inherits: false; initial-value: 0deg; }
 .bh-rainbow { position: relative; z-index: 0; }
 .bh-rainbow::before {
   content: ""; position: absolute; inset: -2px; border-radius: inherit; z-index: -1; padding: 2px;
-  background: conic-gradient(from 0deg, #ff3b6b, #fbbf24, #34d399, #22d3ee, #a855f7, #ff3b6b);
+  background: conic-gradient(from var(--rb), #ff3b6b, #fbbf24, #34d399, #22d3ee, #a855f7, #ff3b6b);
   -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
   -webkit-mask-composite: xor; mask-composite: exclude;
   opacity: 0; transition: opacity 0.2s;
 }
-.bh-rainbow:hover::before { opacity: 1; animation: auraSpin 2.5s linear infinite; }
-@keyframes auraSpin { to { transform: rotate(360deg); } }
+.bh-rainbow:hover::before { opacity: 1; animation: auraRainbow 2.5s linear infinite; }
+@keyframes auraRainbow { to { --rb: 360deg; } }
 
 .bh-liquid { transition: transform 0.4s cubic-bezier(0.68,-0.55,0.27,1.55), border-radius 0.4s; }
-.bh-liquid:hover { transform: scale(1.05); border-radius: 40% 60% 55% 45% / 55% 45% 55% 45%; }
+/* Pixel radii: percentages turn a wide button into an ellipse. */
+.bh-liquid:hover { transform: scale(1.03); border-radius: 30px 44px 24px 48px / 36px 22px 40px 26px; }
 
 .bh-neonflicker { transition: text-shadow 0.2s, box-shadow 0.2s; }
 .bh-neonflicker:hover {

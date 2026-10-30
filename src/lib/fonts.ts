@@ -107,10 +107,14 @@ const FALLBACK: Record<string, string> = {
   Handwriting: "cursive",
 };
 
-/** CSS font-family value for a chosen font id, or undefined for the default. */
+/**
+ * CSS font-family value for a chosen font id, or undefined for the default.
+ * The site's Hebrew face comes before the generic family, so a Latin-only font
+ * on a Hebrew page falls back to real Hebrew, not a system monospace or cursive.
+ */
 export function fontFamilyVar(id?: string): string | undefined {
   const f = id ? FONTS.find((x) => x.id === id) : undefined;
-  return f ? `'${f.family}', ${FALLBACK[f.category] ?? "ui-sans-serif, system-ui, sans-serif"}` : undefined;
+  return f ? `'${f.family}', var(--font-body), ${FALLBACK[f.category] ?? "ui-sans-serif, system-ui, sans-serif"}` : undefined;
 }
 
 function familyParam(f: FontDef): string {

@@ -40,7 +40,7 @@ export function HoursView({ b, t }: { b: BlockOf<"hours">; t: Strings }) {
   }
 
   return (
-    <div className="rounded-2xl border border-border bg-surface/60 p-4 backdrop-blur">
+    <div className="blk-card rounded-2xl border border-border bg-surface/60 p-4 backdrop-blur">
       <div className="mb-3 flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
         {b.heading && <p className="font-display text-lg font-medium">{b.heading}</p>}
         <p className="flex min-h-5 items-center gap-1.5 text-sm" aria-live="polite">

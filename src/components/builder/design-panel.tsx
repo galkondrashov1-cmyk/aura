@@ -329,15 +329,19 @@ export function DesignPanel({
           >
             {open === "font" ? "ברירת מחדל" : "כמו הגוף"}
           </button>
-          {FONT_CATEGORIES.map((cat) => {
+          {/* Decorative display faces are for headings: as body text they make
+              buttons and paragraphs unreadable. */}
+          {FONT_CATEGORIES.filter((cat) => open === "headingFont" || cat !== "HebrewDisplay").map((cat) => {
             const items = FONTS.filter((f) => f.category === cat);
             const tier = fontCategoryTier(cat);
             const locked = isLocked(tier);
+            const hebrew = cat.startsWith("Hebrew");
             return (
               <section key={cat} className="mb-5">
                 <p className="mb-2 flex items-center gap-2 text-xs font-medium tracking-wide text-text-muted uppercase">
                   {cat === "Mono" ? "מונוספייס" : catLabel(cat)} {locked && <TierPill tier={tier} />}
                 </p>
+                {!hebrew && <p className="-mt-1 mb-2 text-[11px] text-text-muted">בלי אותיות עבריות: טקסט בעברית יוצג בפונט ברירת המחדל.</p>}
                 <div className="grid grid-cols-3 gap-2 sm:grid-cols-4">
                   {items.map((f) => (
                     <button
@@ -349,7 +353,7 @@ export function DesignPanel({
                       )}
                       style={{ fontFamily: fontFamilyVar(f.id) }}
                     >
-                      <span className="text-2xl leading-none text-text">{cat === "Hebrew" ? "אב" : "Ag"}</span>
+                      <span className="text-2xl leading-none text-text">{hebrew ? "אב" : "Ag"}</span>
                       <span className="truncate text-[11px] text-text-muted">{f.name}</span>
                     </button>
                   ))}

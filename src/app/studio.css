@@ -217,6 +217,17 @@
   box-shadow: 6px 6px 0 var(--text);
 }
 
+/* Single-card blocks (hours, contact, FAQ, map) let the section be the frame,
+   instead of a box inside a box. */
+.sec > .blk-card {
+  border-color: transparent;
+  background: transparent;
+  padding: 0;
+  box-shadow: none;
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
+
 /* ---------- Scroll-driven reveals (pure CSS, no JS, no hydration cost) ----------
    Elements already on screen at load sit at their end state, so nothing
    above the fold is ever hidden — only content scrolled into view animates. */
@@ -262,6 +273,9 @@
     grid-template-columns: minmax(300px, 0.85fr) minmax(0, 1.15fr);
     column-gap: 64px;
     align-items: start;
+    /* Short pages sit in the middle of the screen instead of hugging the top. */
+    min-height: calc(100svh - 160px);
+    align-content: center;
   }
   .pg-split-aside {
     position: sticky;
@@ -301,8 +315,9 @@
   animation: mqScroll var(--mq-dur, 22s) linear infinite;
 }
 .mq-rev .mq-track { animation-direction: reverse; }
-[dir="rtl"] .mq-track { animation-direction: reverse; }
-[dir="rtl"] .mq-rev .mq-track { animation-direction: normal; }
+/* RTL: the track hangs off the left edge, so it travels right; a Hebrew
+   sentence then enters start-first. */
+[dir="rtl"] .mq-track { animation-name: mqScrollRtl; }
 .mq-item {
   display: inline-flex;
   align-items: center;
@@ -311,6 +326,7 @@
   white-space: nowrap;
 }
 @keyframes mqScroll { to { transform: translateX(-50%); } }
+@keyframes mqScrollRtl { to { transform: translateX(50%); } }
 .mq-band {
   background: var(--primary);
   color: var(--primary-ink);
