@@ -464,6 +464,8 @@
   pointer-events: none;
   transition: border-color 0.15s;
 }
+/* In the editor a click on a map, video or embed selects the block. */
+.pg-editable iframe { pointer-events: none; }
 .pg-editable [data-block-id]:hover::after { border-color: color-mix(in oklab, var(--primary) 55%, transparent); }
 .pg-editable [data-block-id].is-selected::after {
   border: 2px solid var(--primary);

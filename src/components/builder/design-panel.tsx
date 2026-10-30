@@ -108,15 +108,18 @@ export function DesignPanel({
     <div className="space-y-5">
       {/* Every font, for the pickers' live previews (React hoists this to <head>). */}
       <link rel="stylesheet" href={ALL_FONTS_HREF} precedence="fonts" />
-      <div className="-mx-4 flex gap-1 overflow-x-auto px-4 pb-0.5 [scrollbar-width:none]">
+      {/* Every tab stays visible: a scrolling row hid the last ones. */}
+      <div role="tablist" className="grid grid-cols-3 gap-1 rounded-xl bg-surface-2 p-1">
         {TABS.map((t) => (
           <button
             key={t.id}
             type="button"
+            role="tab"
+            aria-selected={tab === t.id}
             onClick={() => setTab(t.id)}
             className={cn(
-              "shrink-0 rounded-full px-3.5 py-1.5 text-sm transition-colors",
-              tab === t.id ? "bg-text text-bg" : "bg-surface-2 text-text-muted hover:text-text",
+              "rounded-lg px-2 py-1.5 text-sm transition-colors",
+              tab === t.id ? "bg-text font-medium text-bg" : "text-text-muted hover:text-text",
             )}
           >
             {t.label}

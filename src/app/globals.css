@@ -94,6 +94,18 @@ body {
   text-rendering: optimizeLegibility;
 }
 
+/* Each field takes its direction from what's typed: a URL or email stays in
+   order inside a right-to-left form, Hebrew stays right-to-left. */
+input:not([type]),
+input[type="text"],
+input[type="url"],
+input[type="email"],
+input[type="tel"],
+input[type="search"],
+textarea {
+  unicode-bidi: plaintext;
+}
+
 /* contentEditable placeholder for the rich-text fields */
 .rich-input:empty::before {
   content: attr(data-placeholder);
