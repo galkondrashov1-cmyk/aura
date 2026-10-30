@@ -206,6 +206,7 @@ export function PageRenderer({
     "aura-stagger flex flex-col",
     intro === "aura" && "aura-stagger-intro",
     intro === "fade" && "aura-stagger-fade",
+    (intro === "curtain" || intro === "wipe") && "aura-stagger-wipe",
     layout.spacing,
   );
 

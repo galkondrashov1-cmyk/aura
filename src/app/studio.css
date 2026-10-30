@@ -463,6 +463,23 @@
   animation: introLift 0.35s ease 0.05s forwards;
 }
 
+/* ---------- Curtain and ink-wipe intros ---------- */
+.aura-intro-curtain,
+.aura-intro-wipe { position: fixed; inset: -24px 0 0; z-index: 60; pointer-events: none; }
+.aura-intro-curtain {
+  box-shadow: 0 5px 0 var(--primary);
+  animation: introCurtain 0.8s cubic-bezier(0.76, 0, 0.24, 1) 0.15s forwards;
+}
+@keyframes introCurtain { to { transform: translateY(calc(-100% - 8px)); visibility: hidden; } }
+.aura-intro-wipe { clip-path: inset(0); animation: introWipe 0.75s cubic-bezier(0.76, 0, 0.24, 1) 0.15s forwards; }
+[dir="rtl"] .aura-intro-wipe { animation-name: introWipeRtl; }
+@keyframes introWipe { to { clip-path: inset(0 0 0 100%); visibility: hidden; } }
+@keyframes introWipeRtl { to { clip-path: inset(0 100% 0 0); visibility: hidden; } }
+.aura-stagger-wipe { --intro-delay: 0.45s; }
+@media (prefers-reduced-motion: reduce) {
+  .aura-intro-fade, .aura-intro-curtain, .aura-intro-wipe { display: none; }
+}
+
 /* ---------- Editor: publish celebration ---------- */
 .publish-pop { animation: publishPop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) both; }
 @keyframes publishPop { from { opacity: 0; transform: scale(0.88) translateY(12px); } }

@@ -7,8 +7,9 @@ import { cn } from "@/lib/utils";
    curtain hides itself purely in CSS (fill-mode: forwards) and never captures
    pointer events, so the page stays usable even if this component never
    unmounts — the state flip below is only DOM cleanup. "fade" is a quick
-   curtain without the mark; "none" renders nothing at all. */
-export function PageIntro({ bg, variant = "aura" }: { bg?: string; variant?: "aura" | "fade" }) {
+   curtain without the mark; "curtain" lifts away and "wipe" is pulled off
+   from the reading edge; "none" renders nothing at all. */
+export function PageIntro({ bg, variant = "aura" }: { bg?: string; variant?: "aura" | "fade" | "curtain" | "wipe" }) {
   const [gone, setGone] = useState(false);
 
   useEffect(() => {
@@ -18,11 +19,11 @@ export function PageIntro({ bg, variant = "aura" }: { bg?: string; variant?: "au
 
   if (gone) return null;
 
-  if (variant === "fade") {
+  if (variant !== "aura") {
     return (
       <div
         aria-hidden
-        className={cn("aura-intro-fade", !bg && "aura-backdrop")}
+        className={cn(`aura-intro-${variant}`, !bg && "aura-backdrop")}
         style={bg ? { background: bg } : undefined}
       />
     );

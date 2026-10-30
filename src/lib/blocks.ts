@@ -275,7 +275,7 @@ export type PageDesign = {
   section?: string;
   cursor?: string;
   dir?: "auto" | "ltr" | "rtl";
-  intro?: "aura" | "fade" | "none";
+  intro?: "aura" | "fade" | "curtain" | "wipe" | "none";
   fab?: FloatingButton;
   /** Visitor accessibility menu (text size, contrast, links, motion, font). */
   a11y?: boolean;
@@ -346,7 +346,7 @@ function sanitizeDesign(d: unknown): PageDesign | undefined {
   if (blur !== undefined) out.bgImageBlur = blur;
   if (d.bgAnimate === true) out.bgAnimate = true;
   if (d.dir === "ltr" || d.dir === "rtl" || d.dir === "auto") out.dir = d.dir;
-  if (d.intro === "aura" || d.intro === "fade" || d.intro === "none") out.intro = d.intro;
+  if (["aura", "fade", "curtain", "wipe", "none"].includes(d.intro as string)) out.intro = d.intro as PageDesign["intro"];
   if (d.a11y === true) out.a11y = true;
   if (isObj(d.fab) && ["whatsapp", "phone", "email", "link"].includes(d.fab.kind as string)) {
     const value = str(d.fab.value, 300);

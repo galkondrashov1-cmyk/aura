@@ -262,7 +262,7 @@ export function DesignPanel({
               <Label>פתיח</Label>
               <Seg
                 value={design.intro ?? "aura"}
-                options={INTROS.map((s) => ({ id: s.id as "aura" | "fade" | "none", label: s.name }))}
+                options={INTROS.map((s) => ({ id: s.id, label: s.name }))}
                 onChange={(id) => onChange({ intro: id })}
               />
             </div>

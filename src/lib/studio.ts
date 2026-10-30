@@ -184,10 +184,12 @@ export const CURSORS: Choice[] = [
 ];
 
 export const INTROS = [
-  { id: "aura", name: "פתיח לוגו" },
-  { id: "fade", name: "דהייה מהירה" },
+  { id: "aura", name: "טבעות" },
+  { id: "fade", name: "דהייה" },
+  { id: "curtain", name: "וילון" },
+  { id: "wipe", name: "ניגוב" },
   { id: "none", name: "מיידי" },
-];
+] as const;
 
 export const GRADIENT_TYPES: { id: CustomBackground["type"]; name: string }[] = [
   { id: "mesh", name: "רשת צבעים" },
