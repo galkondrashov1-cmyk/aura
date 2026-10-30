@@ -28,6 +28,7 @@ export default async function UserPage({ params }: Params) {
     <PageRenderer
       content={data.content}
       trackPageId={data.pageId}
+      renderedAt={data.renderedAt}
       hrefs={buildHrefMap(data.content, data.pageId)}
       hideBadge={data.caps.removeBadge}
     />

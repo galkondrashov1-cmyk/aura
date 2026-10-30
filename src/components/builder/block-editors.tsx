@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { Image as ImageIcon, Star } from "lucide-react";
 import { BLOCK_META } from "./block-meta";
 import { cn } from "@/lib/utils";
@@ -758,10 +759,44 @@ function LinksEditor({ b, plan, onPatch }: { b: BlockOf<"links">; plan: Plan; on
               </select>
             {!c.perElement && <TierPill tier="PLUS" />}
           </div>
+          <LinkSchedule item={it} locked={!c.businessBlocks} onChange={(p) => update(i, p)} />
         </ItemCard>
       ))}
       <AddItem label="הוספת קישור" onClick={() => setItems([...items, { label: "קישור חדש", url: "https://", icon: "auto" }])} />
     </div>
+  );
+}
+
+// datetime-local speaks the creator's local time; links store absolute ISO.
+const toLocal = (iso?: string) => {
+  const t = iso ? Date.parse(iso) : NaN;
+  return Number.isNaN(t) ? "" : new Date(t - new Date(t).getTimezoneOffset() * 60_000).toISOString().slice(0, 16);
+};
+const toIso = (v: string) => (v && !Number.isNaN(Date.parse(v)) ? new Date(v).toISOString() : undefined);
+
+function LinkSchedule({ item, locked, onChange }: { item: LinkItem; locked: boolean; onChange: (p: Partial<LinkItem>) => void }) {
+  const on = !!(item.from || item.until);
+  const [now] = useState(Date.now);
+  const state = !on ? "" : item.until && Date.parse(item.until) <= now ? "פג תוקף" : item.from && Date.parse(item.from) > now ? "מתוזמן" : "מוצג עכשיו";
+  return (
+    <details className="group" open={on || undefined}>
+      <summary className="flex cursor-pointer list-none items-center gap-2 text-xs text-text-muted select-none hover:text-text">
+        <span className="transition-transform group-open:rotate-90 rtl:-scale-x-100">›</span> תזמון
+        {state && <span className="rounded-full border border-border px-2 py-0.5 text-[10px]">{state}</span>}
+        {locked && <TierPill tier="PLUS" />}
+      </summary>
+      <div className="mt-2 grid grid-cols-2 gap-2">
+        <label className="space-y-1 text-[11px] text-text-muted">
+          <span>מופיע החל מ־</span>
+          <input type="datetime-local" value={toLocal(item.from)} onChange={(e) => onChange({ from: toIso(e.target.value) })} className={cn(fieldCls, "h-9 px-2 text-xs")} />
+        </label>
+        <label className="space-y-1 text-[11px] text-text-muted">
+          <span>נעלם החל מ־</span>
+          <input type="datetime-local" value={toLocal(item.until)} onChange={(e) => onChange({ until: toIso(e.target.value) })} className={cn(fieldCls, "h-9 px-2 text-xs")} />
+        </label>
+      </div>
+      <p className="mt-1.5 text-[11px] text-text-muted">לדרופים, מבצעים ואירועים. בעורך הקישור תמיד מוצג.</p>
+    </details>
   );
 }
 

@@ -73,6 +73,9 @@ export type LinkItem = {
   /** Per-button overrides (override the page's global button styling). */
   color?: string;
   fx?: string;
+  /** Scheduling (ISO times): shown from / hidden from. */
+  from?: string;
+  until?: string;
 };
 
 export type AvatarShape = "circle" | "rounded" | "square";

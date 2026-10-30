@@ -563,6 +563,10 @@ export function fitToPlanReport(content: PageContent, plan: Plan): { content: Pa
         set({ style: "line" });
       }
     }
+    if (!c.businessBlocks && b.type === "links" && b.items.some((l) => l.from || l.until)) {
+      lock("תזמון קישורים", "PLUS");
+      set({ items: b.items.map((l) => ({ ...l, from: undefined, until: undefined })) });
+    }
     if (!c.creativeEffects && b.type === "links" && creative(b.buttonFx)) {
       lock("אפקטי מעבר יצירתיים", "PLUS");
       set({ buttonFx: undefined });

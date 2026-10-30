@@ -104,6 +104,7 @@ export function PageRenderer({
   content,
   embedded = false,
   trackPageId,
+  renderedAt,
   hrefs,
   hideBadge = false,
   editable = false,
@@ -115,6 +116,7 @@ export function PageRenderer({
   embedded?: boolean;
   /** Live page id — enables view tracking and forms. */
   trackPageId?: string;
+  renderedAt?: number;
   /** Signed click-tracking hrefs (built on the server for live pages). */
   hrefs?: HrefMap;
   hideBadge?: boolean;
@@ -168,6 +170,7 @@ export function PageRenderer({
   const ctx: RenderCtx = {
     t: strings(lang),
     pageId: trackPageId,
+    now: renderedAt,
     hrefs,
     card: r.card,
     buttonFx: r.buttonFx,

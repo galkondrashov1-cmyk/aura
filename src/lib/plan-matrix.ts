@@ -75,6 +75,7 @@ export function planMatrix(): MatrixGroup[] {
         { label: "בלוקים לעסקים", hint: plus.join(", "), cells: flag((p) => c[p].businessBlocks, () => String(plus.length)) },
         { label: "טפסי לידים עם תיבת פניות וייצוא CSV", cells: flag((p) => c[p].businessBlocks) },
         { label: "בלוקים מתקדמים", hint: pro.join(", "), cells: flag((p) => c[p].advancedBlocks, () => String(pro.length)) },
+        { label: "תזמון קישורים", hint: "קישור שמופיע או נעלם בדיוק בשעה שקבעתם", cells: flag((p) => c[p].businessBlocks) },
         { label: "כפתור וואטסאפ / חיוג צף", cells: flag((p) => c[p].floatingButton) },
         { label: "גלריה כמצגת", cells: flag((p) => c[p].gallerySlideshow) },
       ],

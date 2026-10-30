@@ -19,6 +19,8 @@ export type PublicPage = {
   caps: Caps;
   seoTitle?: string | null;
   seoDescription?: string | null;
+  /** When this HTML was built: scheduled links' first guess. */
+  renderedAt: number;
 };
 
 /**
@@ -55,6 +57,7 @@ export const getPublicPage = cache(async (usernameRaw: string, slug?: string): P
     caps: caps(plan),
     seoTitle: page.seoTitle,
     seoDescription: page.seoDescription,
+    renderedAt: Date.now(),
   };
 });
 

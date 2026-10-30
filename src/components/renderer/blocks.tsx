@@ -6,6 +6,8 @@ import { RichTextView } from "@/components/rich-text-view";
 import { GalleryView } from "./gallery-view";
 import { CountdownView } from "./countdown-view";
 import { HoursView } from "./hours-view";
+import { Scheduled } from "./scheduled";
+import { inWindow } from "@/lib/schedule";
 import { Typewriter } from "./typewriter";
 import { CountUp } from "./count-up";
 import { FormView } from "./form-view";
@@ -27,6 +29,8 @@ export type RenderCtx = {
   t: Strings;
   /** Live page id: enables forms (and tracking, via hrefs). */
   pageId?: string;
+  /** Live pages: when the HTML was built (scheduled links). */
+  now?: number;
   hrefs?: HrefMap;
   card?: string;
   buttonFx?: string;
@@ -319,13 +323,24 @@ export function LinksBlock({ b, ctx }: { b: BlockOf<"links">; ctx: RenderCtx }) 
   const surface = (l: LinkItem) =>
     l.color ? "border" : l.highlighted ? "aura-glow bg-primary text-primary-ink" : (ctx.card ?? "border border-border bg-surface-2 text-text");
   const fx = (l: LinkItem) => buttonFxClass(l.fx) ?? fxDefault ?? "transition-all duration-150 hover:brightness-110";
+  // The editor shows every link; live pages gate the scheduled ones.
+  const gate = (l: LinkItem, i: number, node: React.ReactNode) =>
+    ctx.pageId && (l.from || l.until) ? (
+      <Scheduled key={i} from={l.from} until={l.until} shown={ctx.now === undefined || inWindow(l.from, l.until, ctx.now)}>
+        {node}
+      </Scheduled>
+    ) : (
+      node
+    );
 
   if (layout === "grid") {
     return (
       <div className="grid grid-cols-2 gap-2.5">
         {b.items.map((l, i) => {
           const lead = <LinkLead item={l} round={false} />;
-          return (
+          return gate(
+            l,
+            i,
             <div key={i} className={idle}>
               <Link_
                 href={resolveHref(l.url, ctx.hrefs)}
@@ -349,7 +364,7 @@ export function LinksBlock({ b, ctx }: { b: BlockOf<"links">; ctx: RenderCtx }) 
                   {l.sub && <span className="mt-0.5 text-[11px] font-normal opacity-70">{l.sub}</span>}
                 </span>
               </Link_>
-            </div>
+            </div>,
           );
         })}
       </div>
@@ -359,8 +374,11 @@ export function LinksBlock({ b, ctx }: { b: BlockOf<"links">; ctx: RenderCtx }) 
   if (layout === "cards") {
     return (
       <div className="space-y-2.5">
-        {b.items.map((l, i) => (
-          <div key={i} className={idle}>
+        {b.items.map((l, i) =>
+          gate(
+            l,
+            i,
+            <div key={i} className={idle}>
             <Link_
               href={resolveHref(l.url, ctx.hrefs)}
               style={linkStyle(l)}
@@ -382,8 +400,9 @@ export function LinksBlock({ b, ctx }: { b: BlockOf<"links">; ctx: RenderCtx }) 
               </span>
               <ArrowUpRight className="h-4 w-4 shrink-0 opacity-60 rtl:-scale-x-100" />
             </Link_>
-          </div>
-        ))}
+          </div>,
+          ),
+        )}
       </div>
     );
   }
@@ -393,7 +412,9 @@ export function LinksBlock({ b, ctx }: { b: BlockOf<"links">; ctx: RenderCtx }) 
     <div className="space-y-2.5">
       {b.items.map((l, i) => {
         const hasLead = !!(l.thumb || l.icon);
-        return (
+        return gate(
+          l,
+          i,
           <div key={i} className={idle}>
             <Link_
               href={resolveHref(l.url, ctx.hrefs)}
@@ -416,7 +437,7 @@ export function LinksBlock({ b, ctx }: { b: BlockOf<"links">; ctx: RenderCtx }) 
                 {l.sub && <span className="mt-0.5 text-[11px] font-normal opacity-70">{l.sub}</span>}
               </span>
             </Link_>
-          </div>
+          </div>,
         );
       })}
     </div>
